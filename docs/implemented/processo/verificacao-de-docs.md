@@ -2,6 +2,7 @@
 codigo:
   - scripts/docs-check/docs-check.mjs
   - scripts/hooks/toolset-staleness.mjs
+  - .claude/commands/audit-docs.md
   - .claude/rules/common/docs-writing.md
 conferido-em: 2026-11-04
 ---
@@ -49,6 +50,9 @@ comentário (`//`, `#`, `--`, `*`, `/* … */`) são ignoradas. O `stale` lê a 
 - **Hook de abertura:** `scripts/hooks/toolset-staleness.mjs` imprime, depois da linha do sync, uma linha
   "docs: X com código alterado desde a última conferência, Y nunca conferidos (/audit-docs)" quando há o que
   dizer. Com erro, sem git ou acima de 2 s, fica calado; nunca bloqueia a sessão.
+- **`/audit-docs`:** a auditoria intencional. Escolhe os alvos pelo `stale`, confere cada doc com um
+  subagente, relê uma amostra, para para aprovação e só então corrige e atualiza o `conferido-em`
+  ([`audit-docs.md`](../../../.claude/commands/audit-docs.md)).
 
 ## O que garante × o que não garante
 
