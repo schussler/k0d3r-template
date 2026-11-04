@@ -63,6 +63,8 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `/security-scan` | ECC (adapt) | Auditoria do `.claude/` com AgentShield (`npx ecc-agentshield@1.6.0`). |
 | `/sync-ecc-tools` | local | Atualizar do ECC; `--adopt` para adotar itens da stack. |
 | `/toolset-retro` | local | Retro do toolset no fim da sessão. |
+| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: spec, parada para aprovação, implementação, verificação (portões + `docs-check`) e entrega. Sem spec quando não há efeito de comportamento. |
+| `/audit-docs` | local | Auditoria dos docs desatualizados ou nunca conferidos: um subagente por doc, amostra relida, parada para aprovação, correção e `conferido-em`. |
 
 ## Rules (`rules/common/`)
 
@@ -70,6 +72,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 |---|---|---|
 | `feature-lifecycle.md` | local | O ciclo planned → in-progress → implemented e as peças de cada etapa. |
 | `verification.md` | local | Como usar os portões sem se enganar com o resultado. |
+| `docs-writing.md` | local | Como escrever e manter docs: `codigo:`, `conferido-em:`, resolver docs ligados ao código alterado. |
 | `git-workflow.md` | ECC (adapt) | Commits, branch única por sessão, verificação de branch, PR só quando pedido. |
 | `development-workflow.md` | ECC (adapt) | Pipeline de pesquisa, plano, TDD, revisão e commit. |
 | `agents.md` | ECC (adapt) | Quais agents existem e quando delegar. |
@@ -82,8 +85,15 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | Hook | Origem | O que faz |
 |---|---|---|
 | `guard-shell.mjs` | local | `PreToolUse` em `Bash`: bloqueia portão com pipe, operação destrutiva, `--no-verify` e push em `main`. Sem Node, bloqueia com mensagem. Ajuste `VERIFY_GATES` e `PROTECTED_BRANCHES` no topo. |
-| `toolset-staleness.mjs` | local | `SessionStart`: uma linha quando o último sync com o ECC passou de `syncStaleDays` dias (campo do manifest). Em dia, sem manifest ou sem Node, não imprime nada; nunca bloqueia. |
+| `toolset-staleness.mjs` | local | `SessionStart`: uma linha quando o último sync com o ECC passou de `syncStaleDays` dias (campo do manifest), e outra quando há docs desatualizados ou nunca conferidos (`docs-check`). Em dia, sem manifest ou sem Node, não imprime nada; nunca bloqueia. |
 | `suggest-compact.js` | ECC (adapt) | `PreToolUse` em `Edit`/`Write`: sugere `/compact` pelo tamanho do contexto. Só avisa; sem Node, não faz nada. |
+
+## Scripts (`scripts/`, fora do manifest)
+
+| Script | Origem | O que faz |
+|---|---|---|
+| `docs-check/docs-check.mjs` | local | `links`, `diff` e `stale`: liga docs ao código e aponta os que ficaram para trás ([`verificacao-de-docs.md`](../docs/implemented/processo/verificacao-de-docs.md)). |
+| `ecc-sync/report.mjs` | local | Relatório, catálogo, inventário e bootstrap do sync com o ECC. |
 
 ## MCP
 

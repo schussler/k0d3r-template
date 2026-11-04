@@ -1,7 +1,21 @@
+---
+docs-check: ignore   # só o template: a spec copiada daqui NÃO mantém esta chave (apague-a na cópia)
+---
+
 # Feature — <nome (como aparece na interface)>
 
 > Sem bloco de metadados de status: a pasta de ciclo de vida declara o estado do código. Um doc
 > `implemented/` parcial é dividido (a parte construída fica, a lacuna vira spec em `planned/`).
+
+<!-- Ao copiar este template, apague a chave `docs-check: ignore` do frontmatter acima: ela vale só para o
+     template. Na graduação para implemented/, o frontmatter da spec passa a ser o abaixo, sem este comentário.
+     Regras: .claude/rules/common/docs-writing.md.
+---
+codigo:                    # opcional: os arquivos que esta spec descreve, um por linha
+  - caminho/relativo/arquivo.ext
+conferido-em: AAAA-MM-DD   # a data da graduação: "o código citado não mudou desde esta data"
+---
+-->
 
 ## Propósito
 <1–2 frases: o que o usuário realiza com esta feature.>

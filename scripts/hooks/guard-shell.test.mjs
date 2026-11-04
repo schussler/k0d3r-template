@@ -146,3 +146,11 @@ test('blocks protected pushes hidden in subshells, globs, quote splits and optio
   assert.equal(evaluate('git --git-dir .git push origin main')?.id, 'protected-branch');
   assert.equal(evaluate('git push --no-verif origin feature')?.id, 'no-verify');
 });
+
+test('the docs-check gate is a gate: piped is blocked, a search for its name is not', () => {
+  assert.equal(evaluate('node scripts/docs-check/docs-check.mjs diff | tail')?.id, 'verification-pipe');
+  assert.equal(evaluate('node scripts/docs-check/docs-check.mjs links 2>&1 | head -5')?.id, 'verification-pipe');
+  assert.equal(evaluate('grep docs-check README.md | head'), null, 'read-only exception');
+  const safe = 'node scripts/docs-check/docs-check.mjs diff > "$TMPDIR/d.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/d.log"';
+  assert.equal(evaluate(safe), null);
+});

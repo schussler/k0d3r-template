@@ -60,6 +60,8 @@ comandos. Marque `n/a` no portão que a stack não tem.
 | Teste | `<comando de teste>` | |
 | Build | `<comando de build>` | |
 | Auditoria de dependências | `<auditoria de dependências>` | |
+| Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
+| Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | |
 
 - **Nunca mascare o código de saída.** Nada de `| tail`, `| head` ou `| grep` num portão: redirecione para
   arquivo, imprima o código e só então leia o log
@@ -67,7 +69,7 @@ comandos. Marque `n/a` no portão que a stack não tem.
 - **Commit só com todos os portões verdes**, condicionado ao código de saída de cada um, não à leitura do `echo`.
 - Rode os portões da **raiz** do repositório.
 - **Ao preencher esta tabela, ajuste o hook `guard-shell`** (`VERIFY_GATES` em `scripts/hooks/guard-shell.mjs`)
-  para reconhecer os nomes dos seus portões.
+  para reconhecer os nomes dos seus portões. O `docs-check` já está lá.
 - Regras completas: [`.claude/rules/common/verification.md`](.claude/rules/common/verification.md).
 
 ## Convenções
@@ -86,16 +88,25 @@ comandos. Marque `n/a` no portão que a stack não tem.
 | --- | --- | --- |
 | Dia zero | Stack detectada, `## Stack` preenchida, pacotes do ECC propostos e adotados com confirmação | gatilho do CLAUDE.md, `/sync-ecc-tools --adopt`, `catalog.json` |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
-| Especificar | Spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | agent `planner` (e `architect` se mexer na forma do sistema) |
+| Especificar | Spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
 | Construir | Fatia por fatia, testes primeiro onde couber, commit e push por fatia | `tdd-workflow`, agent `tdd-guide`, skills de stack adotadas |
-| Verificar | Portões do CLAUDE.md, sem mascarar exit code | `verification-loop` |
+| Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links` | `verification-loop`, `docs-check diff` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
-| Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
+| Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
 | Encerrar | Commit, PR só se pedirem; retro do toolset, com o lembrete de sync e a consulta ao catálogo antes do backlog | `conventional-commit-review`, `pr-body`, `/toolset-retro` |
 | Manter o toolset | Atualizar os itens adotados, regenerar o catálogo, ver candidatos novos; podar o que pesa | `/sync-ecc-tools`, `context-budget`, `/security-scan` |
+| Manter os docs | Conferir contra o código os docs desatualizados ou nunca conferidos | `/audit-docs`, `docs-check stale` |
 
 Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras de fase.
+
+- **A `/k0d3r-task` é o caminho padrão para qualquer mudança de código**, de Especificar a Encerrar: spec,
+  parada para aprovação, implementação, verificação e entrega. Mudança sem efeito de comportamento (refactor,
+  dependência, typo, ajuste de teste, renomeação) passa por ela **sem spec**. Se um pedido chegar fora do command
+  e mudar comportamento ou contrato, sugira a `/k0d3r-task` antes de implementar. Em qualquer caso, os portões
+  valem, incluindo `docs-check diff` e `docs-check links`.
+- **Docs:** escreva conforme [`docs-writing.md`](.claude/rules/common/docs-writing.md); a manutenção dos docs
+  que ficaram para trás é a `/audit-docs`.
 
 - **Commits:** Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `ci:`, `perf:`).
 - **Uma branch por sessão.** Commit por fatia e **push depois de cada commit**. Antes de trabalhar numa branch

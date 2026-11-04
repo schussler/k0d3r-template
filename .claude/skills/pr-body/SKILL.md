@@ -44,7 +44,9 @@ personal data in the body (ids are fine). End with the attribution line the sess
 
 ## Docs e decisões
 
-- <docs updated; lifecycle moves>
+- <one line per doc listed by `node scripts/docs-check/docs-check.mjs diff`: "atualizado" or
+  "conferido, sem mudança: <what was looked at>">
+- <lifecycle moves>
 - <decision → whose: humano (date) or proposta do agente>
 
 ## Pendências
@@ -81,6 +83,13 @@ Use one, sometimes two; never all. Keep only the calls, files, states and bounda
    resposta?").
 3. **Screenshot:** strongest for a visual change, when a browser ran in the session. If none ran, write "sem
    navegador nesta sessão" and what still needs a look.
+
+## Docs e decisões — from the docs-check diff
+
+Run `node scripts/docs-check/docs-check.mjs diff` (never piped) and write **one line per doc it lists**, with what
+happened to it: "atualizado" or "conferido, sem mudança: <what was looked at>" (`.claude/rules/common/docs-writing.md`).
+A doc it lists as unresolved means the PR is not ready. Then add the lifecycle moves and, for each decision, whose
+it is.
 
 ## Risco do merge — door and blast radius
 

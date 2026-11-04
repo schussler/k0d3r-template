@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { daysSince, staleMessage } from './toolset-staleness.mjs';
+import { daysSince, staleMessage, docsMessage, docsLine } from './toolset-staleness.mjs';
 
 const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'toolset-staleness.mjs');
 const NOW = new Date('2026-11-04T12:00:00Z');
@@ -59,4 +59,53 @@ test('an old targetRefDate with a recent syncedAt does not warn: only syncedAt c
   const manifest = { syncedAt: '2026-11-04', targetRefDate: '2026-08-01', syncStaleDays: 30 };
   assert.equal(staleMessage(manifest, NOW), null);
   assert.equal(runHook({ ...manifest, syncedAt: isoDaysAgo(1) }), '');
+});
+
+// --- the docs line ---------------------------------------------------------------------
+
+function gitRepo(files, date) {
+  const root = mkdtempSync(path.join(tmpdir(), 'staleness-docs-'));
+  const env = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null', GIT_COMMITTER_DATE: `${date}T12:00:00Z`, GIT_AUTHOR_DATE: `${date}T12:00:00Z` };
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], { env, encoding: 'utf8' });
+  git('init', '-q', '-b', 'main');
+  for (const [rel, text] of Object.entries(files)) {
+    mkdirSync(path.join(root, path.dirname(rel)), { recursive: true });
+    writeFileSync(path.join(root, rel), text);
+  }
+  git('add', '-A');
+  git('-c', 'user.email=t@example.com', '-c', 'user.name=T', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'init');
+  return root;
+}
+
+test('docsMessage is one line with both counts, and null when there is nothing to say', () => {
+  assert.equal(docsMessage({ stale: 2, never: 3 }), 'docs: 2 com código alterado desde a última conferência, 3 nunca conferidos (/audit-docs)');
+  assert.equal(docsMessage({ stale: 0, never: 0 }), null);
+  assert.equal(docsMessage(null), null);
+});
+
+test('the hook prints the docs line after the sync line, and nothing for docs that are current', () => {
+  const root = gitRepo({
+    'src/a.js': 'v1\n',
+    'docs/implemented/never.md': '# Never\n\nDescribes `src/a.js`.\n',
+    '.claude/ecc-sync/manifest.json': JSON.stringify({ syncedAt: '2026-01-01', syncStaleDays: 30 }),
+  }, '2026-01-01');
+  const out = execFileSync(process.execPath, [SCRIPT], { env: { ...process.env, CLAUDE_PROJECT_DIR: root }, encoding: 'utf8' });
+  const lines = out.split('\n').filter(Boolean);
+  assert.equal(lines.length, 2);
+  assert.match(lines[0], /^\[toolset\] último sync com o ECC há/);
+  assert.equal(lines[1], 'docs: 0 com código alterado desde a última conferência, 1 nunca conferidos (/audit-docs)');
+
+  const current = gitRepo({
+    'src/a.js': 'v1\n',
+    'docs/implemented/ok.md': '---\nconferido-em: 2026-01-01\n---\n# Ok\n\n`src/a.js`\n',
+  }, '2026-01-01');
+  assert.equal(docsLine(current), null);
+});
+
+test('the docs line never breaks the session: no git, an error or a slow count print nothing', () => {
+  assert.equal(docsLine(mkdtempSync(path.join(tmpdir(), 'no-git-'))), null, 'not a git repository');
+  assert.equal(docsLine('/x', 2000, () => { throw new Error('boom'); }), null, 'error');
+  const slow = () => { const end = Date.now() + 30; while (Date.now() < end); return { stale: 1, never: 1 }; };
+  assert.equal(docsLine('/x', 10, slow), null, 'over the time budget');
+  assert.match(docsLine('/x', 1000, () => ({ stale: 1, never: 0 })), /^docs: 1 com código/);
 });

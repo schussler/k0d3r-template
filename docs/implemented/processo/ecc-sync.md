@@ -1,3 +1,18 @@
+---
+codigo:
+  - scripts/ecc-sync/report.mjs
+  - scripts/ecc-sync/report.test.mjs
+  - .claude/commands/sync-ecc-tools.md
+  - .claude/ecc-sync/manifest.json
+  - .claude/ecc-sync/catalog.json
+  - CLAUDE.md
+  - scripts/hooks/toolset-staleness.mjs
+  - .claude/settings.json
+  - .claude/commands/toolset-retro.md
+  - .claude/skills/search-first/SKILL.md
+conferido-em: 2026-11-04
+---
+
 # Mantendo o toolset `.claude/` em sincronia com o ECC
 
 Os agents, skills, commands, rules e o hook de compact deste repositório vieram do **ECC** (`affaan-m/ECC`),
@@ -16,7 +31,7 @@ Claude aplica e registra. Adotar é sempre decisão humana.
   item registra o `source` no ECC, a `policy` e o `lastSyncedRef` (o commit do ECC ao qual corresponde). Cada
   item `adapt` traz a nota **`adaptation`**, uma linha com *o que divergiu do upstream e por quê*; mantenha-a
   verdadeira ao portar à mão. Um item que colou código de outros arquivos do ECC lista esses arquivos em
-  **`alsoTracks`**, e o relatório acompanha as três origens.
+  **`alsoTracks`**, e o relatório acompanha todas as origens: o `source` e cada arquivo do `alsoTracks` (no hook de compact, quatro).
 
   | policy  | significado | ação no sync |
   |---------|-------------|--------------|
@@ -36,7 +51,7 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 
   | Subcomando | O que faz | Escreve |
   |---|---|---|
-  | `report` | Classifica cada item (`update` / `review` / `drifted` / `unchanged` / `local` / `removed-upstream`), mostra o diff de cada origem que mudou nos itens em revisão e lista **todos** os candidatos novos, separados entre "Ligados à sua stack" (casam com a `## Stack` do `CLAUDE.md`), "Outros" e "Excluídos por política" | nada (`--json` opcional) |
+  | `report` | Classifica cada item (`update` / `review` / `drifted` / `unchanged` / `local` / `removed-upstream` / `missing-downstream`), mostra o diff de cada origem que mudou nos itens em revisão e lista **todos** os candidatos novos, separados entre "Ligados à sua stack" (casam com a `## Stack` do `CLAUDE.md`), "Outros" e "Excluídos por política" | nada (`--json` opcional) |
   | `catalog` | Gera o `catalog.json` a partir do clone do ECC no `targetRef` do manifest | o catálogo |
   | `inventory` | Resumo adotados × descartados × disponíveis | stdout, ou `--out` |
   | `bootstrap` | Recria o manifest a partir do `.claude/` (preserva `adaptation`, `alsoTracks` e itens fora do `.claude/`) | o manifest |

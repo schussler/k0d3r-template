@@ -113,6 +113,13 @@
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
+      "downstream": ".claude/commands/audit-docs.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
+    },
+    {
       "downstream": ".claude/commands/build-fix.md",
       "source": "commands/build-fix.md",
       "type": "file",
@@ -135,6 +142,13 @@
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Agent `code-explorer` (inexistente) trocado pelo subagent nativo `Explore`."
+    },
+    {
+      "downstream": ".claude/commands/k0d3r-task.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
     },
     {
       "downstream": ".claude/commands/refactor-clean.md",
@@ -209,6 +223,13 @@
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Nota sobre o ciclo de vida docs-first (link para `feature-lifecycle.md`); passo 4 ganhou branch única por sessão, commit por fatia só com portões verdes, push após cada commit e PR só quando pedido."
+    },
+    {
+      "downstream": ".claude/rules/common/docs-writing.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
     },
     {
       "downstream": ".claude/rules/common/feature-lifecycle.md",

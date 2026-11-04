@@ -14,9 +14,10 @@ import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 // Palavras que identificam um portão de verificação no comando antes do pipe, como token inteiro
-// (`test`, `test:unit`, `check`, `lint:fix`...). AJUSTE ao preencher a tabela "Portões de verificação" do
-// CLAUDE.md: acrescente os nomes dos seus portões (ex.: `pytest`, `clippy`, `vet`).
-const VERIFY_GATES = ['test', 'lint', 'typecheck', 'build', 'check'];
+// (`test`, `test:unit`, `check`, `lint:fix`...) ou como nome de script sem a extensão
+// (`scripts/docs-check/docs-check.mjs` → `docs-check`). AJUSTE ao preencher a tabela "Portões de
+// verificação" do CLAUDE.md: acrescente os nomes dos seus portões (ex.: `pytest`, `clippy`, `vet`).
+const VERIFY_GATES = ['test', 'lint', 'typecheck', 'build', 'check', 'docs-check'];
 
 // Comandos de leitura/busca: um `grep test x | head` procura o texto "test", não roda portão.
 const READ_ONLY_COMMANDS = new Set([
@@ -75,7 +76,10 @@ function portaoComPipe(cmd) {
     if (tokens.length === 0) return false;
     const programa = tokens[0].split('/').pop();
     if (READ_ONLY_COMMANDS.has(programa)) return false;
-    return tokens.some((token) => GATE_TOKEN.test(token.split('/').pop()));
+    return tokens.some((token) => {
+      const nome = token.split('/').pop();
+      return GATE_TOKEN.test(nome) || GATE_TOKEN.test(nome.replace(/\.[A-Za-z0-9]+$/, ''));
+    });
   });
 }
 

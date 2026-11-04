@@ -23,6 +23,9 @@ Estes são pré-requisitos **da máquina de quem usa o Claude Code**, não do pr
   `guard-shell`, na primeira chamada de shell.
 - **`npx`** (vem com o Node), para o Context7 e para o `/security-scan`.
 - **`gh`** (opcional): só o modo PR do `/code-review` precisa dele.
+- **`git`**, que o `scripts/docs-check/docs-check.mjs` usa para ligar docs ao código: é o portão de docs da
+  tabela do `CLAUDE.md`, usado pela `/k0d3r-task` (o processo de tarefa) e pela `/audit-docs` (a auditoria
+  dos docs que ficaram para trás).
 - **Clone completo do ECC** (opcional, só para sincronizar ou adotar): por padrão em `../ECC`, ao lado do
   projeto. O `/sync-ecc-tools` pergunta antes de clonar.
 
@@ -56,8 +59,12 @@ limite estourar, as consultas falham até a janela renovar.
       `PROTECTED_BRANCHES`) no topo de `scripts/hooks/guard-shell.mjs`.
 - [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md`.
 - [ ] Registrar as primeiras **Regras de arquitetura**, cada uma com o porquê e o doc que a detalha.
-- [ ] Rodar os testes do toolset: `node --test scripts/hooks/guard-shell.test.mjs` e
-      `node --test scripts/ecc-sync/report.test.mjs`.
+- [ ] Rodar os testes do toolset: `node --test` em `scripts/hooks/guard-shell.test.mjs`,
+      `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs` e
+      `scripts/docs-check/docs-check.test.mjs`.
+- [ ] Rodar `node scripts/docs-check/docs-check.mjs links` e `stale` para ver o estado dos docs.
+- [ ] Fazer a primeira tarefa de código com a **`/k0d3r-task`** (o caminho padrão); a **`/audit-docs`** cuida
+      dos docs desatualizados ou nunca conferidos.
 - [ ] Escrever a primeira spec em `docs/planned/<área>/` a partir do
       [`feature-spec-template.md`](docs/implemented/processo/feature-spec-template.md).
 
@@ -68,6 +75,10 @@ O toolset não pode ficar para trás do ECC. Três papéis:
 - **O hook avisa:** `scripts/hooks/toolset-staleness.mjs`, no início de cada sessão, imprime uma linha quando o último sync passou de `syncStaleDays` dias (campo do manifest, 30 por padrão).
 - **A retro checa:** o `/toolset-retro` repete a checagem e consulta o catálogo antes de mandar uma ferramenta faltante para o backlog.
 - **A pessoa decide:** nada é adotado nem sobrescrito sem confirmação.
+
+O mesmo hook imprime uma segunda linha quando há docs com código alterado desde a última conferência ou nunca
+conferidos ("docs: X …, Y … (/audit-docs)"); o detalhe está em
+[`verificacao-de-docs.md`](docs/implemented/processo/verificacao-de-docs.md).
 
 Os gatilhos:
 
