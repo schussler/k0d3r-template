@@ -56,6 +56,15 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 | A retro acha uma ferramenta faltante que o catálogo tem | `/sync-ecc-tools --adopt` |
 | A qualquer momento | `/sync-ecc-tools` |
 
+## O alvo do sync: 14 dias
+
+O alvo padrão é o **commit mais recente do `main` do ECC com pelo menos 14 dias** (`MIN_TARGET_AGE_DAYS` no
+`report.mjs`), a mesma regra que vale para as versões fixadas de pacotes npm: um commit recente ainda pode ser
+corrigido ou revertido no upstream. Sem `--to`, o `report`, o `inventory` e o `bootstrap` escolhem esse commit
+(`git rev-list -1 --first-parent --before=<hoje − 14 dias> origin/main`), e o cabeçalho do relatório mostra a data
+e a idade do alvo. Um alvo **mais novo** só entra por **escolha explícita da pessoa**, registrada nas notas da linha
+do log; o cabeçalho do relatório marca esse caso com `[!]`.
+
 ## Executando um sync à mão
 
 > **Use um clone completo, nunca raso.** O helper se recusa a rodar num clone raso; aprofunde antes com
@@ -64,8 +73,8 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 ```bash
 # 1. testes do classificador (leia o código de saída; sem pipe)
 node --test scripts/ecc-sync/report.test.mjs > "$TMPDIR/ecc-sync-test.log" 2>&1; echo "EXIT: $?"
-# 2. o que mudou no upstream para a fatia adotada, e os candidatos novos
-node scripts/ecc-sync/report.mjs report --ecc ../ECC --to origin/main
+# 2. o que mudou no upstream para a fatia adotada, e os candidatos novos (alvo padrão: regra dos 14 dias)
+node scripts/ecc-sync/report.mjs report --ecc ../ECC
 # 3. depois de aplicar o que foi aprovado e avançar o targetRef no manifest
 node scripts/ecc-sync/report.mjs catalog --ecc ../ECC
 ```
@@ -77,7 +86,7 @@ Depois rode `/sync-ecc-tools` e deixe o Claude planejar → confirmar → aplica
 Se o manifest se perdeu ou o conjunto adotado mudou muito:
 
 ```bash
-node scripts/ecc-sync/report.mjs bootstrap --ecc ../ECC --to origin/main
+node scripts/ecc-sync/report.mjs bootstrap --ecc ../ECC
 ```
 
 O bootstrap fixa cada item `track` no commit mais recente do ECC cujo conteúdo bate com a cópia local, marca

@@ -14,7 +14,10 @@
 //   node scripts/ecc-sync/report.mjs inventory --ecc <path> [--to <ref>] [--manifest <p>] [--out <p>]
 //   node scripts/ecc-sync/report.mjs bootstrap --ecc <path> [--to <ref>] [--out <manifest>]
 //
-// --ecc defaults to ../ECC (a sibling of the project). Exit codes: 0 ok, 1 usage/IO error.
+// --ecc defaults to ../ECC (a sibling of the project). Without --to, the target of report, inventory and
+// bootstrap is the newest commit of the ECC main branch that is at least MIN_TARGET_AGE_DAYS old; a newer
+// --to is allowed, but only as the human's explicit choice, recorded in the sync log.
+// Exit codes: 0 ok, 1 usage/IO error.
 
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +51,10 @@ export const OTHER_TOOL_TERMS = [
   ['.agents/', /(?:^|[^\w.])\.agents\//im],
   ['AGENTS.md', /\bagents\.md\b/i],
 ];
+// The default sync target must be at least this old: the same two-week rule the project uses for pinned
+// npm versions. Fresh upstream commits get time to be fixed or reverted before they land here.
+export const MIN_TARGET_AGE_DAYS = 14;
+const DAY_MS = 24 * 60 * 60 * 1000;
 // One report line per candidate; the full text lives in catalog.json.
 const CANDIDATE_DESCRIPTION_MAX = 180;
 
@@ -104,6 +111,28 @@ export function classifyItem(item, v) {
   if (alsoChanged) return { status: 'review', action: 'port-by-hand' };
   if (contentsMatch(v.base, v.target)) return { status: 'unchanged', action: 'none' };
   return { status: 'update', action: 'overwrite' };
+}
+
+/** The cutoff for the default target: `now` minus MIN_TARGET_AGE_DAYS, as an ISO timestamp for `git --before`. */
+export function targetCutoff(now) {
+  return new Date(now.getTime() - MIN_TARGET_AGE_DAYS * DAY_MS).toISOString();
+}
+
+/** Whole days between a commit date (`YYYY-MM-DD`) and `now`, or null when the date is not valid. */
+export function targetAgeDays(commitDate, now) {
+  if (typeof commitDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(commitDate)) return null;
+  const then = Date.parse(`${commitDate}T00:00:00Z`);
+  return Number.isNaN(then) ? null : Math.floor((now.getTime() - then) / DAY_MS);
+}
+
+/** Report header line for the target: its date, its age, and a warning when it breaks the 14-day rule. */
+export function targetHeader(shortSha, commitDate, now, isDefault) {
+  const age = targetAgeDays(commitDate, now);
+  const ageText = age === null ? 'data desconhecida' : `${age} dias`;
+  const origin = isDefault ? `alvo padrão: commit mais recente do main com pelo menos ${MIN_TARGET_AGE_DAYS} dias` : 'alvo escolhido com --to';
+  const base = `- Target: \`${shortSha}\` (commit de ${commitDate || '?'}, ${ageText}; ${origin})`;
+  if (age !== null && age >= MIN_TARGET_AGE_DAYS) return base;
+  return `${base}\n- **[!] Alvo com menos de ${MIN_TARGET_AGE_DAYS} dias: só com escolha explícita da pessoa, registrada nas notas do log em docs/implemented/processo/ecc-sync.md.**`;
 }
 
 /** Labels of the OTHER_TOOL_TERMS found in an item's text, in list order; [] when none. */
@@ -519,8 +548,21 @@ function readManifest(opts) {
   return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 }
 
+/** The default target: newest first-parent commit of origin/<branch> at least MIN_TARGET_AGE_DAYS old. */
+function defaultTarget(ecc, branch, now = new Date()) {
+  const sha = (gitOrNull(ecc, ['rev-list', '-1', '--first-parent', `--before=${targetCutoff(now)}`, `origin/${branch}`]) || '').trim();
+  if (!sha) fail(`No commit on origin/${branch} is at least ${MIN_TARGET_AGE_DAYS} days old (fetch the ECC clone, or pass --to explicitly).`);
+  return sha;
+}
+
 function resolveTarget(ecc, opts, manifest, fallback) {
-  return git(ecc, ['rev-parse', opts.to || fallback || `origin/${manifest.eccBranch || 'main'}`]).trim();
+  if (opts.to) return git(ecc, ['rev-parse', opts.to]).trim();
+  if (fallback) return git(ecc, ['rev-parse', fallback]).trim();
+  return defaultTarget(ecc, manifest.eccBranch || 'main');
+}
+
+function commitDate(ecc, ref) {
+  return (gitOrNull(ecc, ['show', '-s', '--format=%cs', ref]) || '').trim() || null;
 }
 
 // ---------------------------------------------------------------------------
@@ -529,8 +571,7 @@ function resolveTarget(ecc, opts, manifest, fallback) {
 
 function bootstrap(opts) {
   const ecc = opts.ecc;
-  const to = opts.to || 'origin/main';
-  const target = git(ecc, ['rev-parse', to]).trim();
+  const target = opts.to ? git(ecc, ['rev-parse', opts.to]).trim() : defaultTarget(ecc, 'main');
   const out = opts.out || DEFAULT_MANIFEST;
   // Carry over what a human recorded (policy notes, extra origins, non-.claude items such as a vendored hook).
   const previous = fs.existsSync(out) ? JSON.parse(fs.readFileSync(out, 'utf8')) : { items: [] };
@@ -573,13 +614,13 @@ function bootstrap(opts) {
   }
   const manifest = {
     eccRepo: ECC_REPO,
-    eccBranch: (opts.to || 'main').replace(/^origin\//, ''),
+    eccBranch: previous.eccBranch || 'main',
     baselineRef,
     targetRef: target,
     // syncedAt = the day this conference against upstream ran (read by the staleness hook and the retro);
     // targetRefDate = the ECC commit date of targetRef, information only.
     syncedAt: new Date().toISOString().slice(0, 10),
-    targetRefDate: (gitOrNull(ecc, ['show', '-s', '--format=%cs', target]) || '').trim() || null,
+    targetRefDate: commitDate(ecc, target),
     ...(previous.syncStaleDays ? { syncStaleDays: previous.syncStaleDays } : {}),
     note: 'policy: track|adapt|local. See docs/implemented/processo/ecc-sync.md.',
     items: items.sort((a, b) => a.downstream.localeCompare(b.downstream)),
@@ -642,6 +683,8 @@ function report(opts) {
     eccRepo: manifest.eccRepo,
     baselineRef: manifest.baselineRef,
     targetRef: target,
+    targetDate: commitDate(ecc, target),
+    targetIsDefault: !opts.to,
     generatedAt: new Date().toISOString(),
     stack: stackText,
     rows,
@@ -801,6 +844,7 @@ function renderMarkdown(r) {
   L('');
   L(`- ECC repo: \`${r.eccRepo}\``);
   L(`- Baseline (vendoring-point estimate, changelog only): \`${r.baselineRef.slice(0, 8)}\` -> target: \`${r.targetRef.slice(0, 8)}\``);
+  L(targetHeader(r.targetRef.slice(0, 8), r.targetDate, new Date(r.generatedAt), r.targetIsDefault));
   L('- Each item is classified against its own recorded `lastSyncedRef`, independent of the baseline above.');
   L(`- Generated: ${r.generatedAt}`);
   L('');

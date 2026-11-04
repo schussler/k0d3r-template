@@ -19,7 +19,11 @@ Two modes, one rule: **adopting or overwriting anything is a human decision.** Y
 
 - **ECC clone**: first non-flag arg, else `../ECC` (a sibling of this repo). It must be a **full** git clone of
   `affaan-m/ECC`. If it does not exist, **ask the human before cloning** (`git clone https://github.com/affaan-m/ECC.git ../ECC`).
-- **Target ref**: `--to <ref>` (default `origin/main` for sync; the manifest's `targetRef` for adopt).
+- **Target ref (sync)**: by default, the **newest commit of the ECC `main` that is at least 14 days old**
+  (`MIN_TARGET_AGE_DAYS` in `report.mjs`, the same two-week rule as pinned npm versions). `report.mjs` picks it
+  when `--to` is absent and prints its date and age in the header. A **newer** target is allowed only as the
+  human's **explicit choice**, asked for and recorded in the notes of the log row (the report header flags it).
+- **Target ref (adopt)**: the manifest's `targetRef`, so adopted items match the rest of the toolset.
 - **Manifest / provenance lockfile** (source of truth): `.claude/ecc-sync/manifest.json` — per item
   `{ downstream, source, type, policy, lastSyncedRef, adaptation?, alsoTracks? }`. `policy` is `track` (clean
   mirror, safe to overwrite), `adapt` (locally customized — never auto-edit), or `local` (no upstream — skip).
@@ -36,7 +40,8 @@ Two modes, one rule: **adopting or overwriting anything is a human decision.** Y
 ## Mode: sync (default)
 
 ### 1. Refresh upstream & sanity-check
-- Ensure the ECC clone exists and is a git repo; `git -C <ecc> fetch origin main`.
+- Ensure the ECC clone exists and is a git repo; `git -C <ecc> fetch origin main` (the fetch only updates what
+  the clone knows; the 14-day rule below still picks the target).
 - **The clone must be FULL, not shallow.** If `git -C <ecc> rev-parse --is-shallow-repository` is `true`, run
   `git -C <ecc> fetch --unshallow`. (The helper refuses to run on a shallow clone.)
 - `node --test scripts/ecc-sync/report.test.mjs` — the classifier's unit tests must pass first. Read the exit
@@ -44,7 +49,8 @@ Two modes, one rule: **adopting or overwriting anything is a human decision.** Y
 
 ### 2. Compute & classify the delta (read-only)
 ```
-node scripts/ecc-sync/report.mjs report --ecc <ecc> --to <ref> --json "$TMPDIR/ecc-sync.json"
+node scripts/ecc-sync/report.mjs report --ecc <ecc> --json "$TMPDIR/ecc-sync.json"
+# only after the human explicitly chose a newer target:  ... report --ecc <ecc> --to <ref> ...
 ```
 Read the Markdown report. It buckets every item into:
 - **Updates** (`track` + upstream changed) → safe to overwrite verbatim.
@@ -58,7 +64,7 @@ Read the Markdown report. It buckets every item into:
   applies), one line each. Nothing is hidden. **Do not auto-adopt.**
 
 ### 3. Present the plan and WAIT for confirmation
-Summarize, grouped as above: exactly which files will be overwritten, which adapted files have upstream
+State the target, its date and age (from the report header). Summarize, grouped as above: exactly which files will be overwritten, which adapted files have upstream
 changes (with the diffs from the report, so the human can choose what to port), and a **short list** of
 candidates worth considering. Build the short list by crossing the candidates with the `## Stack` section **and**
 with the specs in `docs/planned/` and `docs/in-progress/` (a spec about to add a queue, a database or a

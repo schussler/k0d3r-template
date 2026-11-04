@@ -25,6 +25,10 @@ import {
   partitionByPolicy,
   citesOtherTools,
   otherToolsMarker,
+  MIN_TARGET_AGE_DAYS,
+  targetCutoff,
+  targetAgeDays,
+  targetHeader,
 } from './report.mjs';
 
 // --- normalize / contentsMatch -------------------------------------------------
@@ -358,4 +362,30 @@ test('the report prints the marker on the candidate line and still lists the can
   ], '');
   assert.match(md, /`skills\/search-tools` \(skill\) - Search\. \[cita outra ferramenta: Codex\]/);
   assert.match(md, /`skills\/tdd-workflow` \(skill\) - Tests first\.$/m);
+});
+
+// --- the 14-day rule for the sync target --------------------------------------------
+
+const TODAY = new Date('2026-11-04T12:00:00Z');
+
+test('the minimum target age is 14 days, and the default cutoff is exactly that far back', () => {
+  assert.equal(MIN_TARGET_AGE_DAYS, 14);
+  assert.equal(targetCutoff(TODAY), '2026-10-21T12:00:00.000Z');
+});
+
+test('targetAgeDays counts whole days from the commit date', () => {
+  assert.equal(targetAgeDays('2026-10-15', TODAY), 20);
+  assert.equal(targetAgeDays('2026-11-03', TODAY), 1);
+  assert.equal(targetAgeDays('ontem', TODAY), null);
+});
+
+test('the header shows date and age, and warns only when the target is younger than 14 days', () => {
+  const ok = targetHeader('76aaa77d', '2026-10-15', TODAY, true);
+  assert.match(ok, /`76aaa77d` \(commit de 2026-10-15, 20 dias; alvo padrão: commit mais recente do main com pelo menos 14 dias\)/);
+  assert.ok(!ok.includes('[!]'));
+  const edge = targetHeader('aaaaaaaa', '2026-10-21', TODAY, false);
+  assert.ok(!edge.includes('[!]'), 'exactly 14 days is allowed');
+  const young = targetHeader('b38be6a7', '2026-11-01', TODAY, false);
+  assert.match(young, /3 dias; alvo escolhido com --to/);
+  assert.match(young, /\[!\] Alvo com menos de 14 dias: só com escolha explícita da pessoa, registrada nas notas do log/);
 });
