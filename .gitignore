@@ -1,0 +1,19 @@
+# Segredos e configuração local: nunca versionados
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.claude/settings.local.json
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Artefatos e logs
+*.log
+tmp/
+coverage/

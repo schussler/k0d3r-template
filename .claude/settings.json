@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(node *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(diff *)",
+      "Bash(mkdir *)",
+      "Bash(mv *)",
+      "Bash(cp *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 || exit 0; node \"$CLAUDE_PROJECT_DIR/scripts/hooks/toolset-staleness.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 || { echo '[guard-shell] Node não encontrado no PATH: o hook não consegue verificar o comando e o bloqueia. Instale o Node (pré-requisito do toolset, ver README.md).' >&2; exit 2; }; node \"$CLAUDE_PROJECT_DIR/scripts/hooks/guard-shell.mjs\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 || { echo '[strategic-compact] Node não encontrado no PATH; sugestão de /compact desativada' >&2; exit 0; }; node \"$CLAUDE_PROJECT_DIR/scripts/hooks/suggest-compact.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
