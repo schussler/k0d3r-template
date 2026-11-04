@@ -27,7 +27,7 @@ catálogo.
 | `api-design` | ECC | Desenho e revisão de endpoints REST. |
 | `conventional-commit-review` | ECC (adapt) | Mensagem de commit no padrão Conventional Commits. |
 | `pr-body` | local (de `mattpocock/skills`, MIT) | Corpo de PR em pt-BR, só quando a pessoa pede o PR. |
-| `context-budget` | ECC (adapt) | Auditar o que consome o contexto (agents, skills, MCP, rules). |
+| `context-budget` | ECC (adapt) | Contexto ao vivo: aponta para o `/context` nativo; auditoria estática dos componentes só quando pedida. |
 | `strategic-compact` | ECC (adapt) | Sessões longas: `/compact` nas fronteiras de fase (com hook). |
 
 ## Agents
@@ -96,7 +96,7 @@ O caminho oficial para adotar um pacote é preencher a seção `## Stack` do `CL
 **`/sync-ecc-tools --adopt`**: o Claude lê o `catalog.json`, propõe uma lista curta com o motivo de cada item e
 só copia o que você confirmar. Depois disso, o `/sync-ecc-tools` normal mantém o pacote atualizado.
 
-A lista abaixo é uma seleção por família, gerada do `catalog.json` (ECC no ref `4eb71d92`), com a primeira frase
+A lista abaixo é uma seleção por família, gerada do `catalog.json` (ECC no ref `76aaa77d`), com a primeira frase
 da descrição de cada item. A lista completa, com as descrições inteiras, está no catálogo.
 
 **TS / web**

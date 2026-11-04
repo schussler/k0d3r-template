@@ -54,3 +54,9 @@ test('an invalid manifest yields one explanatory line instead of a silent pass',
   assert.match(staleMessage({ syncedAt: 'ontem', syncStaleDays: 30 }, NOW), /sem `syncedAt` válido/);
   assert.equal(daysSince('2026-13-45', NOW), null);
 });
+
+test('an old targetRefDate with a recent syncedAt does not warn: only syncedAt counts', () => {
+  const manifest = { syncedAt: '2026-11-04', targetRefDate: '2026-08-01', syncStaleDays: 30 };
+  assert.equal(staleMessage(manifest, NOW), null);
+  assert.equal(runHook({ ...manifest, syncedAt: isoDaysAgo(1) }), '');
+});

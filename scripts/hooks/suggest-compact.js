@@ -28,7 +28,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 // ---------------------------------------------------------------------------
-// Pasted from ECC scripts/lib/utils.js (same baselineRef as this file): only the
+// Pasted from ECC scripts/lib/utils.js (same ECC ref as this file): only the
 // helpers this hook calls, plus ensureDir, which writeFile calls. Kept verbatim so
 // the ECC sync can diff them; the template ships no scripts/lib/.
 // ---------------------------------------------------------------------------
@@ -176,8 +176,49 @@ function writeFile(filePath, content) {
 }
 
 // ---------------------------------------------------------------------------
+// Pasted from ECC scripts/lib/file-tail.js (whole module, minus its
+// `'use strict'`, `require('fs')` and `module.exports`).
+// ---------------------------------------------------------------------------
+
+const DEFAULT_TRANSCRIPT_TAIL_BYTES = 256 * 1024;
+
+/** Last `tailBytes` of a file as UTF-8 text, with whether earlier bytes were skipped; null when unreadable. */
+function readFileTail(filePath, tailBytes) {
+  let fd;
+  try {
+    fd = fs.openSync(filePath, 'r');
+  } catch {
+    return null;
+  }
+
+  try {
+    const size = fs.fstatSync(fd).size;
+    const start = Math.max(0, size - tailBytes);
+    const length = size - start;
+    if (length <= 0) {
+      return { text: '', truncated: false };
+    }
+
+    const buffer = Buffer.alloc(length);
+    const bytesRead = fs.readSync(fd, buffer, 0, length, start);
+    return {
+      text: buffer.toString('utf8', 0, bytesRead),
+      truncated: start > 0
+    };
+  } catch {
+    return null;
+  } finally {
+    try {
+      fs.closeSync(fd);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Pasted from ECC scripts/lib/transcript-context.js (whole module, minus its
-// `require('fs')` and `module.exports`).
+// `require('./file-tail')`, now pasted above, and `module.exports`).
 // ---------------------------------------------------------------------------
 
 /**
@@ -204,7 +245,6 @@ const LARGE_CONTEXT_WINDOW_TOKENS = 1000000;
 const DEFAULT_CONTEXT_THRESHOLD_STANDARD = 160000;
 const DEFAULT_CONTEXT_THRESHOLD_LARGE = 250000;
 const DEFAULT_CONTEXT_INTERVAL_TOKENS = 60000;
-const DEFAULT_TRANSCRIPT_TAIL_BYTES = 256 * 1024;
 const MAX_TOKEN_SETTING = 10000000;
 const LARGE_WINDOW_MODEL_MARKER = '[1m]';
 
@@ -239,38 +279,6 @@ function isKnownModelFamilyMatch(model, familyId) {
  * Read the trailing `tailBytes` of a file as UTF-8.
  * Returns null when the file is missing or unreadable.
  */
-function readFileTail(filePath, tailBytes) {
-  let fd;
-  try {
-    fd = fs.openSync(filePath, 'r');
-  } catch {
-    return null;
-  }
-
-  try {
-    const size = fs.fstatSync(fd).size;
-    const start = Math.max(0, size - tailBytes);
-    const length = size - start;
-    if (length <= 0) {
-      return { text: '', truncated: false };
-    }
-
-    const buffer = Buffer.alloc(length);
-    const bytesRead = fs.readSync(fd, buffer, 0, length, start);
-    return {
-      text: buffer.toString('utf8', 0, bytesRead),
-      truncated: start > 0
-    };
-  } catch {
-    return null;
-  } finally {
-    try {
-      fs.closeSync(fd);
-    } catch {
-      /* ignore */
-    }
-  }
-}
 
 /**
  * Extract the context token total from a transcript record's usage block.

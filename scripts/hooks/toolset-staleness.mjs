@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // SessionStart do Claude Code: avisa, numa linha, quando o último sync do toolset com o ECC passou do limite.
 //
-// Lê `syncedAt` e `syncStaleDays` de `.claude/ecc-sync/manifest.json`. O limite mora só no manifest, que é o
+// Lê `syncedAt` (o dia da última conferência contra o ECC; o `targetRefDate`, data do commit do ECC, não
+// conta) e `syncStaleDays` de `.claude/ecc-sync/manifest.json`. O limite mora só no manifest, que é o
 // mesmo campo que o `/toolset-retro` lê. Em dia, não imprime nada. Sem manifest, manifest ilegível ou
 // qualquer erro: sai com 0 em silêncio. Este hook nunca bloqueia a sessão e não usa rede.
 

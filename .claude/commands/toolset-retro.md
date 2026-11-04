@@ -14,7 +14,8 @@ tools and files; do not invent praise.
 
 ## 0. Is the ECC sync stale?
 
-Read `syncedAt` and `syncStaleDays` from `.claude/ecc-sync/manifest.json` (the limit lives only there; the
+Read `syncedAt` (the day of the last conference against ECC, not the ECC commit date in `targetRefDate`) and
+`syncStaleDays` from `.claude/ecc-sync/manifest.json` (the limit lives only there; the
 `SessionStart` hook `scripts/hooks/toolset-staleness.mjs` reads the same field) and compute the days since
 `syncedAt`. If it is more than `syncStaleDays`, the **first line** of the answer is:
 

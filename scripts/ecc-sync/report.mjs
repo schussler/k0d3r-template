@@ -576,7 +576,10 @@ function bootstrap(opts) {
     eccBranch: (opts.to || 'main').replace(/^origin\//, ''),
     baselineRef,
     targetRef: target,
+    // syncedAt = the day this conference against upstream ran (read by the staleness hook and the retro);
+    // targetRefDate = the ECC commit date of targetRef, information only.
     syncedAt: new Date().toISOString().slice(0, 10),
+    targetRefDate: (gitOrNull(ecc, ['show', '-s', '--format=%cs', target]) || '').trim() || null,
     ...(previous.syncStaleDays ? { syncStaleDays: previous.syncStaleDays } : {}),
     note: 'policy: track|adapt|local. See docs/implemented/processo/ecc-sync.md.',
     items: items.sort((a, b) => a.downstream.localeCompare(b.downstream)),

@@ -1,9 +1,10 @@
 {
   "eccRepo": "affaan-m/ECC",
   "eccBranch": "main",
-  "baselineRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
-  "targetRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
-  "syncedAt": "2026-10-09",
+  "baselineRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+  "targetRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+  "syncedAt": "2026-11-04",
+  "targetRefDate": "2026-10-15",
   "syncStaleDays": 30,
   "note": "policy: track|adapt|local. See docs/implemented/processo/ecc-sync.md.",
   "items": [
@@ -12,7 +13,7 @@
       "source": "agents/architect.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Seção \"Architecture Decision Records (ADRs)\" trocada por \"Recording decisions\": decisão inline na seção Decisões do doc afetado, sem ADR nem ledger; decisão sem aprovação humana é proposta."
     },
     {
@@ -20,7 +21,7 @@
       "source": "agents/code-architect.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -28,7 +29,7 @@
       "source": "agents/code-reviewer.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -36,7 +37,7 @@
       "source": "agents/code-simplifier.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -44,7 +45,7 @@
       "source": "agents/doc-updater.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Descrição sem `/update-codemaps` (ausente); comandos `npx tsx`/`madge`/`jsdoc2md` viraram \"ferramentas da stack\"; codemaps vão para `docs/implemented/arquitetura/codemaps/` em vez de `docs/CODEMAPS/`; \"docs/GUIDES\" virou os docs do ciclo de vida."
     },
     {
@@ -52,7 +53,7 @@
       "source": "agents/docs-lookup.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -60,7 +61,7 @@
       "source": "agents/planner.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -68,7 +69,7 @@
       "source": "agents/pr-test-analyzer.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -76,7 +77,7 @@
       "source": "agents/refactor-cleaner.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Descrição e bloco de detecção sem `npx knip/depcheck/ts-prune` fixos: tabela de exemplos por stack (JS/TS, Python, Go, Rust)."
     },
     {
@@ -84,7 +85,7 @@
       "source": "agents/security-reviewer.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. `npm audit`/`npx eslint --plugin security` viraram `<auditoria de dependências>` e o linter de segurança da stack (tabela do CLAUDE.md)."
     },
     {
@@ -92,7 +93,7 @@
       "source": "agents/silent-failure-hunter.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -100,7 +101,7 @@
       "source": "agents/tdd-guide.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. `npm test`/`npm run test:coverage` viraram `<comando de teste>` e a variante de cobertura."
     },
     {
@@ -108,7 +109,7 @@
       "source": "agents/type-design-analyzer.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
@@ -116,7 +117,7 @@
       "source": "commands/build-fix.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Uma linha nova: usar primeiro os portões de build/typecheck do CLAUDE.md; a tabela de detecção vira fallback."
     },
     {
@@ -124,15 +125,15 @@
       "source": "commands/code-review.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
-      "adaptation": "Descrição sem `/review-pr` e `/orch-review`; modo PR declara que exige o `gh`; fase VALIDATE roda os portões do CLAUDE.md sem pipe, no lugar dos blocos npm/cargo/go/pytest."
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Descrição sem `/review-pr` e `/orch-review`; modo PR declara que exige o `gh`; fase VALIDATE roda os portões do CLAUDE.md sem pipe, no lugar dos blocos npm/cargo/go/pytest. O `argument-hint` entre aspas veio do upstream (76aaa77d)."
     },
     {
       "downstream": ".claude/commands/feature-dev.md",
       "source": "commands/feature-dev.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Agent `code-explorer` (inexistente) trocado pelo subagent nativo `Explore`."
     },
     {
@@ -140,14 +141,14 @@
       "source": "commands/refactor-clean.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/commands/security-scan.md",
       "source": "commands/security-scan.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "`agent:` = `security-reviewer` (era `ecc:security-reviewer`); `npx ecc-agentshield@1.6.0`; seção de CI opcional e com a action fixada por SHA (v1.6.0); descrição e links sem a skill `security-scan` (fora do template)."
     },
     {
@@ -162,7 +163,7 @@
       "source": "commands/test-coverage.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/commands/toolset-retro.md",
@@ -176,14 +177,14 @@
       "source": "commands/update-docs.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/rules/common/agents.md",
       "source": "rules/common/agents.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`)."
     },
     {
@@ -191,7 +192,7 @@
       "source": "rules/common/code-review.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Linhas de `typescript-/python-/go-/rust-reviewer` (ausentes) trocadas por uma linha \"reviewer da stack, adote do ECC com `/sync-ecc-tools --adopt`\"."
     },
     {
@@ -199,14 +200,14 @@
       "source": "rules/common/coding-style.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/rules/common/development-workflow.md",
       "source": "rules/common/development-workflow.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Nota sobre o ciclo de vida docs-first (link para `feature-lifecycle.md`); passo 4 ganhou branch única por sessão, commit por fatia só com portões verdes, push após cada commit e PR só quando pedido."
     },
     {
@@ -221,7 +222,7 @@
       "source": "rules/common/git-workflow.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removida a nota sobre `includeCoAuthoredBy` de instalações do ECC; adicionadas as seções \"Branch model\" e \"Branch verification (before any work)\"."
     },
     {
@@ -229,21 +230,21 @@
       "source": "rules/common/hooks.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/rules/common/patterns.md",
       "source": "rules/common/patterns.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/rules/common/performance.md",
       "source": "rules/common/performance.md",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Build Troubleshooting: `build-error-resolver` (fora) trocado por `/build-fix` ou o build-resolver da stack, se adotado."
     },
     {
@@ -251,14 +252,14 @@
       "source": "rules/common/security.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/rules/common/testing.md",
       "source": "rules/common/testing.md",
       "type": "file",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/rules/common/verification.md",
@@ -272,14 +273,14 @@
       "source": "skills/api-design",
       "type": "dir",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/skills/coding-standards",
       "source": "skills/coding-standards",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "As duas linhas que mandavam usar `frontend-patterns`/`backend-patterns` (fora do template) apontam para as skills de stack adotadas do ECC e para `api-design`."
     },
     {
@@ -287,15 +288,15 @@
       "source": "skills/context-budget",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
-      "adaptation": "Removida a linha que mandava conferir cópias duplicadas em `.agents/skills/` (pasta de outro harness, fora deste template)."
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Reescrita do upstream (roteia o contexto ao vivo para o medidor nativo `/context`; auditoria estática só quando pedida) portada sem as duas linhas do Codex na tabela de harness, sem o link da referência de comandos do Codex e com a descrição falando só do medidor do Claude Code."
     },
     {
       "downstream": ".claude/skills/conventional-commit-review",
       "source": "skills/conventional-commit-review",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Related Skills: `git-workflow` (skill do ECC, ausente) aponta para a rule `.claude/rules/common/git-workflow.md`."
     },
     {
@@ -303,7 +304,7 @@
       "source": "skills/documentation-lookup",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Frase \"Applies across harnesses ... (Claude Code, Cursor, Codex)\" trocada por \"requer o MCP Context7 declarado em `.mcp.json`\"."
     },
     {
@@ -311,7 +312,7 @@
       "source": "skills/error-handling",
       "type": "dir",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/skills/pr-body",
@@ -325,7 +326,7 @@
       "source": "skills/search-first",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Agent `researcher` (inexistente) trocado pelos subagents nativos `general-purpose`/`Explore`; `~/.codex/skills` saiu; a busca por skill inclui `.claude/skills/` e `.claude/ecc-sync/catalog.json` (+ `/sync-ecc-tools --adopt`); removida a seção da skill ausente `iterative-retrieval`."
     },
     {
@@ -333,14 +334,14 @@
       "source": "skills/security-review",
       "type": "dir",
       "policy": "track",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2"
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/skills/strategic-compact",
       "source": "skills/strategic-compact",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Seção \"Hook Setup\" reescrita para o template (hook em `scripts/hooks/suggest-compact.js`, registrado em `.claude/settings.json`, sem caminho de plugin nem `~/.claude/scripts`). Linha da tabela de trigger com `deployment-patterns` (ausente) trocada por `api-design`; removida a citação à skill `continuous-learning`."
     },
     {
@@ -348,7 +349,7 @@
       "source": "skills/tdd-workflow",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Passo 0 reescrito: o runner vem do portão de teste da tabela \"Portões de verificação\" do CLAUDE.md (sem o detector `scripts/setup-package-manager.js`, que não vem, e sem a matriz npm/pnpm/yarn/bun). Trocada a menção a `/plan` por \"build plan escrito na spec in-progress\". Removida a citação à skill `bun-runtime`. Exemplos de código mantidos."
     },
     {
@@ -356,7 +357,7 @@
       "source": "skills/verification-loop",
       "type": "dir",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Fases 1-5 leem os comandos da tabela \"Portões de verificação\" do CLAUDE.md, redirecionados para arquivo com `echo \"EXIT: $?\"`, sem pipe; a busca de segredos ficou sem `| head` e sem `--include` de TS; `/verify` (ausente) trocado pela própria skill."
     },
     {
@@ -364,11 +365,12 @@
       "source": "scripts/hooks/suggest-compact.js",
       "type": "file",
       "policy": "adapt",
-      "lastSyncedRef": "4eb71d92a39cab44ad40ac9d8a6a5ccb4029d6c2",
-      "adaptation": "Arquivo único sem `scripts/lib/`: os dois `require` de `../lib/` foram trocados por código colado verbatim do mesmo ref — de `scripts/lib/utils.js` as funções `getTempDir`, `ensureDir` (chamada por `writeFile`), `readStdinJson`, `log`, `output` e `writeFile`; de `scripts/lib/transcript-context.js` o módulo inteiro, menos o `require('fs')` e o `module.exports`. Os `require('fs'|'path')` viraram `node:fs`/`node:path` (+ `node:os`). Lógica do hook inalterada.",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Arquivo único sem `scripts/lib/`: os dois `require` de `../lib/` foram trocados por código colado verbatim do mesmo ref — de `scripts/lib/utils.js` as funções `getTempDir`, `ensureDir` (chamada por `writeFile`), `readStdinJson`, `log`, `output` e `writeFile`; de `scripts/lib/file-tail.js` o módulo inteiro, menos `'use strict'`, o `require('fs')` e o `module.exports`; de `scripts/lib/transcript-context.js` o módulo inteiro, menos o `require('./file-tail')` e o `module.exports`. Os `require('fs'|'path')` viraram `node:fs`/`node:path` (+ `node:os`). Lógica do hook inalterada.",
       "alsoTracks": [
         "scripts/lib/utils.js",
-        "scripts/lib/transcript-context.js"
+        "scripts/lib/transcript-context.js",
+        "scripts/lib/file-tail.js"
       ]
     }
   ],

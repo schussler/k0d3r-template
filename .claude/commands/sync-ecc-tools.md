@@ -75,8 +75,12 @@ item. The full candidate list stays in the report. **Do not edit anything until 
   changed origin was ported).
 - **Candidates** the human chose to adopt: follow "Land the adoption" below.
 - **Project-local**: never touched.
-- Update `.claude/ecc-sync/manifest.json`: `baselineRef` → `<target>`, `targetRef` → `<target>`, `syncedAt` →
-  today, plus per-item `lastSyncedRef`. A rejected candidate goes to the manifest's `discarded` list
+- Update `.claude/ecc-sync/manifest.json`: `baselineRef` → `<target>`, `targetRef` → `<target>`, plus per-item
+  `lastSyncedRef`, and the two dates:
+  - `syncedAt` → **today**, the day this conference against upstream ran. It is what the `SessionStart` hook
+    (`toolset-staleness.mjs`) and `/toolset-retro` read against `syncStaleDays`.
+  - `targetRefDate` → the ECC commit date of `<target>` (`git -C <ecc> show -s --format=%cs <target>`).
+    Information only; it also goes in the log row. A rejected candidate goes to the manifest's `discarded` list
   (`{ source, reason }`).
 - **Regenerate the catalog** whenever `targetRef` moves:
   `node scripts/ecc-sync/report.mjs catalog --ecc <ecc>`.
@@ -84,8 +88,10 @@ item. The full candidate list stays in the report. **Do not edit anything until 
 - If toolbox membership changed, refresh the tables in `.claude/README.md`.
 
 ### 5. Log and commit
-- **Append a row to the log in `docs/implemented/processo/ecc-sync.md`**: date · ECC ref from→to · #updated ·
-  #reviewed · #adopted · notes. This is the "where to start next time" record.
+- **Append a row to the log in `docs/implemented/processo/ecc-sync.md`**: date (`syncedAt`) · target date
+  (`targetRefDate`) · ECC ref from→to · #updated · #reviewed · #adopted · notes. This is the "where to start next
+  time" record. **For every reviewed item where nothing was ported**, write in the notes what changed upstream and
+  why it was not ported: once `lastSyncedRef` advances, that diff no longer shows in any report.
 - Commit (Conventional Commits, e.g. `chore: sync ECC tools <from>..<to>`) only with every gate green, and push.
   **Open a PR only if the human asks.**
 

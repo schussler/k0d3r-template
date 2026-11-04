@@ -93,8 +93,12 @@ geradas antes de confiar nelas.
 
 ## Log de syncs
 
-Mais recente primeiro. "ECC ref" é o commit do ECC ao qual o toolset corresponde depois da execução.
+Mais recente primeiro. **Data** é o `syncedAt`: o dia em que a conferência contra o upstream foi feita (é o que o
+aviso de sync mede). **Data do alvo** é o `targetRefDate`: a data do commit do ECC gravado em `targetRef`. "ECC
+ref" é o commit ao qual o toolset corresponde depois da execução. Nas notas, todo item revisado sem porte diz o que
+mudou no upstream e por que não foi portado: depois que o `lastSyncedRef` avança, esse diff some dos relatórios.
 
-| Data | ECC ref (de → para) | Atualizados | Revisados | Adotados | Notas |
-|------|---------------------|-------------|-----------|----------|-------|
-| 2026-10-09 | — → `4eb71d92` | — | — | 42 itens do ECC (+ 5 locais) | Baseline do template: toolset conferido byte a byte contra este ref e catálogo gerado nele. A data é a do commit do ECC, não a da extração, para o aviso de sync medir a idade do snapshot. |
+| Data | Data do alvo | ECC ref (de → para) | Atualizados | Revisados | Adotados | Notas |
+|------|--------------|---------------------|-------------|-----------|----------|-------|
+| 2026-11-04 | 2026-10-15 | `4eb71d92` → `76aaa77d` | 1 | 6 | 0 | **Atualizado:** `rules/common/hooks.md` (permissões em `permissions.allow` do `settings.json`, não mais `allowedTools` em `~/.claude.json`). **Portados:** `/code-review` (`argument-hint` entre aspas); `performance.md` (seção de raciocínio adaptativo com `/effort`); `context-budget` (reescrita para o `/context` nativo, sem as linhas e o link do Codex); hook `suggest-compact.js` (o `transcript-context.js` passou a importar o novo `file-tail.js`; o `readFileTail` mudou de módulo sem mudar de código; `file-tail.js` colado e incluído no `alsoTracks`). **Sem porte:** `rules/common/agents.md`: o upstream reescreveu o parágrafo sobre agents instalados por plugin (`ecc:<nome>`) ou manualmente (nome sem prefixo); esse parágrafo não existe aqui, porque a adaptação o trocou pela lista dos agents do template. `verification-loop`: o upstream pôs `set -o pipefail` e trocou `head` por `sed -n` nos portões com pipe, para não mascarar o exit code; aqui os portões já rodam sem pipe, redirecionados para arquivo. Alvo `76aaa77d` = `origin/main` do clone, sem fetch; o `main` do GitHub já estava em `b38be6a7`. |
+| 2026-11-04 | 2026-10-09 | — → `4eb71d92` | — | — | 42 itens do ECC (+ 5 locais) | Baseline do template: toolset conferido byte a byte contra este ref e catálogo gerado nele. |
