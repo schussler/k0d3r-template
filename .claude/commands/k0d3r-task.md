@@ -88,6 +88,8 @@ Proporcione a spec e a entrega ao tamanho da mudança: numa mudança pequena, a 
 
 Diferencie propostas do agente de decisões já aprovadas; o que a pessoa respondeu na entrevista é decisão dela, com a data. Preserve uma fonte canônica para cada contrato e evite repetir informações em vários documentos.
 
+Resolva escolhas técnicas rotineiras com autonomia. Para decisões de produto ou contradições que alterem o resultado esperado e que a entrevista não resolveu, apresente opções, consequências e sua recomendação.
+
 Nesta etapa, altere apenas a documentação necessária ao planejamento. Não implemente código, testes ou configuração.
 
 ## PARADA — APROVAÇÃO DA SPEC
@@ -153,7 +155,7 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever código. O b
     - o agent `acceptance-verifier`, com um brief que leva **só o caminho da spec e a ref base do diff**. Não leve o resumo do que você fez nem o que espera que ele conclua. Na tarefa sem spec, o brief leva a ref base e a afirmação "sem efeito de comportamento", para ele procurar o efeito;
     - as revisões: agents `code-reviewer`, `security-reviewer` (quando tocar auth, entrada de usuário ou segredo), `silent-failure-hunter` e os reviewers de stack adotados, se houver.
 - Corrija cada critério que voltou **falhou** e os achados dos reviewers, rode os portões de novo e chame um `acceptance-verifier` novo. A tarefa só é entregue sem nenhum **falhou**.
-- Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. Se o comportamento aprovado está certo e o texto do critério é que não o descreve, corrija o critério na spec e diga isso na entrega, com o que mudou. Se o que teria de mudar é o comportamento aprovado, é o caso de parar e perguntar.
+- Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. Mexer no texto de um critério aprovado é mudar a spec aprovada: pare e pergunte só sobre esse critério, mostrando o texto atual, o texto proposto e por que o comportamento entregue é o aprovado.
 - Um defeito que a revisão acha num código que você não tocou, fora do caminho da tarefa, vai para a entrega e para o backlog, com a reprodução. Não o corrija aqui.
 - Os critérios **não conferido** e as mudanças que o diff traz e a spec não cobre vão para a entrega, com esses nomes.
 - Informe o que cada evidência demonstra e suas limitações.

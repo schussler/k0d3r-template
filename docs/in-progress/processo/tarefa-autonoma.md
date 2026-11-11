@@ -145,6 +145,26 @@ da `/k0d3r-task`.
 
 A meta de 80% de cobertura e as demais rules ficam como estão.
 
+A segunda conferência por contexto limpo listou o que a `/k0d3r-task` traz e esta spec não dizia. Ficou
+registrado aqui:
+
+- Etapa 2 repete a regra de commit por fatia com os portões verdes e push depois de cada commit, que já estava
+  no `CLAUDE.md` e nas rules.
+- "Critérios de aceite verificáveis" ganhou "cada um diz o que se observa quando ele é cumprido", porque são os
+  critérios que os dois agents de contexto limpo recebem.
+- O item 3 da entrega ("o que você decidiu sozinho") inclui as chamadas escaladas para outro nível de modelo, da
+  spec 1.
+- Etapa 3: um defeito que a revisão acha em código que a tarefa não tocou vai para a entrega e para o backlog,
+  com a reprodução. É a regra "problema fora do caminho é registrado", com o destino dito.
+- Etapa 3: um **falhou** que aponta um critério mal escrito é mudança na spec aprovada, e a sessão para e
+  pergunta só sobre esse critério.
+- O `README.md` da raiz descreve a `/k0d3r-task` nova no checklist da primeira sessão.
+
+**Proposta (agente), não aprovada:** deixar a sessão corrigir sozinha a redação de um critério quando o
+comportamento entregue é o aprovado, dizendo na entrega o texto antigo e o novo. Nesta tarefa a sessão fez isso
+duas vezes sem perguntar, nos critérios 3 e 6, antes de a regra existir; os dois textos antigos estão no
+histórico do git desta spec. Sem essa proposta, cada correção de redação custa uma parada.
+
 Na `/k0d3r-task`, duas linhas antigas mudaram por consequência das decisões desta spec. "Faça mudanças
 proporcionais ao problema" deu lugar à regra de reorganizar o que está no caminho da tarefa (decisão "dono
 dentro do escopo"). A linha em que a própria sessão verifica os critérios de aceite continua, agora dizendo que
@@ -299,6 +319,10 @@ Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 
 `.claude/rules/`, e dois vinham de outros lugares do projeto. O comportamento aprovado não mudou: a redação do
 critério foi corrigida para nomear as origens. O mesmo verificador listou mudanças que o diff trazia e a spec
 não citava; elas entraram na seção 4.
+
+Resultado da segunda conferência, por um `acceptance-verifier` novo, depois das correções: nenhum **falhou** nos
+critérios 1 a 8. Os critérios 1 a 4 foram conferidos por leitura, porque são texto de prompt. O critério 10 ficou
+**não conferido** por ele: o ensaio não deixa registro no repositório além deste relato.
 
 Resultado do ensaio (critério 10): o agente investigou, reproduziu o defeito e terminou com **uma** pergunta,
 com duas opções, a recomendação e o que achou no código. Não escreveu spec nem código; `git status` na cópia

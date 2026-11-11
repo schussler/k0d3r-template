@@ -323,6 +323,8 @@ saída 0.
       mutações, todas detectadas.
 - [x] Critério 13: a linha de aviso está na `/k0d3r-task`. Conferido por leitura; nenhuma execução mostrou o
       aviso, porque o ensaio rodou no modelo recomendado.
+- [x] Duas conferências por contexto limpo, a segunda depois das correções da revisão: critérios 1 a 12 vistos
+      funcionando nas duas, nenhum **falhou**.
 - [ ] Critério 14: conferência do conselheiro numa sessão real, que só a pessoa pode fazer (abrir uma sessão
       nova no repositório e ver se a abertura mostra o advisor ligado).
 - [ ] Não conferido: se o Claude Code obedece ao `model:` e ao `effort:` do frontmatter. É comportamento do
