@@ -326,6 +326,13 @@ saída 0.
 - [x] Duas conferências por contexto limpo, a segunda depois das correções da revisão: critérios 1 a 12 vistos
       funcionando nas duas, nenhum **falhou**.
 - [ ] Critério 14: conferência do conselheiro numa sessão real, que só a pessoa pode fazer (abrir uma sessão
-      nova no repositório e ver se a abertura mostra o advisor ligado).
+      nova no repositório e ver se a abertura mostra o advisor ligado). Evidência parcial, 2026-11-11: a sessão
+      desta tarefa reiniciou depois do `apply` e passou a ter a ferramenta de conselheiro, e uma consulta a ela
+      funcionou. O único `advisorModel` achado é o do `.claude/settings.json` do projeto: não há a chave em
+      `~/.claude/settings.json` nem no settings do perfil, e não existem `~/.claude/settings.local.json` nem
+      `.claude/settings.local.json`. Não foi descartado: a flag `--advisor` na abertura, settings gerenciadas, ou
+      o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
+      modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
+      como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
 - [ ] Não conferido: se o Claude Code obedece ao `model:` e ao `effort:` do frontmatter. É comportamento do
       produto; a documentação diz que sim.
