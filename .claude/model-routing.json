@@ -12,6 +12,7 @@
     "architect": "fronteira",
     "code-architect": "raciocinio",
     "security-reviewer": "raciocinio",
+    "acceptance-verifier": "raciocinio",
     "code-reviewer": "padrao",
     "silent-failure-hunter": "padrao",
     "code-simplifier": "padrao",
@@ -20,6 +21,7 @@
     "refactor-cleaner": "padrao",
     "doc-updater": "padrao",
     "tdd-guide": "padrao",
+    "test-author": "padrao",
     "docs-lookup": "rapido"
   },
   "nativos": {

@@ -9,6 +9,13 @@
   "note": "policy: track|adapt|local. See docs/implemented/processo/ecc-sync.md.",
   "items": [
     {
+      "downstream": ".claude/agents/acceptance-verifier.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
+    },
+    {
       "downstream": ".claude/agents/architect.md",
       "source": "agents/architect.md",
       "type": "file",
@@ -103,6 +110,13 @@
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream. `npm test`/`npm run test:coverage` viraram `<comando de teste>` e a variante de cobertura."
+    },
+    {
+      "downstream": ".claude/agents/test-author.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
     },
     {
       "downstream": ".claude/agents/type-design-analyzer.md",

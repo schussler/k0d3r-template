@@ -40,7 +40,9 @@ catálogo.
 | `planner` | ECC (adapt) | Especificar e planejar a build dentro da spec. |
 | `architect` | ECC (adapt) | Mudança na forma do sistema; decisões vão para a seção Decisões do doc. |
 | `code-architect` | ECC (adapt) | Blueprint de implementação a partir dos padrões do código existente. |
-| `tdd-guide` | ECC (adapt) | Conduzir o ciclo RED/GREEN/REFACTOR. |
+| `tdd-guide` | ECC (adapt) | Conduzir o ciclo RED/GREEN/REFACTOR na própria sessão, fora da `/k0d3r-task`. |
+| `test-author` | local | Contexto limpo, antes do código: escreve os testes que falham a partir só da spec aprovada. Não escreve implementação. |
+| `acceptance-verifier` | local | Contexto limpo, depois dos portões verdes: confere cada critério de aceite rodando, e lista o que o diff muda e a spec não cobre. Não edita. |
 | `code-reviewer` | ECC (adapt) | Revisar todo diff de código. |
 | `security-reviewer` | ECC (adapt) | Diff que toca auth, entrada de usuário, segredo ou dados sensíveis. |
 | `silent-failure-hunter` | ECC (adapt) | Erros engolidos, fallbacks perigosos. |
