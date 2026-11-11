@@ -102,7 +102,14 @@ brief **não** leva o raciocínio da sessão, o resumo do que foi feito, nem a c
 | Não faz | Código de implementação. Mudança na spec. |
 
 A sessão principal relê o diff dos testes antes de usá-los. Ela só altera um teste do `test-author` quando o
-teste contradiz a spec, e diz qual e por quê na entrega.
+teste contradiz a spec ou não monta a situação que o nome dele anuncia, e diz qual e por quê na entrega. Um
+caso de borda que a spec não dizia, decidido na implementação, ganha teste da própria sessão e entra na spec;
+como esse teste nasce depois do código, a sessão prova que ele falha contra o código errado.
+
+O primeiro uso desse papel, nos testes do roteamento, mostrou por que as duas exceções existem: o autor entregou
+49 testes, dos quais 4 falhavam contra um script correto. Um helper media o fim do arquivo em caracteres e não
+em bytes, e o fixture criava o arquivo do agent que devia estar sem arquivo. Ele também apontou dez lacunas da
+spec, que viraram a lista de casos de borda da spec 1.
 
 **`acceptance-verifier`** — depois dos portões verdes, em paralelo com os reviewers.
 

@@ -83,6 +83,33 @@ comandos. Marque `n/a` no portão que a stack não tem.
   defeito.
 - **Segredos** nunca entram no repositório; `.env` com valor real nunca é versionado.
 
+## Como trabalhar
+
+Você é dono e mantenedor de longo prazo do código que a tarefa toca: a forma dele é decisão sua. Se o
+resultado mais simples pede reorganizar o que já existe no caminho da tarefa, reorganize em vez de remendar
+ao lado, e avise no plano da spec quando der para prever. Problema fora do caminho da tarefa é registrado
+na entrega, não corrigido.
+
+**Termine o trabalho.** Depois da spec aprovada, siga até a entrega. Erro, timeout, teste quebrado e
+ferramenta falhando são obstáculos comuns: ache a causa e resolva com o acesso que você tem. Não ofereça
+para esperar e não peça de novo o que já foi aprovado.
+
+**Não precisa de ok:** ler e buscar no repositório; rodar portões e testes; repetir um comando que falhou;
+criar e editar arquivos dentro do escopo aprovado; chamar subagentes; commit e push na branch da sessão com
+os portões verdes; escolhas técnicas rotineiras (nomes, estrutura interna, ordem das etapas).
+
+**Peça ok antes de:** implementar uma spec que ainda não foi aprovada; mudar comportamento, contrato ou
+escopo aprovados; graduar uma spec; abrir um PR; mudar uma regra de arquitetura; adotar um item do ECC;
+fazer uma operação destrutiva ou difícil de desfazer. Um bloqueio deliberado (arquivo marcado para não
+tocar, acesso negado, comando barrado pelo `guard-shell`) não é obstáculo a contornar: diga o que encontrou
+e procure outro caminho.
+
+**Prova.** Só diga que algo funciona se você viu funcionar. O que não deu para conferir, diga que não
+conferiu.
+
+**Relatório.** A entrega começa pelo resultado, em frases curtas, para quem não viu as chamadas de
+ferramenta nem os arquivos abertos.
+
 ## Workflow
 
 | Etapa | O que acontece | Peça |
@@ -101,9 +128,11 @@ comandos. Marque `n/a` no portão que a stack não tem.
 
 Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras de fase.
 
-- **A `/k0d3r-task` é o caminho padrão para qualquer mudança de código**, de Especificar a Encerrar: spec,
-  parada para aprovação, implementação, verificação e entrega. Mudança sem efeito de comportamento (refactor,
-  dependência, typo, ajuste de teste, renomeação) passa por ela **sem spec**. Se um pedido chegar fora do command
+- **A `/k0d3r-task` é o caminho padrão para qualquer mudança de código**, de Especificar a Encerrar:
+  investigação, entrevista (uma pergunta por vez, só o que o repositório não responde), spec, **uma parada
+  para aprovação**, testes escritos por um agent de contexto limpo, implementação até o fim, verificação por
+  outro agent de contexto limpo e entrega. Mudança sem efeito de comportamento (refactor, dependência, typo,
+  ajuste de teste, renomeação) passa por ela **sem spec**. Se um pedido chegar fora do command
   e mudar comportamento ou contrato, sugira a `/k0d3r-task` antes de implementar. Em qualquer caso, os portões
   valem, incluindo `docs-check diff` e `docs-check links`.
 - **Docs:** escreva conforme [`docs-writing.md`](.claude/rules/common/docs-writing.md); a manutenção dos docs
