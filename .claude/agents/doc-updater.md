@@ -2,6 +2,8 @@
 name: doc-updater
 description: Documentation and codemap specialist. Use PROACTIVELY for updating codemaps and documentation. Generates codemaps under docs/implemented/arquitetura/, updates READMEs and guides. Backs the /update-docs command.
 tools: Read, Write, Edit, Bash, Grep, Glob
+model: sonnet
+effort: medium
 ---
 
 ## Prompt Defense Baseline

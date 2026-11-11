@@ -154,3 +154,13 @@ test('the docs-check gate is a gate: piped is blocked, a search for its name is 
   const safe = 'node scripts/docs-check/docs-check.mjs diff > "$TMPDIR/d.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/d.log"';
   assert.equal(evaluate(safe), null);
 });
+
+test('the model-routing script is a gate in both subcommands: piped is blocked, a search for its name is not', () => {
+  assert.equal(evaluate('node scripts/model-routing/model-routing.mjs check | tail')?.id, 'verification-pipe');
+  // `apply` carries no gate word of its own: only the script name makes it a gate. A masked exit 1 here
+  // reads as "applied" when nothing was written.
+  assert.equal(evaluate('node scripts/model-routing/model-routing.mjs apply 2>&1 | tail -5')?.id, 'verification-pipe');
+  assert.equal(evaluate('grep model-routing CLAUDE.md | head'), null, 'read-only exception');
+  const safe = 'node scripts/model-routing/model-routing.mjs check > "$TMPDIR/m.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/m.log"';
+  assert.equal(evaluate(safe), null);
+});

@@ -12,6 +12,9 @@ catálogo.
 - **Processo:** [`../docs/implemented/processo/ecc-sync.md`](../docs/implemented/processo/ecc-sync.md).
 - **Comandos de verificação:** nenhum item repete comando de stack; todos apontam para a tabela **Portões de
   verificação** do [`../CLAUDE.md`](../CLAUDE.md).
+- **Modelo e esforço:** [`model-routing.json`](model-routing.json) decide em qual modelo e com qual esforço cada
+  agent roda, e onde o Fable entra. As linhas `model:` e `effort:` dos agents são escritas pelo
+  `model-routing.mjs apply`; não as edite à mão ([`rules/common/model-routing.md`](rules/common/model-routing.md)).
 
 ## Skills
 
@@ -77,14 +80,15 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `development-workflow.md` | ECC (adapt) | Pipeline de pesquisa, plano, TDD, revisão e commit. |
 | `agents.md` | ECC (adapt) | Quais agents existem e quando delegar. |
 | `code-review.md` | ECC (adapt) | Quando e como revisar. |
-| `performance.md` | ECC (adapt) | Escolha de modelo, janela de contexto, troubleshooting de build. |
+| `model-routing.md` | local | Modelo e esforço dos agents e dos subagents nativos; os quatro papéis do Fable; o que vence o arquivo. |
+| `performance.md` | ECC (adapt) | Ponteiro para o roteamento de modelo, janela de contexto, esforço da sessão, troubleshooting de build. |
 | `coding-style.md`, `testing.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, testes, segurança, hooks e padrões genéricos. |
 
 ## Hooks (`scripts/hooks/`, registrados em `settings.json`)
 
 | Hook | Origem | O que faz |
 |---|---|---|
-| `guard-shell.mjs` | local | `PreToolUse` em `Bash`: bloqueia portão com pipe, operação destrutiva, `--no-verify` e push em `main`. Sem Node, bloqueia com mensagem. Ajuste `VERIFY_GATES` e `PROTECTED_BRANCHES` no topo. |
+| `guard-shell.mjs` | local | `PreToolUse` em `Bash`: bloqueia portão com pipe (inclusive o `model-routing`), operação destrutiva, `--no-verify` e push em `main`. Sem Node, bloqueia com mensagem. Ajuste `VERIFY_GATES` e `PROTECTED_BRANCHES` no topo. |
 | `toolset-staleness.mjs` | local | `SessionStart`: uma linha quando o último sync com o ECC passou de `syncStaleDays` dias (campo do manifest), e outra quando há docs desatualizados ou nunca conferidos (`docs-check`). Em dia, sem manifest ou sem Node, não imprime nada; nunca bloqueia. |
 | `suggest-compact.js` | ECC (adapt) | `PreToolUse` em `Edit`/`Write`: sugere `/compact` pelo tamanho do contexto. Só avisa; sem Node, não faz nada. |
 
@@ -94,6 +98,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 |---|---|---|
 | `docs-check/docs-check.mjs` | local | `links`, `diff` e `stale`: liga docs ao código e aponta os que ficaram para trás ([`verificacao-de-docs.md`](../docs/implemented/processo/verificacao-de-docs.md)). |
 | `ecc-sync/report.mjs` | local | Relatório, catálogo, inventário e bootstrap do sync com o ECC. |
+| `model-routing/model-routing.mjs` | local | `check` (portão) e `apply`: derivam do `model-routing.json` o `model:` e o `effort:` de cada agent e o `advisorModel` do `settings.json`. |
 
 ## MCP
 

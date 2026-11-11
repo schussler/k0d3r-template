@@ -10,7 +10,9 @@ Ponto de partida para um projeto **docs-first** conduzido com o Claude Code, em 
   catálogo de tudo que o ECC oferece ([`.claude/README.md`](.claude/README.md));
 - dois hooks: `guard-shell` (bloqueia portão com pipe, operação destrutiva, `--no-verify` e push em `main`) e
   `strategic-compact` (sugere `/compact` nas fronteiras de fase);
-- o MCP Context7, para documentação atual de bibliotecas.
+- o MCP Context7, para documentação atual de bibliotecas;
+- um arquivo único de modelo e esforço dos agents ([`.claude/model-routing.json`](.claude/model-routing.json)),
+  com o Fable nos papéis em que ele é pertinente.
 
 ## Pré-requisitos
 
@@ -60,13 +62,33 @@ limite estourar, as consultas falham até a janela renovar.
 - [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md`.
 - [ ] Registrar as primeiras **Regras de arquitetura**, cada uma com o porquê e o doc que a detalha.
 - [ ] Rodar os testes do toolset: `node --test` em `scripts/hooks/guard-shell.test.mjs`,
-      `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs` e
-      `scripts/docs-check/docs-check.test.mjs`.
+      `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs`,
+      `scripts/docs-check/docs-check.test.mjs` e `scripts/model-routing/model-routing.test.mjs`.
+- [ ] Conferir o [`.claude/model-routing.json`](.claude/model-routing.json) contra os modelos que a sua conta
+      tem (ver "Modelo e esforço dos agents" abaixo) e rodar `node scripts/model-routing/model-routing.mjs check`.
 - [ ] Rodar `node scripts/docs-check/docs-check.mjs links` e `stale` para ver o estado dos docs.
 - [ ] Fazer a primeira tarefa de código com a **`/k0d3r-task`** (o caminho padrão); a **`/audit-docs`** cuida
       dos docs desatualizados ou nunca conferidos.
 - [ ] Escrever a primeira spec em `docs/planned/<área>/` a partir do
       [`feature-spec-template.md`](docs/implemented/processo/feature-spec-template.md).
+
+## Modelo e esforço dos agents
+
+Um arquivo só, o [`.claude/model-routing.json`](.claude/model-routing.json), decide em qual modelo e com qual
+esforço cada agent roda. Ele tem quatro níveis (`fronteira`, `raciocinio`, `padrao`, `rapido`), o nível de cada
+agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aberto e conselheiro.
+
+| Quando | O que fazer |
+| --- | --- |
+| Saiu um modelo novo, ou você quer gastar mais ou menos | Edite `niveis` e rode `node scripts/model-routing/model-routing.mjs apply`. |
+| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` e o `conselheiro` para `opus` (ou `conselheiro: null`) e rode o `apply`. |
+| Entrou um agent novo | Dê um nível a ele em `agents` e rode o `apply`. |
+
+O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e a chave `advisorModel` no
+`.claude/settings.json`. O `check` é portão: falha quando algo diverge do arquivo. O conselheiro usa o recurso
+advisor do Claude Code, que é experimental e exige a API da Anthropic ou a Claude Platform on AWS; onde ele não
+está disponível, a sessão roda sem conselheiro e sem erro. As regras de uso estão em
+[`model-routing.md`](.claude/rules/common/model-routing.md).
 
 ## Mantendo o toolset atualizado
 

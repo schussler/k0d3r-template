@@ -62,6 +62,7 @@ comandos. Marque `n/a` no portão que a stack não tem.
 | Auditoria de dependências | `<auditoria de dependências>` | |
 | Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
 | Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | |
+| Modelo e esforço dos agents | `node scripts/model-routing/model-routing.mjs check` | o frontmatter dos agents e o `advisorModel` batem com o `.claude/model-routing.json` ([`model-routing.md`](.claude/rules/common/model-routing.md)) |
 
 - **Nunca mascare o código de saída.** Nada de `| tail`, `| head` ou `| grep` num portão: redirecione para
   arquivo, imprima o código e só então leia o log
@@ -69,7 +70,7 @@ comandos. Marque `n/a` no portão que a stack não tem.
 - **Commit só com todos os portões verdes**, condicionado ao código de saída de cada um, não à leitura do `echo`.
 - Rode os portões da **raiz** do repositório.
 - **Ao preencher esta tabela, ajuste o hook `guard-shell`** (`VERIFY_GATES` em `scripts/hooks/guard-shell.mjs`)
-  para reconhecer os nomes dos seus portões. O `docs-check` já está lá.
+  para reconhecer os nomes dos seus portões. O `docs-check` e o `model-routing` já estão lá.
 - Regras completas: [`.claude/rules/common/verification.md`](.claude/rules/common/verification.md).
 
 ## Convenções
