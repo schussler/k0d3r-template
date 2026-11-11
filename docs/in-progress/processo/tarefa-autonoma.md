@@ -162,23 +162,29 @@ registrado aqui:
   (ver a decisão "correção de critério" abaixo).
 - O `README.md` da raiz descreve a `/k0d3r-task` nova no checklist da primeira sessão.
 
-**Correção da redação de um critério** (decisão da pessoa, 2026-11-11, pelo meio-termo entre duas opções):
+**Correção da redação de um critério** (decisão da pessoa, 2026-11-11):
 
-- Se a correção deixa o critério **igual ou mais exigente**, a sessão corrige sozinha e segue. O teste é: tudo o
-  que o texto novo aceita, o antigo também aceitava.
-- Se a correção **faz passar algo que o texto antigo reprovava**, a sessão para e pergunta só sobre esse
-  critério, mesmo tendo certeza de que o trabalho está certo.
-- Na dúvida sobre o lado, para.
-- A entrega lista cada critério corrigido, com o texto antigo e o novo.
+- Quando o comportamento entregue é o aprovado e é o texto do critério que não o descreve, a sessão corrige a
+  redação na spec sozinha e segue.
+- A entrega mostra cada critério corrigido: o texto antigo, o novo e por que o comportamento entregue é o
+  aprovado.
+- Se o que teria de mudar é o comportamento aprovado, e não a redação, a sessão para e pergunta só sobre esse
+  critério.
 
-Por quê: o critério é a régua do `acceptance-verifier`, e quem implementou não afrouxa a régua sozinho; mas
-parar para cada esclarecimento custa uma interrupção sem proteger nada. Rejeitado: parar em toda correção;
-deixar a sessão corrigir qualquer redação e relatar depois.
+Por quê: parar a cada correção de redação custa uma interrupção, e a pessoa confere a troca na entrega. O
+risco, aceito pela pessoa: quem implementou mexe na régua do verificador antes de alguém conferir, e um trabalho
+errado pode passar com um critério reescrito para caber nele. A defesa é a entrega mostrar a troca com o porquê.
 
-Nesta tarefa a sessão corrigiu dois critérios sem perguntar, o 3 e o 6, antes de a regra existir. Pelo teste
-acima, **as duas correções afrouxaram o critério** e teriam pedido uma parada: o 6 passou a aceitar as
-ocorrências das frases na própria spec e no manifest, e o 3 passou a aceitar precedentes fora de `CLAUDE.md` e
-de `.claude/rules/`. Os dois textos antigos estão no histórico do git desta spec.
+Troca de decisão no mesmo dia: a pessoa tinha escolhido antes um meio-termo (corrigir sozinha só quando a
+correção deixa o critério igual ou mais exigente; parar quando ele fica mais fácil de cumprir). O agente mostrou
+que, como estava escrito, o meio-termo equivalia a parar sempre: quando o verificador reprova um trabalho certo,
+o texto antigo reprova o entregue e o texto novo o aceita, e isso é sempre "mais fácil de cumprir". Entre manter
+o meio-termo, ancorar o teste no corpo da spec (recomendação do agente) e corrigir qualquer redação, a pessoa
+escolheu a última. Rejeitado: parar em toda correção; o meio-termo; a âncora no corpo da spec.
+
+Nesta tarefa a sessão corrigiu dois critérios sem perguntar, o 3 e o 6, antes de a regra existir. Pela regra
+atual, as duas correções são permitidas e aparecem nesta spec com o porquê. Os textos antigos estão no histórico
+do git desta spec.
 
 Na `/k0d3r-task`, duas linhas antigas mudaram por consequência das decisões desta spec. "Faça mudanças
 proporcionais ao problema" deu lugar à regra de reorganizar o que está no caminho da tarefa (decisão "dono
@@ -225,10 +231,10 @@ o `acceptance-verifier` é a segunda conferência e não a única.
 10. Num ensaio da `/k0d3r-task` sobre o item do
     [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) (o `parseArgs` do `report.mjs`), o agente não escreve código nem
     spec antes de perguntar, e faz uma pergunta só.
-11. A `/k0d3r-task` diz os dois lados da correção de um critério mal escrito: igual ou mais exigente, a sessão
-    corrige sozinha; mais fácil de cumprir, ela para e pergunta. E a entrega lista o texto antigo e o novo de
-    cada critério corrigido. (Critério acrescentado em 2026-11-11, com a decisão do meio-termo; conferido por
-    leitura do command.)
+11. A `/k0d3r-task` deixa a sessão corrigir sozinha a redação de um critério quando o comportamento entregue é o
+    aprovado, manda parar quando o que teria de mudar é o comportamento, e manda a entrega mostrar, para cada
+    critério corrigido, o texto antigo, o novo e o porquê. (Critério acrescentado em 2026-11-11 e reescrito no
+    mesmo dia com a troca de decisão.)
 
 ## Estratégia de testes e verificação
 

@@ -155,10 +155,7 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever código. O b
     - o agent `acceptance-verifier`, com um brief que leva **só o caminho da spec e a ref base do diff**. Não leve o resumo do que você fez nem o que espera que ele conclua. Na tarefa sem spec, o brief leva a ref base e a afirmação "sem efeito de comportamento", para ele procurar o efeito;
     - as revisões: agents `code-reviewer`, `security-reviewer` (quando tocar auth, entrada de usuário ou segredo), `silent-failure-hunter` e os reviewers de stack adotados, se houver.
 - Corrija cada critério que voltou **falhou** e os achados dos reviewers, rode os portões de novo e chame um `acceptance-verifier` novo. A tarefa só é entregue sem nenhum **falhou**.
-- Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. O que você faz depende de para que lado a correção do texto vai:
-    - **A correção deixa o critério igual ou mais exigente** (tudo o que o texto novo aceita, o antigo também aceitava): corrija sozinho e siga. É o caso de nomear o que estava vago, dizer o que se observa, ou acrescentar uma condição.
-    - **A correção faz passar algo que o texto antigo reprovava**: pare e pergunte só sobre esse critério, mostrando o texto atual, o texto proposto e por que o comportamento entregue é o aprovado. Vale mesmo quando você tem certeza de que o trabalho está certo: o critério é a régua do verificador, e quem implementou não afrouxa a régua sozinho.
-    - Na dúvida sobre o lado, pare.
+- Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. Quando o comportamento entregue é o aprovado e é o texto do critério que não o descreve, corrija a redação do critério na spec e siga. Quem implementou acabou de mexer na régua do verificador, então a pessoa precisa ver isso para conferir: na entrega, mostre o texto antigo, o texto novo e por que o comportamento entregue é o aprovado. Se o que teria de mudar é o comportamento aprovado, e não a redação, pare e pergunte só sobre esse critério.
 - Um defeito que a revisão acha num código que você não tocou, fora do caminho da tarefa, vai para a entrega e para o backlog, com a reprodução. Não o corrija aqui.
 - Os critérios **não conferido** e as mudanças que o diff traz e a spec não cobre vão para a entrega, com esses nomes.
 - Informe o que cada evidência demonstra e suas limitações.
@@ -174,7 +171,7 @@ Comece pelo resultado, em uma ou duas frases: o que funciona agora e o que não 
 
 1. O que mudou e, por critério de aceite, o veredito do `acceptance-verifier`: visto funcionando, ou não conferido e por quê.
 2. As verificações executadas, seus resultados (com exit code) e limitações.
-3. O que você decidiu sozinho: desvios do plano, código reorganizado, mudanças que o diff traz e a spec não cobre, testes do `test-author` alterados, chamadas escaladas para outro nível de modelo, e cada critério de aceite cuja redação você corrigiu, com o texto antigo e o novo.
+3. O que você decidiu sozinho: desvios do plano, código reorganizado, mudanças que o diff traz e a spec não cobre, testes do `test-author` alterados, chamadas escaladas para outro nível de modelo, e cada critério de aceite cuja redação você corrigiu, com o texto antigo, o novo e por que o comportamento entregue é o aprovado.
 4. A reconciliação documental, com **todo doc listado pelo `docs-check diff`**, cada um com "atualizado" ou "conferido, sem mudança: <o que foi olhado>":
 
     |Comportamento ou contrato|Documento e seção|Atualização ou conferência realizada|Evidência|
