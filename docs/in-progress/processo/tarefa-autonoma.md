@@ -167,7 +167,8 @@ A meta de 80% de cobertura e as demais rules ficam como estão.
    implementação e mudança na spec.
 5. Os dois agents têm nível no `model-routing.json`, e o `model-routing check` sai com 0.
 6. A busca no repositório inteiro, sem o `catalog.json`, por `No user prompt needed`, `ALWAYS use parallel` e
-   `MANDATORY workflow` não acha nada.
+   `MANDATORY workflow` só acha esta spec e as notas `adaptation` do manifest, que citam as frases para
+   registrar a troca. Nenhuma rule, command, skill ou agent as traz.
 7. As linhas Especificar, Construir e Verificar são iguais na tabela do `CLAUDE.md` e na do
    `feature-lifecycle.md`.
 8. O manifest tem os dois agents como `local` e o `testing.md` como `adapt`, com nota.

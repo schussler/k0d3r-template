@@ -12,7 +12,9 @@ agents (language reviewers, build resolvers, e2e runners) are adopted from ECC w
 | planner | Implementation planning | Complex features, refactoring |
 | architect | System design | Architectural decisions |
 | code-architect | Implementation blueprint from existing patterns | Designing a feature in an existing codebase |
-| tdd-guide | Test-driven development | New features, bug fixes |
+| tdd-guide | Test-driven development, driven by the session | The red/green/refactor cycle outside `/k0d3r-task` |
+| test-author | Failing tests written from the approved spec alone, with a clean context | In `/k0d3r-task`, after the spec is approved and before the code |
+| acceptance-verifier | Checks each acceptance criterion by running, with a clean context; never edits | In `/k0d3r-task`, after the gates are green |
 | code-reviewer | Code review | After writing code |
 | security-reviewer | Security analysis | Before commits |
 | silent-failure-hunter | Swallowed errors and bad fallbacks | Reviewing error paths |
@@ -25,28 +27,42 @@ agents (language reviewers, build resolvers, e2e runners) are adopted from ECC w
 
 For codebase exploration, use the built-in `Explore` subagent.
 
-## Immediate Agent Usage
+## When to Delegate
 
-No user prompt needed:
-1. Complex feature requests - Use **planner** agent
-2. Code just written/modified - Use **code-reviewer** agent
-3. Bug fix or new feature - Use **tdd-guide** agent
-4. Architectural decision - Use **architect** agent
+A subagent starts with none of your context and returns only a summary, and subagents can account for a large
+part of what a session costs. Delegate when that buys something:
+
+- the work is independent and can run while you do something else;
+- the answer needs a sweep across many files and you only need the conclusion;
+- you want a read that is not anchored on yours: a review, or one of the two clean-context roles below.
+
+Do the work yourself when it fits in a handful of tool calls or when you already know where to look.
+
+Which agents run at each step of a task is decided by the `/k0d3r-task` command, not by this rule:
+`test-author` before the code, `acceptance-verifier` and the reviewers after the gates are green. Outside the
+command, `planner` and `architect` fit a change that reshapes the system, and `code-reviewer` fits a code diff
+before it is committed.
+
+The model and the effort of each agent come from `.claude/model-routing.json`; see
+[model-routing.md](./model-routing.md).
 
 ## Parallel Task Execution
 
-ALWAYS use parallel Task execution for independent operations:
+When the agents you decided to use are independent of each other, launch them in the same message so they run
+concurrently. This is about how to launch agents, not a reason to launch more of them.
 
-```markdown
-# GOOD: Parallel execution
-Launch 3 agents in parallel:
-1. Agent 1: Security analysis of auth module
-2. Agent 2: Performance review of cache system
-3. Agent 3: Type checking of utilities
+## Briefing a Clean-Context Agent
 
-# BAD: Sequential when unnecessary
-First agent 1, then agent 2, then agent 3
-```
+`test-author` and `acceptance-verifier` are worth what they cost only if they do not inherit your reasoning.
+Their brief carries:
+
+- `test-author`: the path of the approved spec.
+- `acceptance-verifier`: the path of the spec and the base ref of the diff. In a task without a spec, the base
+  ref and the claim "no behaviour change".
+
+Leave out your plan, your summary of what was done and the conclusion you expect: an agent handed your
+conclusion tends to return it confirmed. Read the diff an agent produced before relying on it
+([verification.md](./verification.md), rule 9).
 
 ## Delegation Completion Contract
 

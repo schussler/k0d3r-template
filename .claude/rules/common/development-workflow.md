@@ -25,7 +25,8 @@ The Feature Implementation Workflow describes the development pipeline: research
    - Break down into phases
 
 2. **TDD Approach**
-   - Use **tdd-guide** agent
+   - In a `/k0d3r-task` with a spec, the failing tests come from the **test-author** agent, written from the
+     approved spec alone; outside the command, drive the cycle yourself, with the **tdd-guide** agent when it helps
    - Write tests first (RED)
    - Implement to pass tests (GREEN)
    - Refactor (IMPROVE)
@@ -33,6 +34,7 @@ The Feature Implementation Workflow describes the development pipeline: research
 
 3. **Code Review**
    - Use **code-reviewer** agent immediately after writing code
+   - In a `/k0d3r-task`, the **acceptance-verifier** agent checks each acceptance criterion with a clean context
    - Address CRITICAL and HIGH issues
    - Fix MEDIUM issues when possible
 

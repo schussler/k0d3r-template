@@ -213,7 +213,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`)."
+      "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`), mais os agents locais `test-author` e `acceptance-verifier`. \"Immediate Agent Usage\" (agents automáticos, \"No user prompt needed\") trocada por \"When to Delegate\" (quando delegar vale o custo; quem escala os agents de cada passo é a `/k0d3r-task`); \"Parallel Task Execution\" sem o \"ALWAYS\"; seção nova \"Briefing a Clean-Context Agent\"; ponteiro para `model-routing.md`."
     },
     {
       "downstream": ".claude/rules/common/code-review.md",
@@ -236,7 +236,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Nota sobre o ciclo de vida docs-first (link para `feature-lifecycle.md`); passo 4 ganhou branch única por sessão, commit por fatia só com portões verdes, push após cada commit e PR só quando pedido."
+      "adaptation": "Nota sobre o ciclo de vida docs-first (link para `feature-lifecycle.md`); passo 4 ganhou branch única por sessão, commit por fatia só com portões verdes, push após cada commit e PR só quando pedido. Passo 2: na `/k0d3r-task` os testes vêm do agent `test-author`, e o `tdd-guide` fica para fora dela; passo 3 cita o `acceptance-verifier`."
     },
     {
       "downstream": ".claude/rules/common/docs-writing.md",
@@ -300,8 +300,9 @@
       "downstream": ".claude/rules/common/testing.md",
       "source": "rules/common/testing.md",
       "type": "file",
-      "policy": "track",
-      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+      "policy": "adapt",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Os absolutos \"ALL required\" e \"MANDATORY workflow\" viraram regra com escopo: teste antes do código quando há critério de aceite; mudança sem efeito de comportamento não pede teste novo. Na `/k0d3r-task` os testes vêm do agent `test-author`; o `tdd-guide` fica para o ciclo conduzido pela sessão."
     },
     {
       "downstream": ".claude/rules/common/verification.md",

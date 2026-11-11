@@ -68,7 +68,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `/security-scan` | ECC (adapt) | Auditoria do `.claude/` com AgentShield (`npx ecc-agentshield@1.6.0`). |
 | `/sync-ecc-tools` | local | Atualizar do ECC; `--adopt` para adotar itens da stack. |
 | `/toolset-retro` | local | Retro do toolset no fim da sessão. |
-| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: spec, parada para aprovação, implementação, verificação (portões + `docs-check`) e entrega. Sem spec quando não há efeito de comportamento. |
+| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: investigação, entrevista (uma pergunta por vez), spec, uma parada para aprovação, testes pelo `test-author`, implementação até o fim, verificação (portões + `docs-check` + `acceptance-verifier`) e entrega. Sem spec quando não há efeito de comportamento. |
 | `/audit-docs` | local | Auditoria dos docs desatualizados ou nunca conferidos: um subagente por doc, amostra relida, parada para aprovação, correção e `conferido-em`. |
 
 ## Rules (`rules/common/`)
@@ -80,11 +80,12 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `docs-writing.md` | local | Como escrever e manter docs: `codigo:`, `conferido-em:`, resolver docs ligados ao código alterado. |
 | `git-workflow.md` | ECC (adapt) | Commits, branch única por sessão, verificação de branch, PR só quando pedido. |
 | `development-workflow.md` | ECC (adapt) | Pipeline de pesquisa, plano, TDD, revisão e commit. |
-| `agents.md` | ECC (adapt) | Quais agents existem e quando delegar. |
+| `agents.md` | ECC (adapt) | Quais agents existem, quando delegar vale o custo e como escrever o brief de um agent de contexto limpo. |
 | `code-review.md` | ECC (adapt) | Quando e como revisar. |
 | `model-routing.md` | local | Modelo e esforço dos agents e dos subagents nativos; os quatro papéis do Fable; o que vence o arquivo. |
 | `performance.md` | ECC (adapt) | Ponteiro para o roteamento de modelo, janela de contexto, esforço da sessão, troubleshooting de build. |
-| `coding-style.md`, `testing.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, testes, segurança, hooks e padrões genéricos. |
+| `testing.md` | ECC (adapt) | Tipos de teste, cobertura e teste antes do código quando há critério de aceite; quem escreve os testes na `/k0d3r-task`. |
+| `coding-style.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, segurança, hooks e padrões genéricos. |
 
 ## Hooks (`scripts/hooks/`, registrados em `settings.json`)
 

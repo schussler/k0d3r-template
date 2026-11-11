@@ -67,7 +67,8 @@ limite estourar, as consultas falham até a janela renovar.
 - [ ] Conferir o [`.claude/model-routing.json`](.claude/model-routing.json) contra os modelos que a sua conta
       tem (ver "Modelo e esforço dos agents" abaixo) e rodar `node scripts/model-routing/model-routing.mjs check`.
 - [ ] Rodar `node scripts/docs-check/docs-check.mjs links` e `stale` para ver o estado dos docs.
-- [ ] Fazer a primeira tarefa de código com a **`/k0d3r-task`** (o caminho padrão); a **`/audit-docs`** cuida
+- [ ] Fazer a primeira tarefa de código com a **`/k0d3r-task`** (o caminho padrão: ela entrevista você, para
+      uma vez para aprovar a spec e depois vai até a entrega); a **`/audit-docs`** cuida
       dos docs desatualizados ou nunca conferidos.
 - [ ] Escrever a primeira spec em `docs/planned/<área>/` a partir do
       [`feature-spec-template.md`](docs/implemented/processo/feature-spec-template.md).
