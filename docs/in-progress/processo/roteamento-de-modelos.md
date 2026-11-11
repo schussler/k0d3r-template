@@ -158,6 +158,31 @@ foram decididos na implementação, cada um com teste):
 - O `settings.json` é reescrito com o recuo e a quebra final que já tinha, e só quando o valor muda.
 - `--root` sem valor ou seguido de outra flag, e opção desconhecida, saem com 2. A linha de uso sai no stderr.
 
+**O portão falha fechado.** A revisão do script (um reviewer de código e um caçador de falhas silenciosas, os
+dois reproduzindo em diretório temporário) achou estados em que o `check` saía com 0 sem o disco estar como o
+arquivo manda. Cada um virou regra, com teste:
+
+- **Caminho com link simbólico.** Chamado por um caminho que passa por um link (um worktree, `/tmp` no macOS),
+  o script saía com 0 sem rodar nada. A guarda de entrada agora compara os dois lados pelo caminho real.
+- **Agent que o script não enxergava.** O diretório de agents é percorrido com os subdiretórios e os links
+  simbólicos para diretório, e a extensão `.MD` conta. O mesmo `name:` em dois arquivos é problema.
+- **Frontmatter lido de um jeito e interpretado de outro.** `model:`, `effort:` ou `name:` repetido é problema
+  (o agent rodaria com a última ocorrência). `model:sonnet`, sem espaço depois dos dois-pontos, é problema (em
+  YAML não é uma chave). Uma linha `---` com espaço no fim não fecha o frontmatter: o arquivo conta como sem
+  frontmatter válido.
+- **Nome herdado de `Object.prototype`.** Um nível chamado `toString` passava por existente e o `apply` gravava
+  `model: undefined`. Nível e nome de agent só valem como chave própria do objeto, e o nível tem de ser texto.
+- **Arquivo ilegível.** Diretório no lugar de arquivo, link quebrado e erro de permissão viram uma linha de
+  problema com o código do erro, em vez de exceção.
+- **`settings.json` fora do formato do `JSON.stringify`.** Reescrevê-lo mudaria mais que a chave (array em uma
+  linha, ordem das chaves, inteiro grande que perde precisão). Quando a chave precisa mudar e o arquivo não está
+  nesse formato, o `apply` recusa e diz para ajustar `advisorModel` à mão. Com a chave já certa, não é problema.
+- **Escrita pela metade.** O `apply` confere a permissão de escrita de todos os arquivos antes de escrever o
+  primeiro. Se uma escrita falhar mesmo assim, ele sai com 1 e lista os escritos e os não escritos.
+- **O `apply` relê o disco.** Depois de escrever, roda a mesma comparação do `check` e só sai com 0 se ela não
+  achar nada. Esse caminho não tem teste: não achei um estado que o provoque sem alterar o script.
+- **`name:` com acento** é comparado em UTF-8 com a chave do arquivo de roteamento.
+
 **Fluxos de quem mantém:**
 
 | Situação | O que fazer |
@@ -174,8 +199,9 @@ valores: aponta para o arquivo. Ela também traz a regra de escalada da seção 
 **O que vence o arquivo, fora do alcance do template.** `CLAUDE_CODE_SUBAGENT_MODEL` com
 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` faz o Claude Code ignorar o `model:` do frontmatter;
 `CLAUDE_CODE_EFFORT_LEVEL` vence o `effort:`; uma lista de modelos permitidos da organização troca o modelo
-pedido por outro. O `check` não detecta nenhum dos três: ele confere o repositório, não a máquina. A rule diz
-isso.
+pedido por outro; e um `advisorModel` em `.claude/settings.local.json` ou nas settings do usuário (onde o
+`/advisor` grava) vence o do projeto. O `check` não detecta nenhum dos quatro: ele confere o repositório, não a
+máquina. A rule diz isso.
 
 ## Contratos e documentos afetados
 
@@ -247,21 +273,21 @@ isso.
 - **O Fable 5.2 entra na tabela, onde é pertinente** (correção da pessoa, 2026-11-11, à primeira versão desta
   spec, que o deixava só como escolha da sessão). Por quê: usar o Fable quando cabe é o objetivo do gist e do
   artigo que motivaram a mudança.
-- **Proposta (agente): os quatro lugares do Fable** da seção "Onde o Fable 5.2 entra": orquestrador
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: os quatro lugares do Fable** da seção "Onde o Fable 5.2 entra": orquestrador
   recomendado com aviso, `planner`/`architect`/`Plan` em `fronteira`, conselheiro pelo advisor, escalada por
   rule. Rejeitado: fixar `model: fable` no settings do projeto (cobra Fable em toda sessão); pôr reviewers e
   verificador em Fable (tarefa bem especificada; com o conselheiro, eles já consultam o Fable nos pontos de
   decisão).
 - **Desfaz a adaptação "modelo herdado da sessão"** (consequência da primeira decisão). Os 13 agents `adapt`
   voltam a ter `model:`, agora derivado do arquivo e não do upstream.
-- **Proposta (agente): níveis com nome de papel, não de modelo** (`raciocinio`, `padrao`, `rapido`). Por quê:
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: níveis com nome de papel, não de modelo** (`raciocinio`, `padrao`, `rapido`). Por quê:
   o nome sobrevive à troca de modelo. Rejeitado: mapear agent → modelo direto, que obriga a editar 15 linhas a
   cada lançamento.
-- **Proposta (agente): `code-architect` em `raciocinio`** e `silent-failure-hunter`, `type-design-analyzer`,
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: `code-architect` em `raciocinio`** e `silent-failure-hunter`, `type-design-analyzer`,
   `pr-test-analyzer`, `refactor-cleaner` em `padrao`. A entrevista só nomeou parte dos agents.
-- **Proposta (agente): escalada para `fronteira`** quando um agent de `raciocinio` não acha a causa ou falha
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: escalada para `fronteira`** quando um agent de `raciocinio` não acha a causa ou falha
   duas vezes na mesma coisa, dita na entrega.
-- **Proposta (agente): nativos por rule, sem hook.** Um hook `PreToolUse` na chamada de agent poderia forçar o
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: nativos por rule, sem hook.** Um hook `PreToolUse` na chamada de agent poderia forçar o
   modelo dos nativos, mas depende do nome e do formato da ferramenta, que mudam entre versões do Claude Code.
   Fica registrado como alternativa, não construído.
 
@@ -291,8 +317,13 @@ saída 0.
 
 ### Feito vs pendente
 
-- [x] Fatia 1: script e testes (59 testes; 11 mutações, todas detectadas).
-- [x] Fatia 2: `apply` nos 13 agents e no `settings.json`, portão, `guard-shell`, manifest, rule, docs.
-- [ ] Critério 13: a linha de aviso do modelo da sessão entra com a reescrita da `/k0d3r-task`, na spec 2.
+- [x] Fatia 1: script e testes.
+- [x] Fatia 2: `apply` nos agents e no `settings.json`, portão, `guard-shell`, manifest, rule, docs.
+- [x] Revisão: os defeitos da seção "O portão falha fechado" corrigidos, teste antes do código. 81 testes; 27
+      mutações, todas detectadas.
+- [x] Critério 13: a linha de aviso está na `/k0d3r-task`. Conferido por leitura; nenhuma execução mostrou o
+      aviso, porque o ensaio rodou no modelo recomendado.
 - [ ] Critério 14: conferência do conselheiro numa sessão real, que só a pessoa pode fazer (abrir uma sessão
-      nova e ver o aviso do advisor).
+      nova no repositório e ver se a abertura mostra o advisor ligado).
+- [ ] Não conferido: se o Claude Code obedece ao `model:` e ao `effort:` do frontmatter. É comportamento do
+      produto; a documentação diz que sim.

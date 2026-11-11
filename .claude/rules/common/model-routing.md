@@ -36,12 +36,14 @@ O Fable é para o trabalho aberto e ambicioso, não para tarefa bem especificada
 
 ## O que vence o arquivo
 
-O `check` confere o repositório, não a máquina. Três coisas fora dele mudam o que roda de fato:
+O `check` confere o repositório, não a máquina. Quatro coisas fora dele mudam o que roda de fato:
 
 - `CLAUDE_CODE_SUBAGENT_MODEL` com `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` faz o Claude Code ignorar o `model:` do
   frontmatter;
 - `CLAUDE_CODE_EFFORT_LEVEL` vence o `effort:`;
-- uma lista de modelos permitidos da organização troca o modelo pedido por outro.
+- uma lista de modelos permitidos da organização troca o modelo pedido por outro;
+- um `advisorModel` em `.claude/settings.local.json` ou nas settings do usuário, que é onde o `/advisor` grava,
+  vence o do projeto.
 
 O conselheiro é um recurso experimental do Claude Code: exige a API da Anthropic ou a Claude Platform on AWS e
 acesso ao Fable. Onde falta uma dessas condições, a sessão roda sem conselheiro e sem erro.

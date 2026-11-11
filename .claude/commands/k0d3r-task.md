@@ -147,11 +147,14 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever código. O b
 
 ## ETAPA 3 — VERIFICAÇÃO E REVISÃO
 
+- Verifique você mesmo os critérios de aceite com evidências adequadas: testes, verificações de contrato, análise do caminho de execução ou execução da jornada, conforme o caso. O `acceptance-verifier` é a segunda conferência, não a única.
 - Execute os portões da tabela **Portões de verificação** do `CLAUDE.md`, sem pipe que mascare o exit code, e mais `docs-check diff` e `docs-check links`, ambos com exit 0.
 - Com os portões verdes, chame na mesma mensagem, em paralelo:
     - o agent `acceptance-verifier`, com um brief que leva **só o caminho da spec e a ref base do diff**. Não leve o resumo do que você fez nem o que espera que ele conclua. Na tarefa sem spec, o brief leva a ref base e a afirmação "sem efeito de comportamento", para ele procurar o efeito;
     - as revisões: agents `code-reviewer`, `security-reviewer` (quando tocar auth, entrada de usuário ou segredo), `silent-failure-hunter` e os reviewers de stack adotados, se houver.
 - Corrija cada critério que voltou **falhou** e os achados dos reviewers, rode os portões de novo e chame um `acceptance-verifier` novo. A tarefa só é entregue sem nenhum **falhou**.
+- Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. Se o comportamento aprovado está certo e o texto do critério é que não o descreve, corrija o critério na spec e diga isso na entrega, com o que mudou. Se o que teria de mudar é o comportamento aprovado, é o caso de parar e perguntar.
+- Um defeito que a revisão acha num código que você não tocou, fora do caminho da tarefa, vai para a entrega e para o backlog, com a reprodução. Não o corrija aqui.
 - Os critérios **não conferido** e as mudanças que o diff traz e a spec não cobre vão para a entrega, com esses nomes.
 - Informe o que cada evidência demonstra e suas limitações.
 - Confira nos dois sentidos:

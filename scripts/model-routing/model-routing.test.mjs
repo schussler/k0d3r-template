@@ -7,7 +7,7 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,9 +25,9 @@ after(() => {
 // --- helpers ------------------------------------------------------------------------
 
 // Without this guard a missing script makes node exit 1, which would pass every "exits 1" test by accident.
-function run(args, { cwd } = {}) {
-  assert.ok(existsSync(SCRIPT), `o script não existe: ${SCRIPT}`);
-  const r = spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8', cwd, timeout: 20000 });
+function run(args, { cwd, script = SCRIPT } = {}) {
+  assert.ok(existsSync(script), `o script não existe: ${script}`);
+  const r = spawnSync(process.execPath, [script, ...args], { encoding: 'utf8', cwd, timeout: 20000 });
   // An uncaught exception also exits 1 with text on stderr, which is what a refusal looks like. A stack
   // trace is never part of the contract, so it fails every test that runs the script.
   assert.doesNotMatch(r.stderr, /^\s+at .+:\d+:\d+\)?$/m, `o script quebrou em vez de responder:\n${r.stderr}`);
@@ -580,6 +580,186 @@ test('--root sem valor, ou seguido de outra flag, sai com 2 e não escreve nada'
   assert.equal(run(['apply', '--root'], { cwd: f.root }).status, 2);
   assert.equal(run(['apply', '--root', '--outra'], { cwd: f.root }).status, 2);
   assert.equal(run(['apply', '--desconhecida'], { cwd: f.root }).status, 2);
+  assert.deepEqual(snapshot(f.root), antes);
+});
+
+// --- estados em que o portão lia verde sem estar (achados da revisão) -------------------
+
+test('chamado por um caminho com link simbólico, o script roda de verdade em vez de sair com 0 calado', () => {
+  // Arrange: o diretório do script alcançado por um link, como num worktree ou em /tmp no macOS
+  const f = fixture({ unsynced: true });
+  const linkDir = path.join(f.root, 'link-para-o-script');
+  symlinkSync(path.dirname(SCRIPT), linkDir, 'dir');
+  // Act
+  const r = run(['check', '--root', f.root], { script: path.join(linkDir, 'model-routing.mjs') });
+  // Assert
+  assert.equal(r.status, 1, 'raiz fora de sincronia tem de sair com 1');
+  assert.match(r.stdout, /model-routing check/);
+});
+
+test('model: repetido no frontmatter é problema: o agent rodaria com a última ocorrência', () => {
+  const f = fixture();
+  f.write(agentPath('finder'), '---\nname: finder\nmodel: haiku\neffort: low\nmodel: opus\n---\nBusca.\n');
+  const antes = snapshot(f.root);
+  const r = check(f);
+  assert.equal(r.status, 1, r.stdout);
+  assert.ok(lines(r.stderr).some((l) => l.includes('finder.md') && l.includes('model')), r.stderr);
+  assert.equal(apply(f).status, 1);
+  assert.deepEqual(snapshot(f.root), antes);
+});
+
+test('model:valor sem espaço depois dos dois-pontos é problema: em YAML isso não é uma chave', () => {
+  const f = fixture();
+  f.write(agentPath('finder'), '---\nname: finder\nmodel:haiku\neffort:low\n---\nBusca.\n');
+  const antes = snapshot(f.root);
+  const r = check(f);
+  assert.equal(r.status, 1, r.stdout);
+  assert.ok(lines(r.stderr).some((l) => l.includes('finder.md') && l.includes('model:haiku')), r.stderr);
+  assert.equal(apply(f).status, 1);
+  assert.deepEqual(snapshot(f.root), antes);
+});
+
+test('linha --- com espaço no fim não fecha o frontmatter: o check cita o arquivo', () => {
+  const f = fixture();
+  f.write(agentPath('finder'), '---\nname: finder\n--- \nmodel: haiku\neffort: low\n---\nBusca.\n');
+  const r = check(f);
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stderr, /finder\.md/);
+});
+
+test('agent em subdiretório é visto: sem nível é problema, com nível é conferido e o apply o alcança', () => {
+  // Arrange
+  const f = fixture();
+  f.write('.claude/agents/time/aninhado.md', agentText('aninhado', { model: 'opus', effort: 'max' }));
+  // Act + Assert: sem entrada em agents
+  const semNivel = check(f);
+  assert.equal(semNivel.status, 1, semNivel.stdout);
+  assert.match(semNivel.stderr, /aninhado/);
+  // Act + Assert: com entrada, o apply escreve no arquivo aninhado
+  const cfg = f.json(ROUTING);
+  cfg.agents.aninhado = 'rapido';
+  f.write(ROUTING, JSON.stringify(cfg, null, 2) + '\n');
+  assert.equal(check(f).status, 1, 'frontmatter aninhado ainda diverge');
+  const r = apply(f);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(f.read('.claude/agents/time/aninhado.md').toString('utf8'), /^model: haiku$/m);
+  assert.equal(check(f).status, 0);
+});
+
+test('agent atrás de um link simbólico para diretório e agent com extensão .MD também são vistos', () => {
+  const f = fixture();
+  f.write('fora/escondido.md', agentText('escondido', { model: 'opus', effort: 'max' }));
+  symlinkSync(path.join(f.root, 'fora'), path.join(f.root, '.claude/agents/lnk'), 'dir');
+  f.write('.claude/agents/GRITO.MD', agentText('grito', { model: 'opus', effort: 'max' }));
+  const r = check(f);
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stderr, /escondido/);
+  assert.match(r.stderr, /grito/);
+});
+
+test('o mesmo name: em dois arquivos é problema, mesmo com model e effort iguais', () => {
+  const f = fixture();
+  f.write(agentPath('copia'), agentText('finder', { model: 'haiku', effort: 'low' }));
+  const r = check(f);
+  assert.equal(r.status, 1, r.stdout);
+  assert.ok(lines(r.stderr).some((l) => l.includes('finder.md') && l.includes('copia.md')), r.stderr);
+});
+
+const PROTOTYPE_CASES = [
+  ['agent com nível herdado de Object.prototype', (c) => { c.agents.planner = 'toString'; }, 'planner'],
+  ['nativo com nível herdado de Object.prototype', (c) => { c.nativos.Plan = 'constructor'; }, 'Plan'],
+  ['orquestrador herdado de Object.prototype', (c) => { c.orquestrador = 'hasOwnProperty'; }, 'orquestrador'],
+  ['nível de agent que não é texto', (c) => { c.agents.planner = ['fronteira']; }, 'planner'],
+  ['nível de agent null', (c) => { c.agents.planner = null; }, 'planner'],
+];
+
+for (const [nome, config, citado] of PROTOTYPE_CASES) {
+  test(`${nome}: check sai com 1 e o apply não escreve model: undefined`, () => {
+    const f = fixture({ config, unsynced: true });
+    const antes = snapshot(f.root);
+    const r = check(f);
+    assert.equal(r.status, 1, r.stdout);
+    assert.ok(r.stderr.includes(citado), r.stderr);
+    assert.equal(apply(f).status, 1);
+    assert.deepEqual(snapshot(f.root), antes);
+  });
+}
+
+test('agent chamado constructor sem entrada em agents não escapa: falta o nível', () => {
+  const f = fixture();
+  f.write(agentPath('constructor'), agentText('constructor', { model: 'haiku', effort: 'low' }));
+  const r = check(f);
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stderr, /constructor/);
+});
+
+test('name: com acento casa com a chave do arquivo de roteamento', () => {
+  const f = fixture({ config: (c) => { c.agents['revisão'] = 'rapido'; } });
+  const r = check(f);
+  assert.equal(r.status, 0, r.stderr);
+});
+
+// Each pattern asks for the error code next to the path: a swallowed read error also produces a message that
+// cites the path ("ausente", "não tem arquivo"), and would pass a test that only looks for the path.
+const UNREADABLE_CASES = [
+  ['model-routing.json é um diretório', (f) => { rmSync(path.join(f.root, ROUTING)); mkdirSync(path.join(f.root, ROUTING)); }, /^\.claude\/model-routing\.json: .*EISDIR/m],
+  ['settings.json é um diretório', (f) => { rmSync(path.join(f.root, SETTINGS)); mkdirSync(path.join(f.root, SETTINGS)); }, /^\.claude\/settings\.json: .*EISDIR/m],
+  ['.claude/agents é um arquivo', (f) => { rmSync(path.join(f.root, '.claude/agents'), { recursive: true }); f.write('.claude/agents', 'não sou diretório\n'); }, /^\.claude\/agents: .*ENOTDIR/m],
+  ['link simbólico quebrado no lugar de um agent', (f) => { symlinkSync(path.join(f.root, 'nao-existe.md'), path.join(f.root, agentPath('quebrado'))); }, /^\.claude\/agents\/quebrado\.md: .*ENOENT/m],
+];
+
+for (const [nome, estraga, cita] of UNREADABLE_CASES) {
+  test(`${nome}: check e apply respondem com problema e código 1, sem stack trace e sem escrever`, () => {
+    const f = fixture({ unsynced: true });
+    estraga(f);
+    const r = check(f);
+    assert.equal(r.status, 1, r.stdout);
+    assert.match(r.stderr, cita);
+    const antes = existsSync(path.join(f.root, agentPath('planner'))) ? f.read(agentPath('planner')) : null;
+    assert.equal(apply(f).status, 1);
+    if (antes) assert.ok(f.read(agentPath('planner')).equals(antes), 'o apply escreveu apesar do problema');
+  });
+}
+
+test('um diretório vazio chamado x.md dentro de agents não é agent nem quebra o script', () => {
+  const f = fixture();
+  mkdirSync(path.join(f.root, '.claude/agents/pasta.md'));
+  assert.equal(check(f).status, 0);
+});
+
+test('settings.json fora do formato do JSON.stringify: o apply recusa em vez de reescrever o arquivo inteiro', () => {
+  // Arrange: array numa linha só e inteiro que perderia precisão ao passar por JSON.parse
+  const original = '{\n  "permissions": { "allow": ["a", "b"] },\n  "grande": 12345678901234567890\n}\n';
+  const f = fixture({ settings: original, unsynced: true });
+  const antes = snapshot(f.root);
+  // Act
+  const r = apply(f);
+  // Assert
+  assert.equal(r.status, 1, r.stdout);
+  assert.ok(lines(r.stderr).some((l) => l.includes('settings.json') && l.includes('advisorModel')), r.stderr);
+  assert.deepEqual(snapshot(f.root), antes);
+});
+
+test('settings.json fora do formato, mas com advisorModel já certo, não é problema e não é reescrito', () => {
+  const original = '{\n  "permissions": { "allow": ["a", "b"] },\n  "advisorModel": "fable"\n}\n';
+  const f = fixture({ settings: original, unsynced: true });
+  assert.equal(apply(f).status, 0);
+  assert.equal(f.read(SETTINGS).toString('utf8'), original);
+  assert.equal(check(f).status, 0);
+});
+
+test('arquivo de agent sem permissão de escrita: o apply recusa antes de escrever qualquer arquivo', (t) => {
+  // root ignora o bit de permissão: sem como montar o caso, o teste não prova nada.
+  if (process.getuid?.() === 0) return t.skip('rodando como root');
+  // Arrange: writer é o último agent em ordem alfabética; os anteriores seriam escritos antes da falha
+  const f = fixture({ unsynced: true });
+  chmodSync(path.join(f.root, agentPath('writer')), 0o444);
+  const antes = snapshot(f.root);
+  // Act
+  const r = apply(f);
+  // Assert
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stderr, /writer\.md/);
   assert.deepEqual(snapshot(f.root), antes);
 });
 

@@ -55,8 +55,8 @@ Seção nova, "Como trabalhar", que vale em toda sessão. O texto proposto está
 
 | Passo | O que acontece | Para e espera a pessoa? |
 | --- | --- | --- |
-| Modelo da sessão | Compara com o nível `orquestrador` do roteamento (Fable 5.2, `high`) e avisa em uma linha se for outro | não |
 | Investigação | Lê docs e código, como hoje | não |
+| Modelo da sessão | Só na tarefa com spec, o que se sabe depois de investigar: compara com o nível `orquestrador` do roteamento (Fable 5.2, `high`) e avisa em uma linha se for outro | não |
 | Entrevista | Pergunta o que o repositório não responde | sim, a cada pergunta |
 | Spec | Escreve a spec com as respostas | não |
 | **Aprovação da spec** | Apresenta e pede aprovação | **sim: a única parada de aprovação** |
@@ -123,7 +123,7 @@ spec, que viraram a lista de casos de borda da spec 1.
 A sessão corrige o que **falhou** e chama um verificador novo. A tarefa só é entregue sem nenhum **falhou**.
 Os **não conferido** e as mudanças fora da spec vão para a entrega, com esses nomes.
 
-**Proposta (agente):** na mudança sem spec, o `acceptance-verifier` recebe o diff e a afirmação "sem efeito de
+Na mudança sem spec (proposta do agente, aprovada pela pessoa em 2026-11-11), o `acceptance-verifier` recebe o diff e a afirmação "sem efeito de
 comportamento", e procura o efeito de comportamento. É a afirmação que mais custa quando está errada.
 
 O `tdd-guide` continua no toolset para o ciclo vermelho, verde, refatorar conduzido pela própria sessão, fora
@@ -138,8 +138,17 @@ da `/k0d3r-task`.
 | `agents.md` | — | Os dois agents novos na tabela; como escrever o brief de um agent de contexto limpo; ponteiro para o roteamento |
 | `testing.md` | "MANDATORY workflow", "ALL required" | Testes primeiro quando há critério de aceite; a exceção (mudança sem efeito de comportamento) dentro da regra; `test-author` na `/k0d3r-task`. Passa de `track` a `adapt` no manifest |
 | `development-workflow.md` | Passo 2: "Use tdd-guide agent" | Na `/k0d3r-task`, os testes vêm do `test-author`; fora dela, `tdd-guide` |
+| `development-workflow.md` | Passo 3: só o `code-reviewer` | Ganha uma linha: na `/k0d3r-task`, o `acceptance-verifier` confere os critérios de aceite |
+| `testing.md` | "Run test - it should FAIL" | "…and for the reason you expect" |
+| `testing.md` | "Troubleshooting": `tdd-guide` como primeiro passo | `tdd-guide` como último passo, "if the cycle is stuck" |
+| `testing.md` | "Agent Support": `tdd-guide`, "Use PROACTIVELY" | `test-author` na `/k0d3r-task` e `tdd-guide` fora dela, sem o "PROACTIVELY" |
 
 A meta de 80% de cobertura e as demais rules ficam como estão.
+
+Na `/k0d3r-task`, duas linhas antigas mudaram por consequência das decisões desta spec. "Faça mudanças
+proporcionais ao problema" deu lugar à regra de reorganizar o que está no caminho da tarefa (decisão "dono
+dentro do escopo"). A linha em que a própria sessão verifica os critérios de aceite continua, agora dizendo que
+o `acceptance-verifier` é a segunda conferência e não a única.
 
 ## Contratos e documentos afetados
 
@@ -162,7 +171,11 @@ A meta de 80% de cobertura e as demais rules ficam como estão.
 2. A `/k0d3r-task` tem uma única parada de aprovação antes da entrega, e diz em que caso a implementação volta
    a parar.
 3. O `CLAUDE.md` tem a seção "Como trabalhar" com as duas listas, e todo item da lista "peça ok" corresponde a
-   uma aprovação que já existia em `CLAUDE.md` ou em `.claude/rules/`.
+   uma aprovação ou a um bloqueio que já existia no projeto antes desta mudança. Cinco vêm do `CLAUDE.md` e de
+   `.claude/rules/`: spec não aprovada, graduação, PR, regra de arquitetura e item do ECC. "Mudar comportamento
+   ou escopo aprovados" vem da `/k0d3r-task` anterior. "Operação destrutiva ou difícil de desfazer" vem do hook
+   `guard-shell`, que já a bloqueava. A única palavra sem precedente é "contrato", no item da mudança de
+   comportamento ou escopo; ela está no texto que a pessoa aprovou.
 4. `acceptance-verifier.md` não lista `Edit` nem `Write` em `tools:`. `test-author.md` proíbe código de
    implementação e mudança na spec.
 5. Os dois agents têm nível no `model-routing.json`, e o `model-routing check` sai com 0.
@@ -210,12 +223,14 @@ A meta de 80% de cobertura e as demais rules ficam como estão.
   vizinho; mudança mínima como hoje.
 - **Alcance: command, `CLAUDE.md` e as rules que contradizem** (decisão da pessoa, 2026-11-11). Rejeitado: só
   o command; reescrever os 13 agents e todas as rules do ECC.
-- **Proposta (agente): agents novos em vez de adaptar o `tdd-guide` e o `pr-test-analyzer`.** Os dois do ECC
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: agents novos em vez de adaptar o `tdd-guide` e o `pr-test-analyzer`.** Os dois do ECC
   têm outro papel (conduzir o ciclo; avaliar a cobertura de um PR), e adaptá-los mais encarece o sync.
-- **Proposta (agente): o verificador não edita.** Quem corrige é a sessão; um verificador que conserta o que
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente: o verificador não edita.** Quem corrige é a sessão; um verificador que conserta o que
   acha deixa de ser uma segunda opinião.
-- **Proposta (agente): as descrições "Use PROACTIVELY" dos 13 agents ficam como estão**, e vão para o
-  backlog. São ordens fixas de delegar, mas ficam fora do alcance aprovado.
+- **As descrições "Use PROACTIVELY" ficam como estão e foram para o backlog** (proposta do agente, aprovada
+  pela pessoa em 2026-11-11). São ordens fixas de delegar, mas ficam fora do alcance aprovado. A proposta dizia
+  "dos 13 agents"; a contagem no código deu 7 (`planner`, `architect`, `code-reviewer`, `security-reviewer`,
+  `tdd-guide`, `doc-updater`, `refactor-cleaner`).
 
 ## Fora de escopo / questões em aberto
 
@@ -274,7 +289,18 @@ Critérios 1 a 10 conferidos; nenhum **falhou** do `acceptance-verifier`; todos 
 
 ### Feito vs pendente
 
-- [ ] Fatia 1
-- [ ] Fatia 2
-- [ ] Fatia 3
-- [ ] Fatia 4
+- [x] Fatia 1: agents, nível no roteamento, manifest.
+- [x] Fatia 2: seção "Como trabalhar" e reescrita da `/k0d3r-task`.
+- [x] Fatia 3: rules, tabelas de etapas, manifest.
+- [x] Fatia 4: READMEs, docs de `implemented/` conferidos, backlog, conferência por contexto limpo e ensaio.
+
+Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
+**falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de
+`.claude/rules/`, e dois vinham de outros lugares do projeto. O comportamento aprovado não mudou: a redação do
+critério foi corrigida para nomear as origens. O mesmo verificador listou mudanças que o diff trazia e a spec
+não citava; elas entraram na seção 4.
+
+Resultado do ensaio (critério 10): o agente investigou, reproduziu o defeito e terminou com **uma** pergunta,
+com duas opções, a recomendação e o que achou no código. Não escreveu spec nem código; `git status` na cópia
+isolada mostrou só uma pasta ignorada, com o script de reprodução. Limite: o ensaio mostra a primeira pergunta,
+não a entrevista inteira nem o que acontece depois da aprovação.
