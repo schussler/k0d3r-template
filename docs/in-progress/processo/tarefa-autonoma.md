@@ -121,6 +121,8 @@ spec, que viraram a lista de casos de borda da spec 1.
 | Devolve | Por critério: **visto funcionando** (comando e saída), **falhou** (o que viu) ou **não conferido** (por quê). E a lista do que o diff muda e a spec não cobre. |
 
 A sessão corrige o que **falhou** e chama um verificador novo. A tarefa só é entregue sem nenhum **falhou**.
+Quando o **falhou** vem de um critério mal escrito, vale a decisão "correção da redação de um critério", na
+seção 4.
 Os **não conferido** e as mudanças fora da spec vão para a entrega, com esses nomes.
 
 Na mudança sem spec (proposta do agente, aprovada pela pessoa em 2026-11-11), o `acceptance-verifier` recebe o diff e a afirmação "sem efeito de
@@ -156,14 +158,27 @@ registrado aqui:
   spec 1.
 - Etapa 3: um defeito que a revisão acha em código que a tarefa não tocou vai para a entrega e para o backlog,
   com a reprodução. É a regra "problema fora do caminho é registrado", com o destino dito.
-- Etapa 3: um **falhou** que aponta um critério mal escrito é mudança na spec aprovada, e a sessão para e
-  pergunta só sobre esse critério.
+- Etapa 3: o que a sessão faz quando um **falhou** aponta um critério mal escrito, e não um trabalho errado
+  (ver a decisão "correção de critério" abaixo).
 - O `README.md` da raiz descreve a `/k0d3r-task` nova no checklist da primeira sessão.
 
-**Proposta (agente), não aprovada:** deixar a sessão corrigir sozinha a redação de um critério quando o
-comportamento entregue é o aprovado, dizendo na entrega o texto antigo e o novo. Nesta tarefa a sessão fez isso
-duas vezes sem perguntar, nos critérios 3 e 6, antes de a regra existir; os dois textos antigos estão no
-histórico do git desta spec. Sem essa proposta, cada correção de redação custa uma parada.
+**Correção da redação de um critério** (decisão da pessoa, 2026-11-11, pelo meio-termo entre duas opções):
+
+- Se a correção deixa o critério **igual ou mais exigente**, a sessão corrige sozinha e segue. O teste é: tudo o
+  que o texto novo aceita, o antigo também aceitava.
+- Se a correção **faz passar algo que o texto antigo reprovava**, a sessão para e pergunta só sobre esse
+  critério, mesmo tendo certeza de que o trabalho está certo.
+- Na dúvida sobre o lado, para.
+- A entrega lista cada critério corrigido, com o texto antigo e o novo.
+
+Por quê: o critério é a régua do `acceptance-verifier`, e quem implementou não afrouxa a régua sozinho; mas
+parar para cada esclarecimento custa uma interrupção sem proteger nada. Rejeitado: parar em toda correção;
+deixar a sessão corrigir qualquer redação e relatar depois.
+
+Nesta tarefa a sessão corrigiu dois critérios sem perguntar, o 3 e o 6, antes de a regra existir. Pelo teste
+acima, **as duas correções afrouxaram o critério** e teriam pedido uma parada: o 6 passou a aceitar as
+ocorrências das frases na própria spec e no manifest, e o 3 passou a aceitar precedentes fora de `CLAUDE.md` e
+de `.claude/rules/`. Os dois textos antigos estão no histórico do git desta spec.
 
 Na `/k0d3r-task`, duas linhas antigas mudaram por consequência das decisões desta spec. "Faça mudanças
 proporcionais ao problema" deu lugar à regra de reorganizar o que está no caminho da tarefa (decisão "dono
@@ -210,6 +225,10 @@ o `acceptance-verifier` é a segunda conferência e não a única.
 10. Num ensaio da `/k0d3r-task` sobre o item do
     [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) (o `parseArgs` do `report.mjs`), o agente não escreve código nem
     spec antes de perguntar, e faz uma pergunta só.
+11. A `/k0d3r-task` diz os dois lados da correção de um critério mal escrito: igual ou mais exigente, a sessão
+    corrige sozinha; mais fácil de cumprir, ela para e pergunta. E a entrega lista o texto antigo e o novo de
+    cada critério corrigido. (Critério acrescentado em 2026-11-11, com a decisão do meio-termo; conferido por
+    leitura do command.)
 
 ## Estratégia de testes e verificação
 
@@ -305,7 +324,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 10 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 11 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
