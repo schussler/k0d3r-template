@@ -24,8 +24,9 @@ design**. O código implementa a spec e é revisado contra ela.
 
 ## Projeto em um parágrafo
 
-<O que o sistema é, para quem, quais são as partes principais (apps, serviços, jobs) e o que está fora do
-escopo. Detalhe em [`docs/vision-and-scope.md`](docs/vision-and-scope.md).>
+Estação Kepler: um FPS 3D que roda no navegador, feito para demonstração em vídeo. Uma aplicação de página
+única (Vite + Three.js) na raiz do repositório, sem servidor, sem dado persistido e sem arquivo de mídia externo:
+modelos, texturas, sons e interface são gerados no código. Spec: [`docs/in-progress/produto/estacao-kepler.md`](docs/in-progress/produto/estacao-kepler.md).
 
 ## Regras de arquitetura
 
@@ -39,11 +40,11 @@ Mudar uma regra exige uma decisão registrada na seção **Decisões** do doc af
 > O `/sync-ecc-tools` lê esta seção para sugerir os itens do ECC ligados ao projeto (ver "Pacotes de stack" em
 > [`.claude/README.md`](.claude/README.md)). Uma linha por item, sem `<...>` depois de preenchida.
 
-- Linguagens: <linguagens e versões>
-- Frameworks: <frameworks e versões>
-- Banco de dados: <bancos e versões>
-- Infraestrutura: <hospedagem, filas, serviços externos>
-- Testes: <runner de teste e de e2e>
+- Linguagens: TypeScript 6.0.3, Node 24
+- Frameworks: Vite 8.3.5, Three.js 0.186.1, Web Audio API (nativa)
+- Banco de dados: nenhum
+- Infraestrutura: nenhuma (aplicação estática no navegador)
+- Testes: Vitest 4.1.12 (unidade, cobertura v8) e Playwright 1.64.1 (e2e, Chromium)
 
 > **Gatilho:** se esta seção estiver vazia ou não refletir os arquivos do repo, antes da primeira tarefa de
 > código: detecte a stack, proponha o texto desta seção e rode `/sync-ecc-tools --adopt`.
@@ -55,11 +56,12 @@ comandos. Marque `n/a` no portão que a stack não tem.
 
 | Portão | Comando | Observação |
 | --- | --- | --- |
-| Lint | `<comando de lint>` | zero warning |
-| Typecheck | `<comando de typecheck>` | |
-| Teste | `<comando de teste>` | |
-| Build | `<comando de build>` | |
-| Auditoria de dependências | `<auditoria de dependências>` | |
+| Lint | `npm run lint` | zero warning |
+| Typecheck | `npm run typecheck` | |
+| Teste | `npm run test` | Vitest com cobertura; meta 80% em `src/rules/` e `src/level/` |
+| Build | `npm run build` | |
+| E2E | `npm run e2e` | Playwright; sobe o `npm run dev` e falha em erro no console |
+| Auditoria de dependências | `npm audit --audit-level=high` | |
 | Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
 | Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | |
 
@@ -74,8 +76,8 @@ comandos. Marque `n/a` no portão que a stack não tem.
 
 ## Convenções
 
-- **Idioma:** <idioma do código: identificadores, comentários, nomes de arquivo> no código;
-  <idioma dos docs e da interface> nos docs em `docs/` e no texto de interface. O toolset `.claude/` fica em
+- **Idioma:** inglês no código (identificadores, nomes de arquivo); pt-BR nos comentários, nos docs em `docs/`
+  e no texto de interface. O toolset `.claude/` fica em
   inglês nos itens vindos do ECC.
 - **Comentários explicam o porquê**, nunca o quê. Sem código morto, sem import sem uso.
 - **Erros nunca são engolidos.** Erro tipado, levado à interface ou ao log com contexto; um `catch` vazio é

@@ -10,7 +10,7 @@ codigo:
   - .claude/settings.json
   - .claude/commands/toolset-retro.md
   - .claude/skills/search-first/SKILL.md
-conferido-em: 2026-11-04
+conferido-em: 2026-11-12
 ---
 
 # Mantendo o toolset `.claude/` em sincronia com o ECC
