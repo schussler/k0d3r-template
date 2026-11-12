@@ -6,7 +6,7 @@
     "rapido": { "model": "haiku", "effort": "low" }
   },
   "orquestrador": "fronteira",
-  "conselheiro": null,
+  "conselheiro": "fronteira",
   "agents": {
     "planner": "fronteira",
     "architect": "fronteira",

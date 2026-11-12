@@ -359,6 +359,10 @@ que é o que o `test-author` da fatia recebe; os portões "na iteração" e "ant
 
 O que sai: o `acceptance-verifier` ao fim de cada fatia, o brief de fatia dele e o limite de duas rodadas.
 
+O conselheiro volta a ficar ligado nesta branch (decisão registrada na
+[spec do roteamento](roteamento-de-modelos.md)): a consulta "antes de declarar pronto" é a conferência que sobra
+dentro de cada fatia.
+
 Custo aceito: um defeito de uma fatia só aparece no fim, e as correções vêm todas de uma vez. Na `novo2`, o
 verificador por fatia achou 3 **falhou** reais nas fatias 2 e 3.
 

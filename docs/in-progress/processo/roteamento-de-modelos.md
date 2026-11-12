@@ -41,7 +41,7 @@ Fonte única: `.claude/model-routing.json`.
     "rapido":     { "model": "haiku",  "effort": "low" }
   },
   "orquestrador": "fronteira",
-  "conselheiro": null,
+  "conselheiro": "fronteira",
   "agents": {
     "planner": "fronteira",
     "architect": "fronteira",
@@ -92,7 +92,7 @@ modelo para "your hardest and longest-running tasks".
 | --- | --- | --- |
 | **Orquestrador** | A sessão que conduz uma `/k0d3r-task` com spec | Recomendação, não imposição: a `/k0d3r-task` compara o modelo da sessão com o nível `orquestrador` e, se for outro, diz em uma linha qual é o recomendado e como trocar (`/model`, `/effort`). Depois segue. |
 | **Planejamento aberto** | `planner`, `architect` e o nativo `Plan`, no nível `fronteira` | Frontmatter, pelo `apply`. |
-| **Conselheiro** (desligado desde 2026-11-12, `"conselheiro": null`; ver Decisões) | Ligado, a sessão e os agents em Opus, Sonnet ou Haiku consultam o Fable antes de fechar uma abordagem, num erro que se repete e antes de declarar pronto | `advisorModel` no `.claude/settings.json`, escrito pelo `apply` a partir de `conselheiro`, e removido por ele com `null`. Os subagents herdam o conselheiro da sessão. |
+| **Conselheiro** (desligado e religado em 2026-11-12; ver Decisões) | A sessão e os agents em Opus, Sonnet ou Haiku consultam o Fable antes de fechar uma abordagem, num erro que se repete e antes de declarar pronto | `advisorModel` no `.claude/settings.json`, escrito pelo `apply` a partir de `conselheiro`, e removido por ele com `null`. Os subagents herdam o conselheiro da sessão. |
 | **Escalada** | Um agent de `raciocinio` que não achou a causa, ou que falhou duas vezes na mesma coisa | A rule manda refazer a chamada no nível `fronteira` e dizer isso na entrega. |
 
 Onde o Fable **não** entra: revisão de diff, escrita de testes, atualização de docs e busca. São tarefas bem
@@ -252,10 +252,13 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
     parar a tarefa.
 14. Numa sessão real, depois do `apply`, a mensagem de abertura do Claude Code mostra o advisor ligado. Se não
     mostrar, vale o plano B da seção "Limites do conselheiro", e a entrega diz qual dos dois ficou.
-15. O `model-routing.json` tem `"conselheiro": null`, o `.claude/settings.json` não tem `advisorModel`, e a rule
+15. (Substituído pelo critério 17 em 2026-11-12.) O `model-routing.json` tem `"conselheiro": null`, o `.claude/settings.json` não tem `advisorModel`, e a rule
     `model-routing.md` e o `README.md` dizem que o conselheiro vem desligado e como ligá-lo.
 16. O `acceptance-verifier` está no nível `padrao`, o frontmatter dele tem `model: sonnet` e `effort: medium`,
     e o `model-routing check` sai com 0.
+17. O `model-routing.json` tem `"conselheiro": "fronteira"`, o `.claude/settings.json` tem `advisorModel` igual
+    ao `model` desse nível, e a rule `model-routing.md` e o `README.md` dizem como desligá-lo (`null` e
+    `apply`).
 
 ## Estratégia de testes e verificação
 
@@ -312,6 +315,12 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
   estes dois pontos da postura "equilibrado" e dos quatro lugares do Fable; o resto fica. O mecanismo do
   conselheiro continua no script, desligado com `"conselheiro": null`. Rejeitado: tirar o conselheiro do script e
   dos testes; manter o verificador em Opus.
+- **Conselheiro religado no meio-termo** (decisão da pessoa, 2026-11-12, na branch `harness-meio-termo`: "sim").
+  Os transcripts da `novo2` mostram que ele foi usado: a sessão e quase todo subagente o consultaram, uma ou
+  duas vezes cada. Sem o verificador por fatia, a consulta "antes de declarar pronto" é a conferência que sobra
+  dentro de cada fatia, e religá-lo deixa a comparação com a `novo2` com uma variável a menos. O custo dele não
+  está medido: o uso do Fable vem dentro das chamadas e a medição não o separa. Substitui a parte do conselheiro
+  da decisão anterior; o verificador continua em `padrao`.
 
 ## Fora de escopo / questões em aberto
 
@@ -334,7 +343,7 @@ Os dois agents novos entram em `agents` na fatia 1 da spec 2.
 
 ### Definição de pronto
 
-Critérios 1 a 16 conferidos; todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
+Critérios 1 a 17 conferidos, menos o 15 (substituído); todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
 saída 0.
 
 ### Feito vs pendente
@@ -360,6 +369,9 @@ saída 0.
       o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
       modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
       como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
+- [x] Critério 17 (conselheiro religado no meio-termo): conferido pela sessão, não por um agent de contexto limpo:
+      `conselheiro` = `fronteira`, `model` do nível = `fable`, `advisorModel` = `fable`, `check` com 0; a rule e o
+      `README.md` dizem como desligar (`null` e `apply`).
 - [x] Critérios 15 e 16 (decisão de 2026-11-12): conselheiro desligado, verificador em `padrao`. Vistos
       funcionando por um `acceptance-verifier` novo, com controle: o `check` sai com 1 com o frontmatter do
       verificador em `opus` e com `advisorModel` de volta no `settings.json`. Ressalvas dele, resolvidas: a
