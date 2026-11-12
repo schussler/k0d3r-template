@@ -744,9 +744,14 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
-- [ ] Fatia 12 (seção 12, critérios 36 a 39): command, `sync-ecc-tools.md`, gatilho, linhas Dia zero e Iniciar,
+- [x] Fatia 12 (seção 12, critérios 36 a 39): command, `sync-ecc-tools.md`, gatilho, linhas Dia zero e Iniciar,
       seções 0 e 2 do `feature-lifecycle.md`, os dois READMEs, `ecc-sync.md`, template de spec; conferência por
       contexto limpo.
+
+Resultado da conferência da fatia 12, por um `acceptance-verifier` novo (base `453b376`): critérios 36 a 39
+vistos funcionando, por leitura, busca e `diff` das linhas Dia zero e Iniciar; nada no diff fora da spec. Não
+conferido: a tarefa escrevendo a lista, adotando e chamando os agents adotados numa execução real.
+
 - [x] Fatia 11 (seção 11, critérios 32 a 35): command, os dois agents, `agents.md`, `audit-docs.md`, regras de
       feature parcial e da `/k0d3r-task`, "spec × delta", backlog do projeto; conferência por contexto limpo.
 
