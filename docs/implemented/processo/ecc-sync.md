@@ -65,8 +65,8 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 
 | Gatilho | Modo |
 | --- | --- |
-| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt`, rodado pela pessoa |
-| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, rodado pela pessoa depois que a tarefa atualiza a `## Stack` |
+| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
+| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa, depois que a tarefa atualiza a `## Stack` |
 | O hook de `SessionStart` (`toolset-staleness.mjs`) ou o `/toolset-retro` avisa que o último sync passou de `syncStaleDays` dias (campo do manifest) | `/sync-ecc-tools` |
 | A retro acha uma ferramenta faltante que o catálogo tem | `/sync-ecc-tools --adopt` |
 | A qualquer momento | `/sync-ecc-tools` |

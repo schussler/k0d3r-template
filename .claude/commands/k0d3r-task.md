@@ -103,7 +103,7 @@ Esta é a única parada de aprovação antes da entrega. Após preparar a spec:
 1. Apresente o caminho do documento (ou "sem spec: <motivo>", com o plano curto e os portões que vão rodar).
 2. Resuma a solução proposta, seu alcance e os principais impactos.
 3. Declare se a mudança **edita a spec de `implemented/`** ou **abre um delta em `planned/`**, e por quê, pelo critério de [spec × delta](../rules/common/feature-lifecycle.md#spec-ou-delta): depois do merge, a spec em `implemented/` continua dizendo a verdade? No caso "editar a spec de `implemented/`", a spec da tarefa fica em `docs/in-progress/<área>/<nome>.md` durante a tarefa; no caso delta, o ciclo é o normal.
-4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** que precisam de aprovação.
+4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** que precisam de aprovação. Se a tarefa preenche ou muda a `## Stack`, diga que a adoção do ECC fica pendente, fora da tarefa (`/sync-ecc-tools --adopt`).
 5. Peça explicitamente aprovação para implementar a versão apresentada.
 6. Encerre sua resposta e aguarde.
 

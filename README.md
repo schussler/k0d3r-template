@@ -110,7 +110,7 @@ Os gatilhos:
 | Gatilho | O que fazer |
 | --- | --- |
 | Dia zero | `## Stack` preenchida → você roda `/sync-ecc-tools --adopt` (fora da `/k0d3r-task`, que só avisa). |
-| Início de feature que muda a stack | A tarefa atualiza a `## Stack` no mesmo commit do `git mv` para `in-progress/` e avisa → você roda `/sync-ecc-tools --adopt`. |
+| Início de feature que muda a stack | A tarefa atualiza a `## Stack` no mesmo commit do `git mv` para `in-progress/` e avisa → você roda `/sync-ecc-tools --adopt`, fora da tarefa. |
 | Início de sessão | O hook `toolset-staleness` avisa quando o último sync passou de `syncStaleDays` dias. |
 | Retro do toolset | O `/toolset-retro` faz a mesma checagem e consulta o `catalog.json` antes de mandar uma ferramenta faltante para o backlog. |
 | Sync manual | `/sync-ecc-tools` a qualquer momento: atualiza os itens adotados, regenera o catálogo e lista os candidatos novos, separados entre os ligados à stack e os outros. |
