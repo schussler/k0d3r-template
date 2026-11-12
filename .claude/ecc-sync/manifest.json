@@ -213,7 +213,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`), mais os agents locais `test-author` e `acceptance-verifier`. \"Immediate Agent Usage\" (agents automáticos, \"No user prompt needed\") trocada por \"When to Delegate\" (quando delegar vale o custo; quem escala os agents de cada passo é a `/k0d3r-task`); \"Parallel Task Execution\" sem o \"ALWAYS\"; seção nova \"Briefing a Clean-Context Agent\", com o brief do `acceptance-verifier` ao fim de cada fatia; ponteiro para `model-routing.md`."
+      "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`), mais os agents locais `test-author` e `acceptance-verifier`. \"Immediate Agent Usage\" (agents automáticos, \"No user prompt needed\") trocada por \"When to Delegate\" (quando delegar vale o custo; quem escala os agents de cada passo é a `/k0d3r-task`); \"Parallel Task Execution\" sem o \"ALWAYS\"; seção nova \"Briefing a Clean-Context Agent\", com o brief do `acceptance-verifier` ao fim de cada fatia e o do `test-author` no começo de cada fatia; ponteiro para `model-routing.md`."
     },
     {
       "downstream": ".claude/rules/common/code-review.md",

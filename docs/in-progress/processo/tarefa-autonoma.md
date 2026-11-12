@@ -256,6 +256,9 @@ Comportamento desejado:
   Uma fatia sem critério ligado não tem `test-author`.
 - **Antes do código da fatia, sem paralelo.** A sessão chama o `test-author` em primeiro plano e só escreve
   código da fatia depois que ele devolve. Não o chama em segundo plano nem espera por ele com laço de espera.
+- Casos de borda decididos na implementação, no `test-author.md`: os testes das fatias anteriores já existem e
+  devem continuar passando; e um teste que passa de primeira, porque o código de que ele depende já existe, é
+  relatado como "não visto falhando".
 - **O número de fatias continua livre** (decisão da pessoa, 2026-11-12: "não limite a imaginação dos
   modelos"). O agente tinha proposto pedir o menor número de fatias, para economizar rodadas de `test-author` e
   de verificador; a pessoa rejeitou.
@@ -294,7 +297,7 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
 | `.claude/README.md` | inventário |
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md) | conferidos pelo `docs-check diff`; atualizados onde citam o fluxo da tarefa |
 | Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), linha do agent no inventário do `.claude/README.md`, nota `adaptation` do `agents.md` no manifest |
-| Seção 6 (portões rápidos e lentos) | `CLAUDE.md` (coluna "Quando" e a linha sobre quando rodar), `verification.md` (rodar só os rápidos na iteração, todos antes do commit), `k0d3r-task.md` ("Implemente até o fim"), seção 0 do `feature-lifecycle.md` (preencher a coluna) |
+| Seção 6 (portões rápidos e lentos) | `CLAUDE.md` (coluna "Quando" e a linha sobre quando rodar), `verification.md` (rodar só os rápidos na iteração, todos antes do commit), `k0d3r-task.md` ("Implemente até o fim"), seções 0 e 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, item do checklist do `README.md` da raiz |
 | Seção 6 (testes por fatia) | `k0d3r-task.md` ("Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, inventário do `.claude/README.md`, notas `adaptation` do manifest |
 
 ## Critérios de aceite
@@ -482,9 +485,17 @@ manifest, o caso de borda "diga isso e pare" do agent e a falta da exceção "fa
 `feature-lifecycle.md`. Os dois primeiros entraram na tabela de contratos, o terceiro na seção 5, e a exceção
 entrou no `feature-lifecycle.md`.
 
-- [ ] Fatia 6 (seção 6, critérios 16 a 20): command, `test-author.md`, `agents.md`, `testing.md`,
+- [x] Fatia 6 (seção 6, critérios 16 a 20): command, `test-author.md`, `agents.md`, `testing.md`,
       `development-workflow.md`, `verification.md`, tabela de portões e linhas Construir, seções 0 e 3 do
       `feature-lifecycle.md`, inventário, manifest; conferência por contexto limpo.
+
+Resultado da conferência da fatia 6, por um `acceptance-verifier` novo: critérios 16 a 20 vistos funcionando,
+por leitura e busca (a linha Construir por comparação de strings, com controle; a frase antiga "before the
+session writes any code" ausente em HEAD e presente em b88546b). Nenhum **falhou**. O que ele listou fora da
+spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os dois casos de borda do
+`test-author.md` na seção 6. Também alinhados: a nota do manifest do `agents.md` e três frases que ainda diziam
+"antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
+`CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
 Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
 **falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de

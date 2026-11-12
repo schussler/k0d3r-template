@@ -64,7 +64,7 @@ comandos. Marque `n/a` no portão que a stack não tem.
 | Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | na iteração | |
 | Modelo e esforço dos agents | `node scripts/model-routing/model-routing.mjs check` | na iteração | o frontmatter dos agents e o `advisorModel` batem com o `.claude/model-routing.json` ([`model-routing.md`](.claude/rules/common/model-routing.md)) |
 
-- **Quando rodar.** Enquanto itera numa mudança, rode os portões "na iteração", que são rápidos. Antes de
+- **Quando rodar.** Enquanto itera numa mudança, rode só os portões "na iteração", que são rápidos. Antes de
   qualquer commit, rode **todos**, os "antes do commit" também. Ao preencher a tabela, marque como "antes do
   commit" o portão que demora (build, E2E, auditoria) e como "na iteração" o resto.
 - **Nunca mascare o código de saída.** Nada de `| tail`, `| head` ou `| grep` num portão: redirecione para

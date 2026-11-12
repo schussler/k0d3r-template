@@ -13,7 +13,7 @@ agents (language reviewers, build resolvers, e2e runners) are adopted from ECC w
 | architect | System design | Architectural decisions |
 | code-architect | Implementation blueprint from existing patterns | Designing a feature in an existing codebase |
 | tdd-guide | Test-driven development, driven by the session | The red/green/refactor cycle outside `/k0d3r-task` |
-| test-author | Failing tests written from the approved spec alone, with a clean context | In `/k0d3r-task`, after the spec is approved and before the code |
+| test-author | Failing tests written from the approved spec alone, with a clean context | In `/k0d3r-task`, after the spec is approved and before the code it covers (per slice when there is more than one) |
 | acceptance-verifier | Checks each acceptance criterion by running, with a clean context; never edits | In `/k0d3r-task`, after the gates are green, and at the end of each slice in a task with more than one |
 | code-reviewer | Code review | After writing code |
 | security-reviewer | Security analysis | Before commits |
@@ -39,7 +39,7 @@ part of what a session costs. Delegate when that buys something:
 Do the work yourself when it fits in a handful of tool calls or when you already know where to look.
 
 Which agents run at each step of a task is decided by the `/k0d3r-task` command, not by this rule:
-`test-author` before the code, `acceptance-verifier` at the end of each slice and, with the reviewers, after
+`test-author` before the code it covers, `acceptance-verifier` at the end of each slice and, with the reviewers, after
 the gates are green. Outside the
 command, `planner` and `architect` fit a change that reshapes the system, and `code-reviewer` fits a code diff
 before it is committed.
