@@ -665,8 +665,13 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
-- [ ] Fatia 10 (seção 10, critérios 30 e 31): command, gatilho, linhas Dia zero, seção 0 do
+- [x] Fatia 10 (seção 10, critérios 30 e 31): command, gatilho, linhas Dia zero, seção 0 do
       `feature-lifecycle.md`, `README.md`; conferência por contexto limpo.
+
+Resultado da conferência da fatia 10, por um `acceptance-verifier` novo (base `8185305`): critérios 30 e 31
+vistos funcionando, por leitura e por `diff` das duas linhas Dia zero. Fora dos critérios, ele listou o checklist do
+`README.md`, que está na tabela de contratos da seção 10. Não conferido: o dia zero numa primeira tarefa real.
+
 - [x] Fatia 9 (seção 9, critérios 27 a 29): command, `acceptance-verifier.md`, `agents.md`,
       `feature-lifecycle.md`, linhas Construir, inventário, template de spec, manifest; conferência por
       contexto limpo.
