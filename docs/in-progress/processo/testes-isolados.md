@@ -58,4 +58,4 @@ há comportamento executável. O efeito (uma sessão desenhando um harness isola
 
 Uma fatia: a regra na `testing.md`, a nota do manifest, a conferência.
 
-- [ ] Fatia 1: regra, manifest, conferência por contexto limpo.
+- [x] Fatia 1: regra, manifest, conferência por contexto limpo.

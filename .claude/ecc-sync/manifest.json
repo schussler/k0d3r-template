@@ -302,7 +302,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Os absolutos \"ALL required\" e \"MANDATORY workflow\" viraram regra com escopo: teste antes do código quando há critério de aceite; mudança sem efeito de comportamento não pede teste novo. Na `/k0d3r-task` os testes vêm do agent `test-author`, por fatia quando há mais de uma, antes do código que cobrem; o `tdd-guide` fica para o ciclo conduzido pela sessão."
+      "adaptation": "Os absolutos \"ALL required\" e \"MANDATORY workflow\" viraram regra com escopo: teste antes do código quando há critério de aceite; mudança sem efeito de comportamento não pede teste novo. Na `/k0d3r-task` os testes vêm do agent `test-author`, por fatia quando há mais de uma, antes do código que cobrem; o `tdd-guide` fica para o ciclo conduzido pela sessão. Seção nova \"Isolation\": testes e portões não movem o cursor, não roubam o foco, não tocam som e não usam o perfil real do navegador."
     },
     {
       "downstream": ".claude/rules/common/verification.md",

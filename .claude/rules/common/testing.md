@@ -24,6 +24,12 @@ In a `/k0d3r-task` with a spec, the failing tests are written by the **test-auth
 spec alone, before the session writes the code they cover: all at once in a one-slice task, slice by slice
 otherwise. Outside the command, the session drives the cycle itself.
 
+## Isolation
+
+Tests and gates run isolated from the machine of the person using it: headless or in their own window, without
+moving the cursor, stealing focus, playing sound or using the person's real browser profile. When a test needs
+one of these, it fakes that capability in test mode.
+
 ## Troubleshooting Test Failures
 
 1. Check test isolation
