@@ -199,9 +199,15 @@ valores: aponta para o arquivo. Ela também traz a regra de escalada da seção 
 **O que vence o arquivo, fora do alcance do template.** `CLAUDE_CODE_SUBAGENT_MODEL` com
 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` faz o Claude Code ignorar o `model:` do frontmatter;
 `CLAUDE_CODE_EFFORT_LEVEL` vence o `effort:`; uma lista de modelos permitidos da organização troca o modelo
-pedido por outro; e um `advisorModel` em `.claude/settings.local.json` ou nas settings do usuário (onde o
-`/advisor` grava) vence o do projeto. O `check` não detecta nenhum dos quatro: ele confere o repositório, não a
+pedido por outro; e um `advisorModel` em `.claude/settings.local.json`, na flag `--advisor` ou em settings
+gerenciadas vence o do projeto. O `check` não detecta nenhum dos quatro: ele confere o repositório, não a
 máquina. A rule diz isso.
+
+As settings do usuário **não** vencem o projeto: na precedência do Claude Code, o `.claude/settings.json` do
+projeto fica acima delas (página "Settings files and precedence", lida em 2026-11-11). Como o `/advisor` grava
+nas settings do usuário, a escolha feita nele não vale nas sessões novas deste repositório; quem quer outro
+conselheiro só para si usa o `.claude/settings.local.json`. Uma versão anterior desta spec e da rule dizia o
+contrário. Isso não foi observado numa sessão nova; vem da documentação.
 
 ## Contratos e documentos afetados
 
@@ -218,7 +224,7 @@ máquina. A rule diz isso.
 | `.claude/commands/k0d3r-task.md` | a linha de aviso do modelo da sessão (o resto do command é da spec 2) |
 | `CLAUDE.md` | linha nova na tabela de portões: `node scripts/model-routing/model-routing.mjs check` |
 | `scripts/hooks/guard-shell.mjs` e `.test.mjs` | `model-routing` entra em `VERIFY_GATES` |
-| `.claude/README.md`, `README.md` | inventário e lista de testes do toolset |
+| `.claude/README.md`, `README.md` | inventário e lista de testes do toolset; no `README.md`, a seção "Modelo e esforço dos agents" (o que fazer quando sai um modelo novo, quando a conta não tem Fable e quando entra um agent) e o item do checklist que manda conferir o arquivo de roteamento |
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md) | passo "depois de portar ou adotar um agent, `apply` e `check`" |
 
 ## Critérios de aceite
@@ -325,8 +331,12 @@ saída 0.
       aviso, porque o ensaio rodou no modelo recomendado.
 - [x] Duas conferências por contexto limpo, a segunda depois das correções da revisão: critérios 1 a 12 vistos
       funcionando nas duas, nenhum **falhou**.
-- [ ] Critério 14: conferência do conselheiro numa sessão real, que só a pessoa pode fazer (abrir uma sessão
-      nova no repositório e ver se a abertura mostra o advisor ligado). Evidência parcial, 2026-11-11: a sessão
+- [x] Critério 14, conferido pela pessoa em 2026-11-11, com uma diferença do texto do critério: em vez da
+      mensagem de abertura, a pessoa rodou `/advisor` na sessão desta tarefa, e ele respondeu que a conversa
+      "keeps Fable 5.2 as its advisor model". Antes desse comando, as settings do usuário (o `CLAUDE_CONFIG_DIR`
+      do perfil) não tinham `advisorModel`, então o Fable 5.2 veio do `.claude/settings.json` do projeto, ou de
+      uma flag `--advisor` ou settings gerenciadas, que não foram descartadas. Registro anterior, quando ainda
+      faltava esse dado: a sessão
       desta tarefa reiniciou depois do `apply` e passou a ter a ferramenta de conselheiro, e uma consulta a ela
       funcionou. O único `advisorModel` achado é o do `.claude/settings.json` do projeto: não há a chave em
       `~/.claude/settings.json` nem no settings do perfil, e não existem `~/.claude/settings.local.json` nem

@@ -42,8 +42,14 @@ O `check` confere o repositório, não a máquina. Quatro coisas fora dele mudam
   frontmatter;
 - `CLAUDE_CODE_EFFORT_LEVEL` vence o `effort:`;
 - uma lista de modelos permitidos da organização troca o modelo pedido por outro;
-- um `advisorModel` em `.claude/settings.local.json` ou nas settings do usuário, que é onde o `/advisor` grava,
-  vence o do projeto.
+- um `advisorModel` em `.claude/settings.local.json`, na flag `--advisor` ou em settings gerenciadas vence o do
+  projeto.
+
+O contrário não vale: as settings do usuário ficam **abaixo** do `.claude/settings.json` do projeto. O
+`/advisor` grava a escolha nas settings do usuário, então, neste repositório, ela não vence o `conselheiro` nas
+sessões novas. Quem quer outro conselheiro só para si, neste projeto, põe `advisorModel` no
+`.claude/settings.local.json`. Para mudar o conselheiro de todos, mude `conselheiro` no arquivo de roteamento e
+rode o `apply`.
 
 O conselheiro é um recurso experimental do Claude Code: exige a API da Anthropic ou a Claude Platform on AWS e
 acesso ao Fable. Onde falta uma dessas condições, a sessão roda sem conselheiro e sem erro.

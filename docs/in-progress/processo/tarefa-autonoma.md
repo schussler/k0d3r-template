@@ -141,6 +141,7 @@ da `/k0d3r-task`.
 | `testing.md` | "MANDATORY workflow", "ALL required" | Testes primeiro quando há critério de aceite; a exceção (mudança sem efeito de comportamento) dentro da regra; `test-author` na `/k0d3r-task`. Passa de `track` a `adapt` no manifest |
 | `development-workflow.md` | Passo 2: "Use tdd-guide agent" | Na `/k0d3r-task`, os testes vêm do `test-author`; fora dela, `tdd-guide` |
 | `development-workflow.md` | Passo 3: só o `code-reviewer` | Ganha uma linha: na `/k0d3r-task`, o `acceptance-verifier` confere os critérios de aceite |
+| `testing.md` | "Test Types (ALL required)" | "Test types, each where the system has that layer" |
 | `testing.md` | "Run test - it should FAIL" | "…and for the reason you expect" |
 | `testing.md` | "Troubleshooting": `tdd-guide` como primeiro passo | `tdd-guide` como último passo, "if the cycle is stuck" |
 | `testing.md` | "Agent Support": `tdd-guide`, "Use PROACTIVELY" | `test-author` na `/k0d3r-task` e `tdd-guide` fora dela, sem o "PROACTIVELY" |
@@ -161,6 +162,13 @@ registrado aqui:
 - Etapa 3: o que a sessão faz quando um **falhou** aponta um critério mal escrito, e não um trabalho errado
   (ver a decisão "correção de critério" abaixo).
 - O `README.md` da raiz descreve a `/k0d3r-task` nova no checklist da primeira sessão.
+
+A terceira conferência achou mais três frases do command que esta spec não dizia:
+
+- Entrevista: "Use a ferramenta de pergunta à pessoa quando houver uma; sem ela, pergunte em texto".
+- Testes por contexto limpo: um critério que não virou teste é verificado de outro jeito na Etapa 3, e a
+  sessão diz qual.
+- Spec: o que a pessoa respondeu na entrevista é decisão dela, registrada com a data.
 
 **Correção da redação de um critério** (decisão da pessoa, 2026-11-11):
 
@@ -348,6 +356,10 @@ não citava; elas entraram na seção 4.
 Resultado da segunda conferência, por um `acceptance-verifier` novo, depois das correções: nenhum **falhou** nos
 critérios 1 a 8. Os critérios 1 a 4 foram conferidos por leitura, porque são texto de prompt. O critério 10 ficou
 **não conferido** por ele: o ensaio não deixa registro no repositório além deste relato.
+
+Resultado da terceira conferência, depois da troca de decisão sobre a correção de critérios: nenhum **falhou**
+nos critérios 1 a 8 e 11. Os critérios 1 a 3, 11 e metade do 4 foram conferidos por leitura. O critério 10
+continuou **não conferido** pelo verificador.
 
 Resultado do ensaio (critério 10): o agente investigou, reproduziu o defeito e terminou com **uma** pergunta,
 com duas opções, a recomendação e o que achou no código. Não escreveu spec nem código; `git status` na cópia
