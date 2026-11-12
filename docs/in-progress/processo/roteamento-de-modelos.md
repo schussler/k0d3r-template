@@ -394,8 +394,12 @@ saída 0.
       o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
       modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
       como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
-- [ ] Critérios 18 e 19 (hook na chamada de subagent): 18 testes; cada uma de 5 mutações no hook (nativo sempre
+- [x] Critérios 18 e 19 (hook na chamada de subagent): 18 testes; cada uma de 5 mutações no hook (nativo sempre
       libera, effort não conferido, sem escalada, bloqueio com código 1, sem `Task`) derruba algum teste.
+      Vistos funcionando por um `acceptance-verifier` novo (base `fd35373`), por leitura do JSON e dos testes. Visto
+      também numa sessão real, em 2026-11-12: um `general-purpose` pedido em `haiku`, sem esforço, foi bloqueado com a
+      mensagem do nível `padrao`, e o `acceptance-verifier` chamado sem `model` passou. O nome da ferramenta (`Agent`)
+      e os campos `model` e `effort` do payload são os que o hook lê.
 - [x] Critério 17 (conselheiro religado no meio-termo): conferido pela sessão, não por um agent de contexto limpo:
       `conselheiro` = `fronteira`, `model` do nível = `fable`, `advisorModel` = `fable`, `check` com 0; a rule e o
       `README.md` dizem como desligar (`null` e `apply`).
