@@ -602,8 +602,15 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
-- [ ] Fatia 8 (seção 8, critérios 24 a 26): command, `feature-lifecycle.md`, linhas Construir, os dois agents;
+- [x] Fatia 8 (seção 8, critérios 24 a 26): command, `feature-lifecycle.md`, linhas Construir, os dois agents;
       conferência por contexto limpo.
+
+Resultado da conferência da fatia 8, em duas rodadas: na primeira, os critérios 25 e 26 vistos funcionando e o
+24 **falhou**, porque a seção 3 do `feature-lifecycle.md` não dizia que a entrega continua sem nenhum
+**falhou**. Corrigido, junto com a linha da seção 8 na tabela de contratos. Na segunda, por um verificador novo:
+critérios 24 a 26 vistos funcionando, por leitura e busca, nada fora da spec. Os dois verificadores rodaram em
+Opus: a sessão tinha carregado a definição antiga do agent. Não conferido: o limite de rodadas, os relatórios
+curtos e o verificador em Sonnet numa tarefa real; fica para a próxima corrida.
 - [x] Fatia 7 (seção 7, critérios 21 a 23): command, gatilho da `## Stack`, linhas Dia zero e Iniciar, seções 0
       e 2 do `feature-lifecycle.md`, `ecc-sync.md`, `README.md`; conferência por contexto limpo.
 

@@ -360,7 +360,10 @@ saída 0.
       o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
       modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
       como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
-- [ ] Critérios 15 e 16 (decisão de 2026-11-12): conselheiro desligado, verificador em `padrao`. O critério 14
+- [x] Critérios 15 e 16 (decisão de 2026-11-12): conselheiro desligado, verificador em `padrao`. Vistos
+      funcionando por um `acceptance-verifier` novo, com controle: o `check` sai com 1 com o frontmatter do
+      verificador em `opus` e com `advisorModel` de volta no `settings.json`. Ressalvas dele, resolvidas: a
+      tabela "Onde o Fable 5.2 entra" e os dois READMEs ainda descreviam o conselheiro como ligado. O critério 14
       vale para quem ligar o conselheiro.
 - [x] Conferido na corrida `novo2` (2026-11-12): o Claude Code obedece ao `model:` do frontmatter. Os
       `acceptance-verifier` rodaram em Opus e os `test-author` em Sonnet, pelo uso por modelo no transcript.
