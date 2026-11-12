@@ -260,11 +260,22 @@ Comportamento desejado:
   modelos"). O agente tinha proposto pedir o menor número de fatias, para economizar rodadas de `test-author` e
   de verificador; a pessoa rejeitou.
 
-**Proposta (agente): sem a separação entre portões rápidos e lentos.** A pessoa aprovou em 2026-11-12 três
-correções, e uma era rodar o E2E só no fim da fatia. O agente justificou essa correção com "26 minutos de E2E",
-número que estava errado: eram esperas pelos subagents, contadas como E2E porque o comando citava o caminho
-`e2e/`. Medido de novo, o E2E não pesa, e a `/k0d3r-task` já faz um commit por fatia, então os portões já
-rodam uma vez por fatia. Fica fora até haver medição que a justifique.
+**Portões rápidos e lentos** (decisão da pessoa, 2026-11-12: "ele irá servir em outros projetos"):
+
+- A tabela **Portões de verificação** do `CLAUDE.md` ganha a coluna "Quando", com dois valores: "na iteração"
+  (rápido) e "antes do commit" (lento). No template: lint, typecheck, teste e os três portões do toolset
+  (`docs-check diff`, `docs-check links`, `model-routing check`) ficam "na iteração"; build e auditoria de
+  dependências ficam "antes do commit". O projeto ajusta a coluna ao preencher a tabela, e um E2E entra como
+  "antes do commit".
+- Enquanto a sessão itera numa fatia, roda só os portões "na iteração". **Antes de qualquer commit, roda
+  todos**, como hoje (decisão da pessoa, 2026-11-12). A regra "commit só com todos os portões verdes" não muda,
+  e nenhum commit vermelho chega ao remoto.
+- O ganho aparece onde um portão lento se repete: um E2E de 10 minutos rodado a cada ajuste. Na Estação Kepler
+  ele não teria aparecido: o E2E levou de 0,1 a 1,8 minuto. O agente tinha justificado esta correção com "26
+  minutos de E2E", número errado (eram esperas pelos subagents), e por isso a tirou da spec; a pessoa a trouxe
+  de volta pelo uso em outros projetos.
+- Rejeitado: commit no meio da fatia só com os portões rápidos verdes, que mudaria a regra de commit e deixaria
+  subir um commit com o E2E quebrado.
 
 Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a sessão implementa a atual
 (opção apresentada em 2026-11-12, não escolhida).
@@ -283,6 +294,7 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
 | `.claude/README.md` | inventário |
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md) | conferidos pelo `docs-check diff`; atualizados onde citam o fluxo da tarefa |
 | Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), linha do agent no inventário do `.claude/README.md`, nota `adaptation` do `agents.md` no manifest |
+| Seção 6 (portões rápidos e lentos) | `CLAUDE.md` (coluna "Quando" e a linha sobre quando rodar), `verification.md` (rodar só os rápidos na iteração, todos antes do commit), `k0d3r-task.md` ("Implemente até o fim"), seção 0 do `feature-lifecycle.md` (preencher a coluna) |
 | Seção 6 (testes por fatia) | `k0d3r-task.md` ("Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, inventário do `.claude/README.md`, notas `adaptation` do manifest |
 
 ## Critérios de aceite
@@ -334,6 +346,11 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
     `feature-lifecycle.md`, diz que os testes vêm por fatia, antes do código dela. `testing.md`,
     `development-workflow.md` e a seção 3 do `feature-lifecycle.md` não dizem mais que todos os testes vêm
     antes de qualquer código.
+19. A tabela **Portões de verificação** do `CLAUDE.md` tem a coluna "Quando" preenchida em toda linha, com
+    "na iteração" ou "antes do commit", e o texto abaixo dela diz que na iteração rodam só os "na iteração" e
+    que antes de qualquer commit rodam todos. A frase "Commit só com todos os portões verdes" continua lá.
+20. `verification.md` e a `/k0d3r-task` dizem o mesmo que o critério 19 sobre quando rodar cada portão, e a
+    seção 0 do `feature-lifecycle.md` pede a coluna "Quando" ao preencher a tabela.
 
 ## Estratégia de testes e verificação
 
@@ -349,7 +366,7 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
   `test-author` nesta parte, porque não há comportamento
   executável para um teste falhar antes. O verificador por fatia rodando numa tarefa real fica **não
   conferido** até a primeira `/k0d3r-task` com mais de uma fatia.
-- Seção 6: os critérios 16 a 18 também são texto de prompt, conferidos por leitura e busca e por um
+- Seção 6: os critérios 16 a 20 também são texto de prompt, conferidos por leitura e busca e por um
   `acceptance-verifier` novo, sem `test-author`, pelo mesmo motivo da seção 5. O efeito numa tarefa real (o
   `test-author` em primeiro plano, os testes falhando antes do código da fatia) só aparece rodando de novo o prompt da Estação
   Kepler, e fica **não conferido** até lá.
@@ -387,6 +404,8 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **Portões rápidos na iteração, todos antes do commit** (decisão da pessoa, 2026-11-12). Rejeitado: commit
+  no meio da fatia só com os rápidos.
 - **As descrições "Use PROACTIVELY" ficam como estão e foram para o backlog** (proposta do agente, aprovada
   pela pessoa em 2026-11-11). São ordens fixas de delegar, mas ficam fora do alcance aprovado. A proposta dizia
   "dos 13 agents"; a contagem no código deu 7 (`planner`, `architect`, `code-reviewer`, `security-reviewer`,
@@ -445,7 +464,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 18 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 20 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -463,9 +482,9 @@ manifest, o caso de borda "diga isso e pare" do agent e a falta da exceção "fa
 `feature-lifecycle.md`. Os dois primeiros entraram na tabela de contratos, o terceiro na seção 5, e a exceção
 entrou no `feature-lifecycle.md`.
 
-- [ ] Fatia 6 (seção 6, critérios 16 a 18): command, `test-author.md`, `agents.md`, `testing.md`,
-      `development-workflow.md`, tabelas Construir, seção 3 do `feature-lifecycle.md`, inventário, manifest;
-      conferência por contexto limpo.
+- [ ] Fatia 6 (seção 6, critérios 16 a 20): command, `test-author.md`, `agents.md`, `testing.md`,
+      `development-workflow.md`, `verification.md`, tabela de portões e linhas Construir, seções 0 e 3 do
+      `feature-lifecycle.md`, inventário, manifest; conferência por contexto limpo.
 
 Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
 **falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de
