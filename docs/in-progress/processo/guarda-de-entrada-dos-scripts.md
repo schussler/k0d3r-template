@@ -72,7 +72,7 @@ pode sair com 0 nem quebrar.
 | --- | --- |
 | os quatro scripts e o `model-routing.mjs` | a guarda de entrada |
 | `docs-check.test.mjs`, `report.test.mjs`, `guard-shell.test.mjs`, `toolset-staleness.test.mjs` | um teste cada, que chama o script por um link |
-| [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) | sai a linha "Scripts e hooks não rodam quando chamados por um caminho com link simbólico" |
+| [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) | sai a linha "Scripts e hooks não rodam quando chamados por um caminho com link simbólico"; entram as linhas do `onFailure: "block"` e do `guard-shell` que libera o comando com payload ilegível (achado da revisão) |
 | [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md), [`ecc-sync.md`](../../implemented/processo/ecc-sync.md) | conferidos: citam `docs-check.mjs` e `report.mjs`; nenhum descreve a guarda |
 
 ## Critérios de aceite
@@ -99,7 +99,10 @@ simbólico para o diretório `scripts/` do repositório, criado num diretório t
 9. **Importado com um caminho inexistente não roda:** `node -e "import('<url do script>').then(() =>
    process.stdout.write('RETORNOU'))" /caminho/que/nao/existe.mjs` sai com código 0, escreve só `RETORNOU` no
    stdout e nada no stderr, para cada um dos cinco scripts.
-8. A linha do backlog saiu, e todos os portões do `CLAUDE.md` saem com código 0.
+8. A linha do backlog saiu, e os portões do `CLAUDE.md` que têm comando (`docs-check diff`, `docs-check links`,
+   `model-routing check`) saem com código 0, assim como `node --test` nos cinco arquivos de teste de `scripts/`.
+   Os portões de stack (Lint, Typecheck, Teste, Build, Auditoria) ainda são `<placeholder>` no template e não se
+   aplicam. (Redação corrigida em 2026-11-11 depois da conferência; ver o Plano.)
 
 ## Estratégia de testes e verificação
 
@@ -129,6 +132,13 @@ Uma fatia só: testes do `test-author` → guarda nos cinco scripts → backlog 
 - [x] Fora da spec, feito nesta fatia: os imports sem uso (`mkdirSync`, `writeFileSync`) saíram de três testes de
       link; e a linha do backlog "Falta um executor da tabela de portões" perdeu a frase que citava o teste por
       link, que já existe.
+
+- [x] Segunda conferência, por um `acceptance-verifier` novo: critérios 1 a 7 e 9 vistos funcionando, nenhum
+      **falhou** de trabalho. O ramo "o próprio arquivo ilegível: roda" foi rodado por ele no `guard-shell`, com um
+      controle que distingue os dois casos; nos outros quatro, só por leitura (corpo idêntico). O critério 8 voltou
+      "falhou em parte" porque o texto antigo pedia "todos os portões do `CLAUDE.md`", e cinco deles são
+      `<placeholder>` no template. A redação foi corrigida para os portões que têm comando: o trabalho entregue é
+      o aprovado.
 
 Aprovado pela pessoa em 2026-11-11, com as duas decisões abaixo e a proposta do `onFailure` indo para o backlog.
 
