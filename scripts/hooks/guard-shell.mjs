@@ -17,7 +17,7 @@ import { pathToFileURL } from 'node:url';
 // (`test`, `test:unit`, `check`, `lint:fix`...) ou como nome de script sem a extensão
 // (`scripts/docs-check/docs-check.mjs` → `docs-check`). AJUSTE ao preencher a tabela "Portões de
 // verificação" do CLAUDE.md: acrescente os nomes dos seus portões (ex.: `pytest`, `clippy`, `vet`).
-const VERIFY_GATES = ['test', 'lint', 'typecheck', 'build', 'check', 'docs-check'];
+const VERIFY_GATES = ['test', 'lint', 'typecheck', 'build', 'check', 'docs-check', 'audit'];
 
 // Comandos de leitura/busca: um `grep test x | head` procura o texto "test", não roda portão.
 const READ_ONLY_COMMANDS = new Set([

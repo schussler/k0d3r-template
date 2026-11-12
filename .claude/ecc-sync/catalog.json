@@ -36,7 +36,7 @@
       "type": "agent",
       "description": "Build and TypeScript error resolution specialist. Use PROACTIVELY when build fails or type errors occur. Fixes build/type errors only with minimal diffs, no architectural edits. Focuses on getting the build green quickly.",
       "source": "agents/build-error-resolver.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "chief-of-staff",
@@ -494,7 +494,7 @@
       "type": "agent",
       "description": "Expert TypeScript/JavaScript code reviewer specializing in type safety, async correctness, Node/web security, and idiomatic patterns. Use for all TypeScript and JavaScript code changes. MUST BE USED for TypeScript/JavaScript projects.",
       "source": "agents/typescript-reviewer.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "vue-reviewer",
@@ -1973,35 +1973,35 @@
       "type": "rule",
       "description": "TypeScript/JavaScript Coding Style",
       "source": "rules/typescript/coding-style.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/hooks",
       "type": "rule",
       "description": "TypeScript/JavaScript Hooks",
       "source": "rules/typescript/hooks.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/patterns",
       "type": "rule",
       "description": "TypeScript/JavaScript Patterns",
       "source": "rules/typescript/patterns.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/security",
       "type": "rule",
       "description": "TypeScript/JavaScript Security",
       "source": "rules/typescript/security.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/testing",
       "type": "rule",
       "description": "TypeScript/JavaScript Testing",
       "source": "rules/typescript/testing.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "vue/coding-style",
@@ -2071,7 +2071,7 @@
       "type": "rule",
       "description": "Web Performance Rules",
       "source": "rules/web/performance.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/security",
@@ -2844,7 +2844,7 @@
       "type": "skill",
       "description": "Playwright E2E testing patterns, Page Object Model, configuration, CI/CD integration, artifact management, and flaky test strategies. Use when writing Playwright tests, structuring page objects, or fixing flaky E2E runs in CI.",
       "source": "skills/e2e-testing",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "ecc-guide",

@@ -1,8 +1,12 @@
+---
+conferido-em: 2026-11-12
+---
+
 # Feature — Estação Kepler
 
-> Spec em `planned/`: nada disto existe em código ainda. Marcação usada no texto:
-> **[pessoa]** é o que a pessoa escreveu no pedido; **Proposta (agente)** é sugestão do agente e só vale
-> depois de aprovada na parada da `/k0d3r-task`. Números de ajuste (dano, velocidade, tempos) são **valores
+> Spec em `in-progress/`: em construção. Marcação usada no texto:
+> **[pessoa]** é o que a pessoa escreveu no pedido; **Aprovado (proposta do agente)** é sugestão do agente que a
+> pessoa aprovou na parada da `/k0d3r-task` em 2026-11-12. Números de ajuste (dano, velocidade, tempos) são **valores
 > iniciais** de tuning, não contrato.
 
 ## Propósito
@@ -25,7 +29,7 @@ tabela "Portões de verificação" do `CLAUDE.md` estão com placeholders. É um
 ## Rotas e navegação
 
 - **[pessoa]** O jogo abre com `npm run dev` (servidor do Vite), numa página única.
-- **Proposta (agente):** `?debug` na URL liga o medidor de FPS e o gancho de teste (`window.__kepler`, ver
+- **Aprovado (proposta do agente):** `?debug` na URL liga o medidor de FPS e o gancho de teste (`window.__kepler`, ver
   [Estratégia de verificação](#estratégia-de-verificação)). Sem o parâmetro, nada disso existe na página,
   inclusive no `npm run dev`, que é o modo em que o jogo é avaliado.
 
@@ -44,7 +48,7 @@ tabela "Portões de verificação" do `CLAUDE.md` estão com placeholders. É um
 Em qualquer ponto Esc pausa; ao morrer, a tela de morte oferece tentar de novo do começo do setor. Cada setor
 tem cobertura, caixas, munição e vida espalhadas e um caminho claro até a saída.
 
-**Proposta (agente)**, detalhes que o pedido deixa em aberto:
+**Aprovado (proposta do agente)**, detalhes que o pedido deixa em aberto:
 
 - **Saída do setor:** uma porta com interruptor no fim do setor; abrir não exige matar todos os inimigos (o
   ritmo vem do posicionamento das salas, não de trava). O interruptor e a porta têm luz-guia verde visível de
@@ -66,7 +70,7 @@ tem cobertura, caixas, munição e vida espalhadas e um caminho claro até a sa�
 
 **[pessoa]** Mira no centro, mouse travado na tela, WASD, pulo, agachar e correr com Shift.
 
-**Proposta (agente):**
+**Aprovado (proposta do agente):**
 
 - Teclas por `KeyboardEvent.code` (posição física: funciona em teclado ABNT2 e AZERTY). Pulo no Espaço,
   **agachar no C** (Ctrl é arriscado: Ctrl+W fecha a aba no meio do jogo).
@@ -88,7 +92,7 @@ mira e volta; clarão no cano e cápsula voando; som próprio; balanço da arma 
 | Rifle | automático, 10 tiros/s | 30 | 120 máx. | dano por segundo médio, abre com rajada | dano 14, cabeça ×2 |
 | Escopeta | ação de bomba | 6 | 30 máx. | 8 projéteis, queda forte de dano com a distância, derruba o escudo do brutamontes | 12 por projétil |
 
-**Proposta (agente):**
+**Aprovado (proposta do agente):**
 
 - Tiro por raio instantâneo (hitscan) contra as caixas de acerto dos robôs (cabeça separada do corpo) e
   contra a geometria do mapa; a escopeta lança 8 raios num cone.
@@ -106,7 +110,7 @@ mira e volta; clarão no cano e cápsula voando; som próprio; balanço da arma 
 som diferentes. O robô atingido solta faísca e recua; ao morrer, desmonta em pedaços com física e às vezes
 solta munição ou vida.
 
-**Proposta (agente):**
+**Aprovado (proposta do agente):**
 
 - Marcador de acerto: cruz em SVG que pisca branca no corpo e vermelha e maior na cabeça; som curto metálico
   no corpo e um "ding" mais agudo na cabeça; morte tem marcador e som próprios.
@@ -127,7 +131,7 @@ solta munição ou vida.
 
 Todos patrulham, ouvem tiro, cercam pelo lado e não ficam presos em parede.
 
-**Proposta (agente)**, comportamento de cada um:
+**Aprovado (proposta do agente)**, comportamento de cada um:
 
 | Robô | Movimento | Ataque | Como se vence | Leitura visual |
 | --- | --- | --- | --- | --- |
@@ -152,7 +156,7 @@ Comum a todos:
 
 **[pessoa]** Robô gigante com 3 fases de ataque e barra de vida no topo da tela.
 
-**Proposta (agente):**
+**Aprovado (proposta do agente):**
 
 | Fase | Vida | Ataques | Brecha |
 | --- | --- | --- | --- |
@@ -168,7 +172,7 @@ Comum a todos:
 
 Cada setor é descrito por um **mapa em dados** (grade ASCII + listas de entidades), do qual saem a geometria,
 as caixas de colisão, a grade de navegação, os pontos de cobertura, as rotas de patrulha, os itens e os
-inimigos. **Proposta (agente)**, por setor:
+inimigos. **Aprovado (proposta do agente)**, por setor:
 
 | Setor | Atmosfera | Inimigos (aprox.) | Destaque |
 | --- | --- | --- | --- |
@@ -182,7 +186,7 @@ inimigos. **Proposta (agente)**, por setor:
 **[pessoa]** Vida, escudo, munição da arma atual, setor atual e uma mira que abre quando você atira. Ícones e
 interface em SVG desenhado à mão no código, sem emoji e sem biblioteca de ícones.
 
-**Proposta (agente):** a mira abre com tiro, movimento, pulo e corrida, e fecha agachada; a abertura visual é a
+**Aprovado (proposta do agente):** a mira abre com tiro, movimento, pulo e corrida, e fecha agachada; a abertura visual é a
 mesma usada no espalhamento real dos tiros. Ícone SVG próprio por arma. Barra do chefe só no núcleo. Fonte do
 sistema (sem web font, porque nada vem de fora).
 
@@ -190,7 +194,7 @@ sistema (sem web font, porque nada vem de fora).
 
 **[pessoa]** Som com Web Audio: ambiente por setor, música que acelera no combate e alarme no laboratório.
 
-**Proposta (agente):** tudo sintetizado em tempo real (osciladores, ruído filtrado, envelopes), sem arquivo de
+**Aprovado (proposta do agente):** tudo sintetizado em tempo real (osciladores, ruído filtrado, envelopes), sem arquivo de
 áudio. Som próprio de cada arma, recarga, troca, passos, pulo, acerto, tiro na cabeça, dano recebido, morte de
 robô, cada ataque dos robôs e do chefe. Música gerada por sequenciador: calma na exploração, mais camadas e
 andamento maior quando há robô em combate, transição suave. Alarme do laboratório sincronizado com a luz
@@ -198,7 +202,7 @@ vermelha. Áudio posicional (panner) para tiros e passos dos robôs.
 
 ## Estados de falha e recuperação
 
-**Proposta (agente):**
+**Aprovado (proposta do agente):**
 
 | Situação | O que a jogadora vê | Como o jogo reage |
 | --- | --- | --- |
@@ -238,7 +242,7 @@ gancho `?debug` só expõe comandos de jogo (teleporte, matar inimigos), sem ace
    vida.
 6. Roda liso num notebook comum, e o console do navegador não mostra nenhum erro durante a partida.
 
-**Proposta (agente)**, critérios que faltaram:
+**Aprovado (proposta do agente)**, critérios que faltaram:
 
 7. Os primeiros 10 s: a tela de título mostra a estação girando sobre o planeta com estrelas, luz e brilho
    (bloom) e chega à primeira tela de jogo em até 3 s após o clique em "Jogar". Verificado por captura de tela
@@ -264,13 +268,13 @@ gancho `?debug` só expõe comandos de jogo (teleporte, matar inimigos), sem ace
 | 7 | captura de tela da tela de título + revisão da pessoa | juízo humano |
 | 9, 10 | E2E (pausa por `visibilitychange` e gancho; reinício de setor) + teste unitário do retrato | o travamento real do mouse não roda em navegador sem tela |
 
-Cobertura: **Proposta (agente)** — a meta de 80 % da regra de testes vale para os módulos de lógica pura
+Cobertura: **Aprovado (proposta do agente)** — a meta de 80 % da regra de testes vale para os módulos de lógica pura
 (armas, dano, IA, navegação, colisão, mapas, fluxo de jogo); o código de renderização, efeitos e síntese de som
-fica fora da medição e é coberto pelo E2E e pela revisão manual. Reduzir o alcance da regra é decisão da pessoa.
+fica fora da medição e é coberto pelo E2E e pela revisão manual.
 
 ## Decisões
 
-Todas **propostas (agente)**, aguardando aprovação:
+Propostas pelo agente e **aprovadas pela pessoa em 2026-11-12**:
 
 - **Stack: Vite 8.3.5 + Three.js 0.186.1 + TypeScript 6.0.3.** Por quê: o pedido fixa Vite e Three.js;
   TypeScript pega erro de tipo antes de virar erro no console. Versões fixadas na mais nova com pelo menos 14
@@ -297,24 +301,21 @@ Todas **propostas (agente)**, aguardando aprovação:
 Fora de escopo: celular e toque, controle (gamepad), multijogador, salvar progresso, níveis de dificuldade,
 remapear teclas, outros idiomas (a interface é em pt-BR), navegadores sem WebGL 2.
 
-Em aberto, para a parada de aprovação:
-
-- As **Propostas (agente)** acima (saída por interruptor, retrato do setor, escudo regenerável, tecla C,
-  armas por setor, pausa com sensibilidade e volume, critérios 7–12, alcance da cobertura).
-- Divisão em PRs (ver [Plano de build](#plano-de-build)).
+Em aberto: nada. Divisão aprovada: uma spec e um PR, revisado commit por commit.
 
 ## Plano de build
 
 > **Seção de plano:** sai na graduação.
 
-### Iniciar (antes da primeira fatia, com aprovação)
+### Iniciar (feito em 2026-11-12)
 
 - `git mv` desta spec para `docs/in-progress/produto/`.
-- No mesmo commit: preencher `## Stack`, a tabela "Portões de verificação" e o "Projeto em um parágrafo" do
-  `CLAUDE.md`; acrescentar `audit` ao `VERIFY_GATES` em `scripts/hooks/guard-shell.mjs`; rodar
-  `/sync-ecc-tools --adopt` (pacote TypeScript) com confirmação.
+- No mesmo commit: `## Stack`, tabela "Portões de verificação" e "Projeto em um parágrafo" do `CLAUDE.md`
+  preenchidos; `audit` no `VERIFY_GATES` de `scripts/hooks/guard-shell.mjs`; `/sync-ecc-tools --adopt` com
+  os itens confirmados pela pessoa: `typescript-reviewer`, `build-error-resolver`, rules `typescript/*`,
+  `web/performance` e a skill `e2e-testing`.
 
-Texto proposto para a `## Stack`:
+Texto da `## Stack`:
 
 ```text
 - Linguagens: TypeScript 6.0.3 (Node 24 no desenvolvimento)
@@ -324,7 +325,7 @@ Texto proposto para a `## Stack`:
 - Testes: Vitest 4.1.12 (unidade), Playwright 1.64.1 (e2e)
 ```
 
-Portões propostos:
+Portões:
 
 | Portão | Comando |
 | --- | --- |
@@ -355,7 +356,7 @@ fatia escritos antes onde couber, revisão dos agents `code-reviewer` e `silent-
 
 ### Feito vs pendente
 
-- [ ] Iniciar
+- [x] Iniciar
 - [ ] 1 Fundação
 - [ ] 2 Sensação de tiro
 - [ ] 3 Inimigos

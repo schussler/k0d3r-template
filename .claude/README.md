@@ -29,6 +29,7 @@ catálogo.
 | `pr-body` | local (de `mattpocock/skills`, MIT) | Corpo de PR em pt-BR, só quando a pessoa pede o PR. |
 | `context-budget` | ECC (adapt) | Contexto ao vivo: aponta para o `/context` nativo; auditoria estática dos componentes só quando pedida. |
 | `strategic-compact` | ECC (adapt) | Sessões longas: `/compact` nas fronteiras de fase (com hook). |
+| `e2e-testing` | ECC (stack TS/web) | Padrões de teste E2E com Playwright. |
 
 ## Agents
 
@@ -47,6 +48,8 @@ catálogo.
 | `refactor-cleaner` | ECC (adapt) | Código morto e duplicação. |
 | `doc-updater` | ECC (adapt) | Atualizar docs e codemaps; graduação de spec. |
 | `docs-lookup` | ECC (adapt) | Pergunta sobre biblioteca/API respondida pelo Context7. |
+| `typescript-reviewer` | ECC (adapt, stack TS/web) | Revisar diff de TypeScript/JavaScript: tipos, async, segurança web. |
+| `build-error-resolver` | ECC (adapt, stack TS/web) | Build ou typecheck do TS/Vite quebrado: correção mínima. |
 
 Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 
@@ -79,6 +82,13 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `code-review.md` | ECC (adapt) | Quando e como revisar. |
 | `performance.md` | ECC (adapt) | Escolha de modelo, janela de contexto, troubleshooting de build. |
 | `coding-style.md`, `testing.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, testes, segurança, hooks e padrões genéricos. |
+
+Rules de stack (fora de `rules/common/`):
+
+| Rule | Origem | O que cobre |
+|---|---|---|
+| `typescript/coding-style.md`, `typescript/hooks.md`, `typescript/patterns.md`, `typescript/security.md`, `typescript/testing.md` | ECC (stack TS/web) | Estilo, hooks, padrões, segurança e testes de TypeScript/JavaScript. |
+| `web/performance.md` | ECC (stack TS/web) | Desempenho de página web. |
 
 ## Hooks (`scripts/hooks/`, registrados em `settings.json`)
 

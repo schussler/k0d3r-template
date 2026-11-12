@@ -154,3 +154,8 @@ test('the docs-check gate is a gate: piped is blocked, a search for its name is 
   const safe = 'node scripts/docs-check/docs-check.mjs diff > "$TMPDIR/d.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/d.log"';
   assert.equal(evaluate(safe), null);
 });
+
+test('the dependency audit gate is a gate: piped is blocked', () => {
+  assert.equal(evaluate('npm audit --audit-level=high | tail')?.id, 'verification-pipe');
+  assert.equal(evaluate('npm run test:e2e 2>&1 | tail -20')?.id, 'verification-pipe');
+});

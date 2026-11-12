@@ -17,6 +17,14 @@
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Seção \"Architecture Decision Records (ADRs)\" trocada por \"Recording decisions\": decisão inline na seção Decisões do doc afetado, sem ADR nem ledger; decisão sem aprovação humana é proposta."
     },
     {
+      "downstream": ".claude/agents/build-error-resolver.md",
+      "source": "agents/build-error-resolver.md",
+      "type": "file",
+      "policy": "adapt",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+    },
+    {
       "downstream": ".claude/agents/code-architect.md",
       "source": "agents/code-architect.md",
       "type": "file",
@@ -111,6 +119,14 @@
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+    },
+    {
+      "downstream": ".claude/agents/typescript-reviewer.md",
+      "source": "agents/typescript-reviewer.md",
+      "type": "file",
+      "policy": "adapt",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Removida a nota que manda usar `react-reviewer`/`/react-review` (não adotados) e a referência a `frontend-patterns`/`backend-patterns` (não adotados), trocada por `coding-standards` e `.claude/rules/typescript/`."
     },
     {
       "downstream": ".claude/commands/audit-docs.md",
@@ -290,6 +306,48 @@
       "lastSyncedRef": null
     },
     {
+      "downstream": ".claude/rules/typescript/coding-style.md",
+      "source": "rules/typescript/coding-style.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/hooks.md",
+      "source": "rules/typescript/hooks.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/patterns.md",
+      "source": "rules/typescript/patterns.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/security.md",
+      "source": "rules/typescript/security.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/testing.md",
+      "source": "rules/typescript/testing.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/performance.md",
+      "source": "rules/web/performance.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
       "downstream": ".claude/skills/api-design",
       "source": "skills/api-design",
       "type": "dir",
@@ -327,6 +385,13 @@
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
       "adaptation": "Frase \"Applies across harnesses ... (Claude Code, Cursor, Codex)\" trocada por \"requer o MCP Context7 declarado em `.mcp.json`\"."
+    },
+    {
+      "downstream": ".claude/skills/e2e-testing",
+      "source": "skills/e2e-testing",
+      "type": "dir",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/skills/error-handling",
