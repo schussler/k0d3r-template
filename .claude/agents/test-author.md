@@ -43,7 +43,12 @@ Rode o comando de teste sem pipe, com a saída redirecionada para um arquivo, e 
 
 ## O que devolver
 
-1. A lista critério de aceite → teste ou testes que o cobrem.
+O relatório entra inteiro no contexto da sessão que implementa, e ela o relê em toda chamada seguinte. Não
+repita a spec nem descreva os testes além do nome.
+
+1. A lista critério de aceite → teste ou testes que o cobrem, uma linha por critério: o número do critério, o
+   arquivo e o nome do teste.
 2. O que da spec não virou teste, e por quê.
 3. As lacunas e ambiguidades que você achou na spec.
-4. O comando rodado, o código de saída e o motivo pelo qual os testes falham.
+4. O comando rodado, o código de saída e, em uma linha, o motivo pelo qual os testes falham; os testes não
+   vistos falhando, pelo nome.

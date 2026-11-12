@@ -2,8 +2,8 @@
 name: acceptance-verifier
 description: Confere, com contexto novo, se o trabalho feito cumpre cada critério de aceite da spec, e lista o que o diff muda e a spec não cobre. Usado pela /k0d3r-task depois dos portões verdes. Só lê e executa; não edita.
 tools: Read, Grep, Glob, Bash
-model: opus
-effort: high
+model: sonnet
+effort: medium
 ---
 
 # Verificador de aceite de contexto limpo
@@ -40,10 +40,17 @@ Na tarefa sem spec, o seu trabalho é procurar o efeito de comportamento que a a
 
 ## O que devolver
 
-1. A tabela dos critérios:
+O relatório entra inteiro no contexto da sessão que implementa, e ela o relê em toda chamada seguinte. Seja curto
+onde o critério passou e completo onde ele não passou. Não repita a spec nem descreva o que você leu.
+
+1. A tabela dos critérios, uma linha por critério:
 
    | Critério | Veredito | Evidência |
    | --- | --- | --- |
 
-2. A lista do que o diff muda e a spec não cobre, ou "nada fora da spec", dizendo o que você comparou.
+   Em **visto funcionando**, a evidência cabe na linha: o comando e o trecho da saída que decide. Em **falhou**
+   e **não conferido**, dê o que a sessão precisa para agir: o que você viu, o que a spec pedia e como
+   reproduzir.
+2. A lista do que o diff muda e a spec não cobre, uma linha por item, ou "nada fora da spec", dizendo o que você
+   comparou.
 3. O que você não conseguiu conferir, em uma lista só, para a entrega repetir sem reinterpretar.

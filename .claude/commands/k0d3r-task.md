@@ -142,7 +142,7 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever o código qu
 
 Numa tarefa com spec e mais de uma fatia, ao fim de cada fatia (commit com os portões verdes e push), chame um `acceptance-verifier` novo. O brief leva **só três coisas**: o caminho da spec, a ref base da fatia (o commit anterior ao primeiro commit dela) e o nome da fatia como está no plano. Ele confere os critérios que o plano liga à fatia.
 
-- **A fatia seguinte só começa sem nenhum falhou.** Corrija, rode os portões, commite e chame um verificador novo. A correção da redação de um critério vale aqui como na Etapa 3.
+- **A fatia seguinte espera a conferência, em no máximo duas rodadas.** Com um **falhou** na primeira, corrija, rode os portões, commite e chame um verificador novo. Com um **falhou** também na segunda, corrija o que ela apontou, rode os portões, commite, anote no plano de build da spec os critérios corrigidos sem nova conferência e siga para a fatia seguinte, sem terceira rodada: o verificador da Etapa 3 confere a spec inteira, e a entrega continua sem nenhum **falhou**. A correção da redação de um critério vale aqui como na Etapa 3.
 - A última fatia não tem verificador próprio: o da Etapa 3 confere a spec inteira logo depois, e continua necessário, porque uma fatia pode quebrar um critério que uma anterior entregou.
 - Uma fatia sem critério ligado não tem verificador. Os reviewers ficam para a Etapa 3.
 

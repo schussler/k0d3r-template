@@ -212,9 +212,11 @@ Numa tarefa com spec e **mais de uma fatia**:
   `acceptance-verifier` novo. O brief leva três coisas: o caminho da spec, a ref base da fatia (o commit
   anterior ao primeiro commit dela) e o nome da fatia como está no plano.
 - Ele confere só os critérios ligados à fatia, e lista o que o diff da fatia muda e a spec não cobre.
-- **A próxima fatia só começa sem nenhum falhou na anterior** (decisão da pessoa, 2026-11-11): a sessão
-  corrige, roda os portões, commita e chama um verificador novo. A regra da correção da redação de um critério
-  (seção 4) vale aqui também.
+- **A próxima fatia espera a conferência, em no máximo duas rodadas** (decisão da pessoa, 2026-11-11; limite
+  de rodadas de 2026-11-12, seção 8): com um **falhou**, a sessão corrige, roda os portões, commita e chama um
+  verificador novo. Com um **falhou** também na segunda rodada, ela corrige, commita, anota no plano os critérios
+  corrigidos sem nova conferência e segue. A regra da correção da redação de um critério (seção 4) vale aqui
+  também.
 - **Aprovada pela pessoa em 2026-11-11, por proposta do agente:** a última fatia não tem verificador próprio. O verificador da Etapa 3 confere a spec
   inteira logo em seguida, e essa conferência final continua, porque uma fatia pode quebrar um critério que uma
   anterior entregou.
@@ -226,8 +228,8 @@ Numa tarefa com spec e **mais de uma fatia**:
   fatia com esse nome, o verificador diz isso e para, em vez de conferir a spec inteira.
 - Tarefa de uma fatia só, ou sem spec: nada muda.
 
-Custo: um `acceptance-verifier`, no nível `raciocinio`, por fatia intermediária com critério, mais as rodadas
-depois de um **falhou**.
+Custo: um `acceptance-verifier`, no nível `padrao` (era `raciocinio` até 2026-11-12), por fatia intermediária
+com critério, mais no máximo uma rodada depois de um **falhou**.
 
 ### 6. Testes por fatia, antes do código da fatia
 
@@ -310,6 +312,33 @@ passo depois da aprovação, com a lista e o clone aprovados na parada da spec e
 que conferisse os itens em `.claude/`. Motivo da recusa: tira peso da `/k0d3r-task`, e a adoção acontece poucas
 vezes na vida de um projeto.
 
+### 8. Cortes de custo depois da corrida `novo2`
+
+Acrescentado em 2026-11-12, na branch `harness-v2`. A corrida `novo2` da Estação Kepler (Sonnet 5.5, parada
+pela pessoa na fatia 4 de 6) gastou 140 mi de cache read e 1,11 mi de output, contra 72,7 mi e 526 mil da
+`bobtail` inteira, com o template antigo:
+
+- **Sessão principal: 105,7 mi**, com contexto médio de 467 mil tokens por chamada (350 mil na `bobtail`). Os
+  relatórios dos subagentes e os ciclos de correção entram nesse contexto e são relidos a cada chamada.
+- **`acceptance-verifier`: 18,1 mi**, em Opus, 6 rodadas. A fatia 2 teve 4, cerca de 50 minutos; cada uma achou
+  um defeito real.
+- Implementadores `general-purpose`: 14,3 mi. `test-author`: 2,7 mi.
+
+O que muda:
+
+- **No máximo duas rodadas de verificador por fatia** (seção 5). O verificador da Etapa 3 continua conferindo a
+  spec inteira, e a entrega continua sem nenhum **falhou**.
+- **Relatórios curtos dos dois agents de contexto limpo.** Uma linha por critério que passou; o detalhe para agir
+  (o que viu, o que a spec pedia, como reproduzir) só em **falhou** e **não conferido**. O `test-author` devolve
+  critério → arquivo e nome do teste, e mantém a lista de lacunas da spec. A economia não foi medida.
+- **`acceptance-verifier` no nível `padrao`** (Sonnet), decisão registrada na
+  [spec do roteamento](roteamento-de-modelos.md). Os tokens ficam parecidos; o preço por token cai. O risco é
+  ele achar menos defeitos: a próxima corrida conta os **falhou**.
+
+Fora: a compactação automática mais cedo (`CLAUDE_CODE_AUTO_COMPACT_WINDOW`), que ataca o maior custo, ficou
+para depois (decisão da pessoa, 2026-11-12) e foi para o backlog; e proibir a sessão de delegar a implementação,
+porque o código feito na própria sessão também faz o contexto dela crescer.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -360,7 +389,9 @@ vezes na vida de um projeto.
     mesmo dia com a troca de decisão.)
 12. A `/k0d3r-task` manda, numa tarefa com spec e mais de uma fatia, chamar um `acceptance-verifier` novo ao
     fim de cada fatia com critério ligado, menos a última, com um brief de três itens: o caminho da spec, a ref
-    base da fatia e o nome da fatia. E manda não começar a fatia seguinte enquanto houver um **falhou**.
+    base da fatia e o nome da fatia. E manda a fatia seguinte esperar a conferência, em no máximo duas rodadas
+    (redação de 2026-11-12, com o limite da seção 8; antes: "não começar a fatia seguinte enquanto houver um
+    **falhou**").
 13. A `/k0d3r-task` e o comentário de "Escopo e fatias" do `feature-spec-template.md` pedem que o plano diga
     quais critérios cada fatia entrega, quando há mais de uma fatia.
 14. `acceptance-verifier.md` descreve o brief de fatia: confere só os critérios ligados à fatia, com o diff a
@@ -390,6 +421,14 @@ vezes na vida de um projeto.
     lugares manda a tarefa rodar o `--adopt`.
 23. A seção "Quando rodar" do `ecc-sync.md` e o checklist e a tabela de gatilhos do `README.md` da raiz dizem o
     mesmo que o critério 22.
+24. A `/k0d3r-task` limita a conferência de cada fatia a duas rodadas: com um **falhou** na segunda, a sessão
+    corrige, commita, anota no plano os critérios corrigidos sem nova conferência e segue, sem terceira rodada; a
+    Etapa 3 continua exigindo nenhum **falhou**. A seção 3 do `feature-lifecycle.md` diz o mesmo, e a linha
+    Construir, igual no `CLAUDE.md` e no `feature-lifecycle.md`, diz "em até duas rodadas".
+25. `acceptance-verifier.md` pede uma linha por critério **visto funcionando** e, em **falhou** e **não
+    conferido**, o que viu, o que a spec pedia e como reproduzir. `test-author.md` pede uma linha por critério →
+    teste e mantém a lista de lacunas da spec.
+26. A busca por "só começa sem nenhum" em `.claude/` e no `CLAUDE.md` não acha nada.
 
 ## Estratégia de testes e verificação
 
@@ -445,6 +484,12 @@ vezes na vida de um projeto.
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **No máximo duas rodadas de verificador por fatia** (decisão da pessoa, 2026-11-12, na branch `harness-v2`:
+  "de resto aceito"). Substitui, no número de rodadas, a resposta "Espera e corrige" de 2026-11-11: a fatia
+  seguinte continua esperando, mas não por uma terceira rodada. Rejeitado: rodadas sem limite, como na `novo2`;
+  verificador por fatia em segundo plano.
+- **Relatórios curtos do `test-author` e do `acceptance-verifier`** (proposta do agente, aprovada pela pessoa
+  em 2026-11-12). Rejeitado: cortar também o detalhe de **falhou**, que a sessão precisa para corrigir.
 - **Portões rápidos na iteração, todos antes do commit** (decisão da pessoa, 2026-11-12). Rejeitado: commit
   no meio da fatia só com os rápidos.
 - **As descrições "Use PROACTIVELY" ficam como estão e foram para o backlog** (proposta do agente, aprovada
@@ -505,7 +550,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 23 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 26 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -555,6 +600,8 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
+- [ ] Fatia 8 (seção 8, critérios 24 a 26): command, `feature-lifecycle.md`, linhas Construir, os dois agents;
+      conferência por contexto limpo.
 - [x] Fatia 7 (seção 7, critérios 21 a 23): command, gatilho da `## Stack`, linhas Dia zero e Iniciar, seções 0
       e 2 do `feature-lifecycle.md`, `ecc-sync.md`, `README.md`; conferência por contexto limpo.
 

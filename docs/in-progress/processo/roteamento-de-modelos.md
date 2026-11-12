@@ -41,13 +41,13 @@ Fonte única: `.claude/model-routing.json`.
     "rapido":     { "model": "haiku",  "effort": "low" }
   },
   "orquestrador": "fronteira",
-  "conselheiro": "fronteira",
+  "conselheiro": null,
   "agents": {
     "planner": "fronteira",
     "architect": "fronteira",
     "code-architect": "raciocinio",
     "security-reviewer": "raciocinio",
-    "acceptance-verifier": "raciocinio",
+    "acceptance-verifier": "padrao",
     "code-reviewer": "padrao",
     "silent-failure-hunter": "padrao",
     "code-simplifier": "padrao",
@@ -252,6 +252,10 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
     parar a tarefa.
 14. Numa sessão real, depois do `apply`, a mensagem de abertura do Claude Code mostra o advisor ligado. Se não
     mostrar, vale o plano B da seção "Limites do conselheiro", e a entrega diz qual dos dois ficou.
+15. O `model-routing.json` tem `"conselheiro": null`, o `.claude/settings.json` não tem `advisorModel`, e a rule
+    `model-routing.md` e o `README.md` dizem que o conselheiro vem desligado e como ligá-lo.
+16. O `acceptance-verifier` está no nível `padrao`, o frontmatter dele tem `model: sonnet` e `effort: medium`,
+    e o `model-routing check` sai com 0.
 
 ## Estratégia de testes e verificação
 
@@ -302,6 +306,12 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
   trazia um modelo (`"fable"`), e trocar o Fable pedia editar o nível `fronteira` e o `conselheiro`. Agora trocar o
   `model` do nível troca os dois. Custo aceito: planejamento e conselheiro ficam presos ao mesmo nível, e o
   `effort` do nível não vale para o conselheiro. Rejeitado: manter o modelo direto no `conselheiro`.
+- **Conselheiro desligado e `acceptance-verifier` em `padrao`** (decisão da pessoa, 2026-11-12, na branch
+  `harness-v2`, depois das corridas da Estação Kepler: "de resto aceito"). Na corrida `novo2`, os verificadores
+  em Opus gastaram 18,1 mi de cache read em 6 rodadas, e o conselheiro não juntou evidência de ganho. Muda só
+  estes dois pontos da postura "equilibrado" e dos quatro lugares do Fable; o resto fica. O mecanismo do
+  conselheiro continua no script, desligado com `"conselheiro": null`. Rejeitado: tirar o conselheiro do script e
+  dos testes; manter o verificador em Opus.
 
 ## Fora de escopo / questões em aberto
 
@@ -324,7 +334,7 @@ Os dois agents novos entram em `agents` na fatia 1 da spec 2.
 
 ### Definição de pronto
 
-Critérios 1 a 14 conferidos; todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
+Critérios 1 a 16 conferidos; todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
 saída 0.
 
 ### Feito vs pendente
@@ -350,5 +360,9 @@ saída 0.
       o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
       modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
       como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
-- [ ] Não conferido: se o Claude Code obedece ao `model:` e ao `effort:` do frontmatter. É comportamento do
+- [ ] Critérios 15 e 16 (decisão de 2026-11-12): conselheiro desligado, verificador em `padrao`. O critério 14
+      vale para quem ligar o conselheiro.
+- [x] Conferido na corrida `novo2` (2026-11-12): o Claude Code obedece ao `model:` do frontmatter. Os
+      `acceptance-verifier` rodaram em Opus e os `test-author` em Sonnet, pelo uso por modelo no transcript.
+- [ ] Não conferido: se o Claude Code obedece ao `effort:` do frontmatter; o transcript não registra o esforço. É comportamento do
       produto; a documentação diz que sim.

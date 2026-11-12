@@ -6,13 +6,13 @@
     "rapido": { "model": "haiku", "effort": "low" }
   },
   "orquestrador": "fronteira",
-  "conselheiro": "fronteira",
+  "conselheiro": null,
   "agents": {
     "planner": "fronteira",
     "architect": "fronteira",
     "code-architect": "raciocinio",
     "security-reviewer": "raciocinio",
-    "acceptance-verifier": "raciocinio",
+    "acceptance-verifier": "padrao",
     "code-reviewer": "padrao",
     "silent-failure-hunter": "padrao",
     "code-simplifier": "padrao",

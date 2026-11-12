@@ -79,17 +79,19 @@ limite estourar, as consultas falham até a janela renovar.
 
 Um arquivo só, o [`.claude/model-routing.json`](.claude/model-routing.json), decide em qual modelo e com qual
 esforço cada agent roda. Ele tem quatro níveis (`fronteira`, `raciocinio`, `padrao`, `rapido`), o nível de cada
-agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aberto e conselheiro.
+agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aberto e, se você ligar,
+conselheiro.
 
 | Quando | O que fazer |
 | --- | --- |
 | Saiu um modelo novo, ou você quer gastar mais ou menos | Edite `niveis` e rode `node scripts/model-routing/model-routing.mjs apply`. |
-| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` para `opus` e rode o `apply`: o conselheiro aponta para esse nível e acompanha. Para desligar o conselheiro, `"conselheiro": null`. |
+| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` para `opus` e rode o `apply`. Se você ligou o conselheiro, ele aponta para um nível e acompanha. |
+| Você quer o conselheiro | Ele vem desligado (`"conselheiro": null`). Aponte `conselheiro` para um nível com `fable`, `opus` ou `sonnet` e rode o `apply`. |
 | Entrou um agent novo | Dê um nível a ele em `agents` e rode o `apply`. |
 
 O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e a chave `advisorModel` no
-`.claude/settings.json`. O `check` é portão: falha quando algo diverge do arquivo. O conselheiro usa o recurso
-advisor do Claude Code, que é experimental e exige a API da Anthropic ou a Claude Platform on AWS; onde ele não
+`.claude/settings.json`. O `check` é portão: falha quando algo diverge do arquivo. O conselheiro, quando
+ligado, usa o recurso advisor do Claude Code, que é experimental e exige a API da Anthropic ou a Claude Platform on AWS; onde ele não
 está disponível, a sessão roda sem conselheiro e sem erro. As regras de uso estão em
 [`model-routing.md`](.claude/rules/common/model-routing.md).
 
