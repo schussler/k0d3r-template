@@ -5,8 +5,8 @@ import { findPath, reachable, walkableAllOpen } from '../../src/level/nav';
 const MAP = [
   '#######',
   '#P..c.#',
-  '#.##.S#',
-  '#.D.a.#',
+  '#.##.x#',
+  '#.1.a.#',
   '###E###',
 ];
 
@@ -19,6 +19,7 @@ describe('parseGrid', () => {
     expect(tileAt(g, 1, 1)).toBe('floor');
     expect(entitiesOf(g, 'switch')).toEqual([{ kind: 'switch', col: 5, row: 2, index: 0 }]);
     expect(g.doors).toEqual([{ col: 2, row: 3, index: 0 }]);
+    expect(tileAt(g, 2, 3)).toBe('door');
   });
 
   test('outside the map reads as wall', () => {

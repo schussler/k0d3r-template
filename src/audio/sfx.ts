@@ -243,3 +243,43 @@ export class EnemySfx {
     tone(v, { type: 'triangle', freq: base * 1.5, gain: 0.15, decay: 0.12, at: 0.07 });
   }
 }
+
+/** Portas, saída e interruptores. */
+export class WorldSfx {
+  constructor(private readonly a: AudioEngine) {}
+
+  door(x: number, y: number, z: number): void {
+    const v = this.a.voiceAt(x, y, z, 0, 0.4);
+    if (!v) return;
+    noise(v, this.a.noise, { filter: 'bandpass', freq: 300, freqEnd: 900, q: 1, gain: 0.5, attack: 0.05, decay: 0.7 });
+    tone(v, { type: 'sine', freq: 60, freqEnd: 45, gain: 0.5, decay: 0.5 });
+    tone(v, { type: 'square', freq: 220, gain: 0.05, decay: 0.08, at: 0.75 });
+  }
+
+  button(): void {
+    const v = this.a.voice(0, 0.1);
+    if (!v) return;
+    tone(v, { type: 'square', freq: 440, gain: 0.1, decay: 0.05 });
+    tone(v, { type: 'square', freq: 660, gain: 0.1, decay: 0.1, at: 0.06 });
+  }
+
+  /** Saída liberada: acorde ascendente. */
+  unlock(): void {
+    const v = this.a.voice(0, 0.5);
+    if (!v) return;
+    [523, 659, 784, 1047].forEach((f, i) => tone(v, { type: 'triangle', freq: f, gain: 0.16, attack: 0.01, decay: 0.5, at: i * 0.09 }));
+  }
+
+  transition(): void {
+    const v = this.a.voice(0, 0.6);
+    if (!v) return;
+    tone(v, { type: 'sawtooth', freq: 90, freqEnd: 400, gain: 0.2, attack: 0.5, decay: 0.8 });
+    noise(v, this.a.noise, { filter: 'lowpass', freq: 400, freqEnd: 2500, gain: 0.3, attack: 0.6, decay: 0.6 });
+  }
+
+  victory(): void {
+    const v = this.a.voice(0, 0.7);
+    if (!v) return;
+    [392, 523, 659, 784, 1047].forEach((f, i) => tone(v, { type: 'triangle', freq: f, gain: 0.18, attack: 0.02, decay: 1.2, at: i * 0.18 }));
+  }
+}

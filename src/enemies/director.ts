@@ -59,7 +59,7 @@ export class Director {
   add<T extends Robot>(r: T): T {
     this.robots.push(r);
     this.root.add(r.group);
-    if (r instanceof Sentinel) this.root.add(r.laserMesh);
+    for (const o of r.sceneExtras) this.root.add(o);
     return r;
   }
 
@@ -165,7 +165,7 @@ export class Director {
       const r = this.robots[i];
       if (!r) continue;
       if (r.alive) {
-        this.hittables.push(r);
+        this.hittables.push(r, ...r.extraTargets());
         continue;
       }
       const center = r.center(new THREE.Vector3());
@@ -176,6 +176,7 @@ export class Director {
       this.services.shake(r.kind === 'boss' ? 1 : 0.15);
       r.dispose();
       this.root.remove(r.group);
+      for (const o of r.sceneExtras) this.root.remove(o);
       this.robots.splice(i, 1);
       if (r.kind !== 'boss') {
         const drop = rollDrop(this.rng());
@@ -189,6 +190,7 @@ export class Director {
     for (const r of this.robots) {
       r.dispose();
       this.root.remove(r.group);
+      for (const o of r.sceneExtras) this.root.remove(o);
     }
     this.robots.length = 0;
     this.hittables.length = 0;

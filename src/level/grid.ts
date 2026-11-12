@@ -23,13 +23,17 @@ export interface Grid {
   readonly rows: number;
   readonly tiles: readonly Tile[];
   readonly entities: readonly Entity[];
-  /** Ordem de leitura das portas, para casar com os interruptores. */
+  /** Portas pelo dígito do mapa: '1' é a porta de índice 0, aberta pelo interruptor 'x'. */
   readonly doors: readonly { readonly col: number; readonly row: number; readonly index: number }[];
 }
 
 const TILE_CHARS: Readonly<Record<string, Tile>> = {
-  '.': 'floor', '#': 'wall', c: 'crate', C: 'stack', o: 'pillar', g: 'glass', w: 'planter', D: 'door', E: 'exit',
+  '.': 'floor', '#': 'wall', c: 'crate', C: 'stack', o: 'pillar', g: 'glass', w: 'planter', E: 'exit',
 };
+
+const DOOR_CHARS = '123';
+// O interruptor x abre a porta 1, y a 2, z a 3: o par é explícito, não depende da ordem de leitura.
+const SWITCH_CHARS = 'xyz';
 
 // Entidades ficam sobre piso; o interruptor fica sobre um console baixo, que bloqueia a passagem.
 const ENTITY_CHARS: Readonly<Record<string, { kind: EntityKind; tile: Tile }>> = {
@@ -43,7 +47,6 @@ const ENTITY_CHARS: Readonly<Record<string, { kind: EntityKind; tile: Tile }>> =
   h: { kind: 'health', tile: 'floor' },
   r: { kind: 'rifle', tile: 'floor' },
   q: { kind: 'shotgun', tile: 'floor' },
-  S: { kind: 'switch', tile: 'console' },
   l: { kind: 'light', tile: 'floor' },
   p: { kind: 'plant', tile: 'floor' },
 };
@@ -63,8 +66,19 @@ export function parseGrid(lines: readonly string[]): Grid {
     [...line].forEach((ch, col) => {
       const tile = TILE_CHARS[ch];
       if (tile) {
-        if (tile === 'door') doors.push({ col, row, index: doors.length });
         tiles.push(tile);
+        return;
+      }
+      const doorIndex = DOOR_CHARS.indexOf(ch);
+      if (doorIndex >= 0) {
+        doors.push({ col, row, index: doorIndex });
+        tiles.push('door');
+        return;
+      }
+      const switchIndex = SWITCH_CHARS.indexOf(ch);
+      if (switchIndex >= 0) {
+        entities.push({ kind: 'switch', col, row, index: switchIndex });
+        tiles.push('console');
         return;
       }
       const ent = ENTITY_CHARS[ch];

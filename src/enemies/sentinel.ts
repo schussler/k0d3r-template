@@ -110,19 +110,14 @@ export class Sentinel extends Robot {
     );
     this.laser.userData.noDebris = true;
     this.laser.visible = false;
+    this.sceneExtras.push(this.laser);
     this.body.traverse((o) => {
       if (o instanceof THREE.Mesh) o.castShadow = true;
     });
   }
 
-  /** O laser de mira vive na cena, não no robô: precisa ir do cano até o ponto mirado. */
-  get laserMesh(): THREE.Mesh {
-    return this.laser;
-  }
-
   override dispose(): void {
     this.laser.visible = false;
-    this.laser.removeFromParent();
   }
 
   protected behave(f: EnemyFrame): void {

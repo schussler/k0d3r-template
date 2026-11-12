@@ -53,6 +53,12 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .sector { left: 24px; top: 24px; display: flex; gap: 10px; align-items: center; font-size: 14px; letter-spacing: 0.25em; }
 .sector .ico { fill: none; stroke: var(--cyan); stroke-width: 2; }
+.sector span { display: block; }
+.sector .objective { font-size: 11px; letter-spacing: 0.15em; color: rgba(232, 246, 255, 0.65); margin-top: 3px; }
+.timer { position: absolute; right: 24px; top: 24px; font-size: 16px; letter-spacing: 0.2em; color: rgba(232, 246, 255, 0.75); text-shadow: 0 0 6px rgba(0, 0, 0, 0.8); }
+.prompt { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); padding: 8px 16px; background: var(--panel); border: 1px solid var(--orange); color: var(--orange); letter-spacing: 0.25em; font-size: 13px; }
+.compass { position: absolute; left: 50%; top: 80px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; letter-spacing: 0.3em; color: var(--green); }
+.compass .arrow { width: 34px; height: 34px; fill: var(--green); filter: drop-shadow(0 0 6px var(--green)); }
 .message { position: absolute; left: 50%; top: 62%; transform: translateX(-50%); font-size: 14px; letter-spacing: 0.3em; color: var(--cyan); text-shadow: 0 0 8px rgba(0, 0, 0, 0.9); }
 .message.warn { color: var(--orange); animation: blink 0.8s steps(2) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }

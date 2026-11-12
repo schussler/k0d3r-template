@@ -5,6 +5,8 @@ import { planetTexture, rng } from './textures';
 export interface Backdrop {
   readonly group: THREE.Group;
   update(dt: number): void;
+  /** Move o planeta: cada setor o mostra de um ângulo diferente pelas janelas. */
+  placePlanet(x: number, y: number, z: number): void;
 }
 
 const ATMOSPHERE_VERT = /* glsl */ `
@@ -110,6 +112,10 @@ export function createBackdrop(radius = 260, planetSize = 70): Backdrop {
     group,
     update(dt: number) {
       planet.rotation.y += dt * 0.01;
+    },
+    placePlanet(x: number, y: number, z: number) {
+      planet.position.set(x, y, z);
+      atmo.position.copy(planet.position);
     },
   };
 }

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CollisionWorld, type Box, type Surface } from '../world/collision';
-import { crateTexture, floorTextures, panelTextures, rng } from '../render/textures';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { crateTexture, floorTextures, leafTexture, panelTextures, rng } from '../render/textures';
 import { CELL, type Grid, type Tile, cellCenter, entitiesOf, tileAt } from './grid';
 import type { Theme } from './themes';
 
@@ -20,6 +21,16 @@ export interface BuiltDoor {
   progress: number;
 }
 
+export interface BuiltSwitch {
+  readonly index: number;
+  readonly col: number;
+  readonly row: number;
+  readonly x: number;
+  readonly z: number;
+  pressed: boolean;
+  readonly screen: THREE.MeshStandardMaterial;
+}
+
 export interface BuiltLevel {
   readonly group: THREE.Group;
   readonly world: CollisionWorld;
@@ -28,6 +39,11 @@ export interface BuiltLevel {
   readonly key: THREE.DirectionalLight;
   readonly spawn: { x: number; z: number; yaw: number };
   readonly exitCells: { col: number; row: number }[];
+  readonly switches: BuiltSwitch[];
+  /** Pulso do alarme (0 a 1), para o som acompanhar a luz. Zero em setores sem alarme. */
+  readonly alarmPulse: () => number;
+  /** Aciona o interruptor: abre a porta de mesmo índice. Devolve false se já estava acionado. */
+  pressSwitch(index: number): boolean;
   /** Destrava a saída: o portão some e a luz fica verde. */
   setExitOpen(open: boolean): void;
   update(dt: number): void;
@@ -79,6 +95,7 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
 
   // Paredes: faixa de baixo com painel e luz embutida; parte de cima com painel liso.
   const panel = panelTextures(theme.wallBase, theme.wallSeam, theme.wallGlow, 3);
+  for (const t of Object.values(panel)) track(t);
   const lowerMat = track(new THREE.MeshStandardMaterial({
     map: panel.map, bumpMap: panel.bump, bumpScale: 2, emissiveMap: panel.emissive, emissive: 0xffffff,
     emissiveIntensity: 1.4, roughness: 0.55, metalness: 0.55,
@@ -129,8 +146,8 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
   }
 
   // Caixas baixas e pilhas.
-  const crateMat = track(new THREE.MeshStandardMaterial({ map: crateTexture('#5d6670', '#d9a400', 5), roughness: 0.6, metalness: 0.35 }));
-  const crateMat2 = track(new THREE.MeshStandardMaterial({ map: crateTexture('#7a4a2a', '#e8e0d0', 9), roughness: 0.7, metalness: 0.2 }));
+  const crateMat = track(new THREE.MeshStandardMaterial({ map: track(crateTexture('#5d6670', '#d9a400', 5)), roughness: 0.6, metalness: 0.35 }));
+  const crateMat2 = track(new THREE.MeshStandardMaterial({ map: track(crateTexture('#7a4a2a', '#e8e0d0', 9)), roughness: 0.7, metalness: 0.2 }));
   const crates = cells((t) => t === 'crate');
   const crateGeo = track(new THREE.BoxGeometry(1.8, CRATE_HEIGHT, 1.8));
   crateGeo.translate(0, CRATE_HEIGHT / 2, 0);
@@ -171,10 +188,85 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
     group.add(pm);
   }
 
+  // Canteiros da estufa: caixa baixa com terra e três plantas em cartões cruzados.
+  const leaf = track(leafTexture(21));
+  const leafMat = track(new THREE.MeshStandardMaterial({ map: leaf, alphaTest: 0.45, side: THREE.DoubleSide, roughness: 0.8 }));
+  const cardA = new THREE.PlaneGeometry(1, 1);
+  cardA.translate(0, 0.5, 0);
+  const cardB = cardA.clone();
+  cardB.rotateY(Math.PI / 2);
+  const cross = track(mergeGeometries([cardA, cardB]));
+  const planters = cells((t) => t === 'planter');
+  if (planters.length > 0) {
+    const boxGeo = track(new THREE.BoxGeometry(1.8, 0.8, 1.8));
+    boxGeo.translate(0, 0.4, 0);
+    const boxMat = track(new THREE.MeshStandardMaterial({ color: 0x3b4a44, metalness: 0.6, roughness: 0.45, map: panel.map }));
+    const soilGeo = track(new THREE.BoxGeometry(1.6, 0.06, 1.6));
+    soilGeo.translate(0, 0.82, 0);
+    const soilMat = track(new THREE.MeshStandardMaterial({ color: 0x2a1d14, roughness: 1 }));
+    const boxes = instanced(boxGeo, boxMat, planters.length);
+    const soil = instanced(soilGeo, soilMat, planters.length, false);
+    const plantsMesh = instanced(cross, leafMat, planters.length * 3, false);
+    planters.forEach(({ col, row }, i) => {
+      const c = cellCenter(col, row);
+      m4.makeTranslation(c.x, 0, c.z);
+      boxes.setMatrixAt(i, m4);
+      soil.setMatrixAt(i, m4);
+      for (let k = 0; k < 3; k++) {
+        const s = 0.9 + r() * 0.7;
+        m4.compose(new THREE.Vector3(c.x + (k - 1) * 0.5 + (r() - 0.5) * 0.2, 0.84, c.z + (r() - 0.5) * 0.6), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, r() * 3, 0)), new THREE.Vector3(s, s, s));
+        plantsMesh.setMatrixAt(i * 3 + k, m4);
+      }
+      addBox(world, c.x, c.z, 0.9, 0.9, 'plant');
+    });
+    group.add(boxes, soil, plantsMesh);
+  }
+  const decor = entitiesOf(grid, 'plant');
+  if (decor.length > 0) {
+    const potGeo = track(new THREE.CylinderGeometry(0.5, 0.38, 0.6, 14));
+    potGeo.translate(0, 0.3, 0);
+    const potMat = track(new THREE.MeshStandardMaterial({ color: 0x4d5560, metalness: 0.7, roughness: 0.4 }));
+    const pots = instanced(potGeo, potMat, decor.length);
+    const bush = instanced(cross, leafMat, decor.length * 4, false);
+    decor.forEach((e, i) => {
+      const c = cellCenter(e.col, e.row);
+      pots.setMatrixAt(i, m4.makeTranslation(c.x, 0, c.z));
+      for (let k = 0; k < 4; k++) {
+        const s = 2.2 + r() * 1.4;
+        m4.compose(new THREE.Vector3(c.x + (r() - 0.5) * 0.3, 0.55, c.z + (r() - 0.5) * 0.3), new THREE.Quaternion().setFromEuler(new THREE.Euler((r() - 0.5) * 0.2, r() * 3, (r() - 0.5) * 0.2)), new THREE.Vector3(s, s, s));
+        bush.setMatrixAt(i * 4 + k, m4);
+      }
+      addBox(world, c.x, c.z, 0.4, 0.6, 'plant');
+    });
+    group.add(pots, bush);
+  }
+
+  // Interruptores: console com tela que passa do âmbar ao verde ao ser acionado.
+  const switches: BuiltSwitch[] = entitiesOf(grid, 'switch').map((e) => {
+    const c = cellCenter(e.col, e.row);
+    const base = new THREE.Mesh(track(new THREE.BoxGeometry(1.5, 1.1, 1.0)), track(new THREE.MeshStandardMaterial({ color: 0x2c333b, metalness: 0.8, roughness: 0.35 })));
+    base.position.set(c.x, 0.55, c.z);
+    const screen = track(new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xffa020, emissiveIntensity: 2.2 }));
+    const face = new THREE.Mesh(track(new THREE.PlaneGeometry(1.1, 0.55)), screen);
+    face.position.set(0, 0.28, 0.51);
+    face.rotation.x = -0.35;
+    base.add(face);
+    const lever = new THREE.Mesh(track(new THREE.BoxGeometry(0.16, 0.34, 0.16)), track(new THREE.MeshStandardMaterial({ color: 0xd9a400, emissive: 0x442200, metalness: 0.5, roughness: 0.4 })));
+    lever.position.set(0, 0.7, 0.2);
+    base.add(lever);
+    // O console olha para o lado aberto do mapa mais próximo do centro.
+    base.rotation.y = Math.atan2(grid.cols * CELL / 2 - c.x, grid.rows * CELL / 2 - c.z);
+    base.castShadow = true;
+    group.add(base);
+    addBox(world, c.x, c.z, 0.8, 1.1, 'metal');
+    return { index: e.index, col: e.col, row: e.row, x: c.x, z: c.z, pressed: false, screen };
+  });
+
   // Piso e teto.
   const W = grid.cols * CELL;
   const D = grid.rows * CELL;
   const fl = floorTextures(theme.floorBase, theme.floorLine, 4, theme.hazardFloor);
+  for (const t of Object.values(fl)) track(t);
   for (const t of [fl.map, fl.bump]) t.repeat.set(grid.cols, grid.rows);
   const floor = new THREE.Mesh(
     track(new THREE.PlaneGeometry(W, D)),
@@ -185,6 +277,7 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
   floor.receiveShadow = true;
   group.add(floor);
   const ceilTex = panelTextures('#1f242b', '#0c0f12', '#000000', 8);
+  for (const t of Object.values(ceilTex)) track(t);
   ceilTex.map.repeat.set(grid.cols / 2, grid.rows / 2);
   const ceiling = new THREE.Mesh(
     track(new THREE.PlaneGeometry(W, D)),
@@ -225,8 +318,10 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
   group.add(fixtures);
 
   // Portas: placa que desliza para cima ao abrir.
-  const doorMat = track(new THREE.MeshStandardMaterial({ color: 0x6a717a, metalness: 0.75, roughness: 0.35, emissive: 0x220000, map: panel.map }));
+  const doorMats: THREE.MeshStandardMaterial[] = [];
   const doors: BuiltDoor[] = grid.doors.map((d) => {
+    const doorMat = track(new THREE.MeshStandardMaterial({ color: 0x6a717a, metalness: 0.75, roughness: 0.35, emissive: 0xff2010, emissiveIntensity: 0.5, map: panel.map }));
+    doorMats.push(doorMat);
     const c = cellCenter(d.col, d.row);
     const mesh = new THREE.Mesh(track(new THREE.BoxGeometry(CELL, Math.min(H, 3.4), CELL * 0.4)), doorMat);
     const vertical = tileAt(grid, d.col, d.row - 1) === 'wall' || tileAt(grid, d.col, d.row + 1) === 'wall';
@@ -261,6 +356,8 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
     group.add(lm);
   }
   let exitOpen = false;
+  let clock = 0;
+  let alarm = 0;
   let exitProgress = 0;
 
   const p = entitiesOf(grid, 'player')[0];
@@ -269,14 +366,35 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
   const yaw = Math.atan2(-(ex.x - sp.x), -(ex.z - sp.z));
 
   return {
-    group, world, doors, lamps, key, exitCells,
+    group, world, doors, lamps, key, exitCells, switches,
     spawn: { x: sp.x, z: sp.z, yaw },
     setExitOpen(open: boolean) {
       exitOpen = open;
       gateMat.emissive.setHex(open ? 0x22ff66 : 0xff2a1a);
       for (const g of gates) g.box.enabled = !open;
     },
+    alarmPulse: () => alarm,
+    pressSwitch(index: number) {
+      const sw = switches.find((x) => x.index === index);
+      const door = doors.find((d) => d.index === index);
+      if (!sw || sw.pressed) return false;
+      sw.pressed = true;
+      sw.screen.emissive.setHex(0x30ff80);
+      if (door) {
+        door.open = true;
+        doorMats[doors.indexOf(door)]?.emissive.setHex(0x20ff70);
+      }
+      return true;
+    },
     update(dt: number) {
+      clock += dt;
+      if (theme.alarm) {
+        // Pulso de sirene: sobe rápido e cai devagar, como luz giratória.
+        alarm = Math.pow(0.5 + 0.5 * Math.sin(clock * 5.2), 2);
+        lamps.forEach((l) => (l.intensity = theme.lampIntensity * (0.08 + 0.92 * alarm)));
+        fixtureMat.emissiveIntensity = 0.4 + 3.2 * alarm;
+      }
+      for (const sw of switches) if (!sw.pressed) sw.screen.emissiveIntensity = 1.4 + Math.sin(clock * 6) * 0.9;
       exitProgress = Math.max(0, Math.min(1, exitProgress + (exitOpen ? dt : -dt) * 0.8));
       for (const g of gates) g.mesh.position.y = 1.7 + exitProgress * 3.3;
       for (const d of doors) {

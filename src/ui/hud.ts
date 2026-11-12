@@ -32,6 +32,11 @@ export class Hud {
   private readonly weaponIcon: HTMLElement;
   private readonly sectorText: HTMLElement;
   private readonly message: HTMLElement;
+  private readonly objective: HTMLElement;
+  private readonly timer: HTMLElement;
+  private readonly prompt: HTMLElement;
+  private readonly compass: HTMLElement;
+  private readonly arrow: SVGElement;
   private readonly vignette: HTMLElement;
   private readonly slots: HTMLElement;
   private readonly bossBar: HTMLElement;
@@ -69,7 +74,10 @@ export class Hud {
         <div class="counts"><span class="mag">0</span><span class="sep">/</span><span class="reserve">0</span></div>
         <div class="slots"></div>
       </div>
-      <div class="panel sector">${svg('0 0 24 24', path(ICON.sector), 'ico')}<span class="sector-name"></span></div>
+      <div class="panel sector">${svg('0 0 24 24', path(ICON.sector), 'ico')}<div><span class="sector-name"></span><span class="objective"></span></div></div>
+      <div class="timer"></div>
+      <div class="prompt hidden"></div>
+      <div class="compass hidden">${svg('0 0 24 24', path(ICON.arrow), 'arrow')}<span>SAÍDA</span></div>
       <div class="boss hidden"><div class="boss-name"></div><div class="boss-bar"><div class="boss-fill"></div><i style="left:33.3%"></i><i style="left:66.6%"></i></div></div>
       <div class="message"></div>`;
     parent.appendChild(root);
@@ -91,6 +99,11 @@ export class Hud {
     this.weaponIcon = q('.weapon-icon');
     this.sectorText = q('.sector-name');
     this.message = q('.message');
+    this.objective = q('.objective');
+    this.timer = q('.timer');
+    this.prompt = q('.prompt');
+    this.compass = q('.compass');
+    this.arrow = q('.arrow');
     this.vignette = q('.vignette');
     this.slots = q('.slots');
     this.bossBar = q('.boss');
@@ -114,6 +127,27 @@ export class Hud {
   showDamage(angle: number): void {
     this.damageTimer = 0.9;
     this.damageArc.setAttribute('transform', `rotate(${(angle * 180) / Math.PI})`);
+  }
+
+  setObjective(text: string): void {
+    this.set('objective', text, () => (this.objective.textContent = text));
+  }
+
+  setTimer(text: string): void {
+    this.set('timer', text, () => (this.timer.textContent = text));
+  }
+
+  setPrompt(text: string | null): void {
+    this.set('prompt', text ?? '', () => {
+      this.prompt.classList.toggle('hidden', !text);
+      this.prompt.textContent = text ?? '';
+    });
+  }
+
+  /** Seta que aponta a saída; `angle` em radianos, 0 = à frente. Null esconde. */
+  setCompass(angle: number | null): void {
+    this.set('compass', angle === null ? '' : 'on', () => this.compass.classList.toggle('hidden', angle === null));
+    if (angle !== null) this.arrow.style.transform = `rotate(${angle}rad)`;
   }
 
   setVisible(v: boolean): void {

@@ -62,6 +62,7 @@ export interface Hitbox {
 const LOS_INTERVAL = 0.15;
 const WHITE = new THREE.Color(1, 1, 1);
 const PATROL_VIEW = 20;
+const NO_TARGETS: readonly Hittable[] = [];
 const REPATH_INTERVAL = 0.55;
 const STUCK_WINDOW = 1;
 
@@ -70,6 +71,8 @@ export abstract class Robot implements Hittable {
   readonly group = new THREE.Group();
   /** Filho de `group` que inclina com o recuo do tiro. */
   readonly body = new THREE.Group();
+  /** Objetos que vivem na cena e não no grupo do robô (laser de mira, feixe, onda de choque). O diretor os adiciona e remove. */
+  readonly sceneExtras: THREE.Object3D[] = [];
   x: number;
   y = 0;
   z: number;
@@ -103,6 +106,8 @@ export abstract class Robot implements Hittable {
   protected abstract readonly flying: boolean;
   protected readonly viewRange: number = 36;
   protected readonly knockScale: number = 1;
+  /** Força do piscar branco no acerto; o chefe, sempre sob fogo, pisca pouco para não virar um bloco branco. */
+  protected readonly flashStrength: number = 1;
   protected readonly scratch: Box[] = [];
   private losTimer = Math.random() * LOS_INTERVAL;
   private path: Cell[] = [];
@@ -203,8 +208,9 @@ export abstract class Robot implements Hittable {
   private applyFlash(): void {
     for (const m of this.flashMats) {
       const base = m.userData.baseColor as THREE.Color;
-      m.emissive.copy(base).lerp(WHITE, this.flash * 0.7);
-      m.emissiveIntensity = (m.userData.base as number) + this.flash * 2;
+      const f = this.flash * this.flashStrength;
+      m.emissive.copy(base).lerp(WHITE, f * 0.7);
+      m.emissiveIntensity = (m.userData.base as number) + f * 2;
       m.userData.lit = this.flash > 0;
     }
   }
@@ -337,6 +343,11 @@ export abstract class Robot implements Hittable {
       if (f.passable(col, row, this.flying)) return cellCenter(col, row);
     }
     return { x: this.homeX, z: this.homeZ };
+  }
+
+  /** Alvos extras que o robô cria (os mísseis do chefe, que o jogador pode derrubar a tiro). */
+  extraTargets(): readonly Hittable[] {
+    return NO_TARGETS;
   }
 
   /** Raio do corpo no chão; o diretor usa para separar robôs que se sobrepõem. */

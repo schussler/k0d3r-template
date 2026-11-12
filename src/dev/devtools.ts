@@ -13,6 +13,12 @@ export interface KeplerHook {
   teleport(x: number, z: number): void;
   aim(x: number, y: number, z: number): void;
   robots(): { kind: string; x: number; y: number; z: number; mode: string; health: number }[];
+  jump(sector: number): void;
+  flow(): Record<string, unknown>;
+  switches(): { index: number; x: number; z: number; pressed: boolean; stand: { x: number; z: number } }[];
+  pause(): void;
+  hurt(amount: number): void;
+  exit(): { x: number; z: number } | null;
   key(code: string, down: boolean): void;
   mouse(down: boolean): void;
   start(): void;
@@ -71,6 +77,12 @@ export function installDevtools(game: Game): void {
       enemies: game.director.aliveCount,
       calls: game.renderer.info.render.calls,
     }),
+    jump: (sector) => game.jumpToSector(sector),
+    flow: () => game.devState,
+    switches: () => game.switchPositions,
+    pause: () => game.devPause(),
+    hurt: (amount) => game.devHurt(amount),
+    exit: () => game.exitPosition,
     giveAll: () => game.giveAll(),
     killAll: () => game.killAll(),
     god: (on) => {

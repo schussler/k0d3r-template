@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { AudioEngine } from '../audio/engine';
-import { EnemySfx, Sfx } from '../audio/sfx';
+import { EnemySfx, Sfx, WorldSfx } from '../audio/sfx';
+import { Boss } from '../enemies/boss';
 import { Director } from '../enemies/director';
 import { Drone } from '../enemies/drone';
 import { Projectiles } from '../enemies/projectiles';
@@ -13,9 +14,9 @@ import { Decals } from '../fx/decals';
 import { ParticleSystem } from '../fx/particles';
 import { Shells } from '../fx/shells';
 import { Tracers } from '../fx/tracers';
-import { type BuiltLevel, buildLevel } from '../level/build';
-import { type Grid, cellCenter, isLowCover, isOpenTile, parseGrid, tileAt, worldToCell } from '../level/grid';
-import { SECTORS, type SectorDef } from '../level/sectors';
+import { type BuiltLevel, type BuiltSwitch, buildLevel } from '../level/build';
+import { type Grid, cellCenter, entitiesOf, isLowCover, isOpenTile, parseGrid, tileAt, worldToCell } from '../level/grid';
+import { SECTORS, type SectorDef, type SectorId } from '../level/sectors';
 import { THEMES } from '../level/themes';
 import { Gunplay } from '../player/gunplay';
 import { PlayerRig } from '../player/rig';
@@ -23,17 +24,29 @@ import { Viewmodel } from '../player/viewmodel';
 import { createBackdrop, type Backdrop } from '../render/space';
 import { WEAPONS, addAmmo, createArsenal, giveWeapon } from '../rules/arsenal';
 import type { Drop } from '../rules/drops';
+import { type RunStats, type Snapshot, advanceClock, formatTime, newRun, recordDeath, restoreSnapshot, takeSnapshot } from '../rules/progress';
 import { MAX_HEALTH, MAX_SHIELD, type Vitals, damagePlayer as applyDamage, fullVitals, heal, isDead, tickVitals } from '../rules/vitals';
 import { Hud } from '../ui/hud';
 import { Screens } from '../ui/screens';
 import { Input } from './input';
 import { type Pickup, type PickupKind, collect, makePickup, updatePickups } from './pickups';
 
-export type Mode = 'title' | 'playing' | 'paused' | 'dead' | 'error';
+export type Mode = 'title' | 'playing' | 'paused' | 'dead' | 'transition' | 'victory' | 'error';
 
 const AMMO_PICKUP = { pistol: 0, rifle: 45, shotgun: 8 } as const;
 const HEALTH_PICKUP = 35;
 const OPEN_DOOR_PROGRESS = 0.7;
+const SWITCH_REACH = 2.9;
+const TRANSITION_TIME = 1.7;
+const VICTORY_DELAY = 3;
+const BOSS_NAME = 'NÚCLEO — SENTINELA-0';
+/** Onde o planeta aparece pelas janelas de cada setor (relativo à câmera). */
+const PLANET_ANCHOR: Readonly<Record<SectorId, readonly [number, number, number]>> = {
+  hangar: [-91, -57, -143],
+  labs: [-91, -57, -143],
+  greenhouse: [-120, 18, -150],
+  core: [-91, -57, -143],
+};
 
 /** O jogo: cena, setor atual, jogador, robôs, efeitos, HUD e telas, e a máquina de modos. */
 export class Game {
@@ -44,6 +57,7 @@ export class Game {
   readonly audio = new AudioEngine();
   readonly sfx = new Sfx(this.audio);
   readonly enemySfx = new EnemySfx(this.audio);
+  readonly worldSfx = new WorldSfx(this.audio);
   readonly hud: Hud;
   readonly screens: Screens;
   readonly rig: PlayerRig;
@@ -58,6 +72,15 @@ export class Game {
   private readonly backdrop: Backdrop;
   readonly director: Director;
   private level!: BuiltLevel;
+  private readonly services: EnemyServices;
+  private sectorIndex = 0;
+  private run: RunStats = newRun();
+  private snapshot: Snapshot = takeSnapshot(fullVitals(), createArsenal());
+  private exitOpen = false;
+  private transitionTimer = 0;
+  private winTimer = -1;
+  private finalTime = 0;
+  private boss: Boss | null = null;
   private grid!: Grid;
   private sector!: SectorDef;
   private targets: TrainingTarget[] = [];
@@ -90,13 +113,16 @@ export class Game {
     this.vm.scene.add(this.shells.vmMesh);
     this.backdrop = createBackdrop();
 
-    const services: EnemyServices = {
+    const services: EnemyServices = this.services = {
       sfx: this.enemySfx, audio: this.audio, sparks: this.sparks, smoke: this.smoke, projectiles: this.projectiles,
       spawnDrone: (x, z) => this.director.add(new Drone(x, z, services)),
       shake: (a) => this.rig.shake.add(a),
     };
     this.director = new Director(services, this.debris);
     this.director.onDrop = (drop, x, z) => this.dropPickup(drop, x, z);
+    this.director.onDeath = (r) => {
+      if (r.kind === 'boss') this.onBossDeath();
+    };
     this.scene.add(
       this.backdrop.group, this.levelRoot, this.director.root, this.debris.root, this.sparks.points, this.smoke.points,
       this.tracers.mesh, this.decals.mesh, this.shells.worldMesh, this.projectiles.mesh,
@@ -112,7 +138,7 @@ export class Game {
     this.shells.onBounce = (x, y, z, heavy) => this.sfx.brass(x, y, z, heavy);
     this.debris.onImpact = (x, y, z) => this.enemySfx.clank(x, y, z);
     this.projectiles.onImpact = (x, y, z) => this.sfx.impact(x, y, z, 'metal');
-    this.respawn();
+    this.enterSector(0, this.freshState());
 
     this.input.onLockChange = (locked) => this.onLockChange(locked);
     this.screens.onAction = (id) => void this.onAction(id);
@@ -160,11 +186,47 @@ export class Game {
     this.rig?.controller.setWorld(this.level.world);
   }
 
-  private respawn(): void {
+  /** Entra num setor com o estado dado (partida nova, tentar de novo, ou o setor seguinte). */
+  private enterSector(index: number, state: Snapshot): void {
+    this.sectorIndex = index;
+    this.sector = SECTORS[index] as SectorDef;
+    this.loadSector(this.sector);
     const s = this.level.spawn;
     this.rig.controller.place(s.x, s.z, s.yaw);
-    this.rig.reset(createArsenal());
-    this.vitals = fullVitals();
+    this.rig.reset(state.arsenal);
+    this.vitals = state.vitals;
+    this.snapshot = takeSnapshot(state.vitals, state.arsenal);
+    this.exitOpen = false;
+    this.winTimer = -1;
+    this.boss = null;
+    const bossSpawn = entitiesOf(this.grid, 'boss')[0];
+    if (bossSpawn) {
+      const c = cellCenter(bossSpawn.col, bossSpawn.row);
+      this.boss = this.director.add(new Boss(c.x, c.z, this.services));
+      this.boss.yaw = 0;
+      this.boss.onPhaseChange = () => this.restockArena();
+    }
+    this.backdrop.placePlanet(...PLANET_ANCHOR[this.sector.id]);
+    this.hud.setBoss(null, 0);
+  }
+
+  private freshState(): Snapshot {
+    return takeSnapshot(fullVitals(), createArsenal());
+  }
+
+  /** A cada troca de fase do chefe os itens da arena voltam, para ninguém ficar sem saída. */
+  private restockArena(): void {
+    for (const p of this.pickups) {
+      p.taken = false;
+      p.mesh.visible = true;
+    }
+  }
+
+  private onBossDeath(): void {
+    this.finalTime = this.run.elapsed;
+    this.winTimer = VICTORY_DELAY;
+    this.hud.setBoss(null, 0);
+    this.worldSfx.victory();
   }
 
   private resize(): void {
@@ -202,6 +264,7 @@ export class Game {
   }
 
   private die(): void {
+    this.run = recordDeath(this.run);
     this.mode = 'dead';
     this.input.releaseLock();
     this.hud.setVisible(false);
@@ -209,7 +272,19 @@ export class Game {
       kicker: 'SINAIS VITAIS PERDIDOS',
       title: 'VOCÊ MORREU',
       actions: [{ id: 'retry', label: 'TENTAR DE NOVO' }, { id: 'title', label: 'TÍTULO' }],
-      hint: 'Tentar de novo recomeça o setor.',
+      hint: `Tentar de novo recomeça o ${this.sector.name.split('— ')[1]?.toLowerCase() ?? 'setor'} com o que você tinha ao entrar.`,
+    });
+  }
+
+  private showVictory(): void {
+    this.mode = 'victory';
+    this.input.releaseLock();
+    this.hud.setVisible(false);
+    this.screens.show('victory', {
+      kicker: 'NÚCLEO DESLIGADO',
+      title: 'VITÓRIA',
+      body: `A estação silenciou. Tempo total: <b>${formatTime(this.finalTime)}</b> · Mortes: <b>${this.run.deaths}</b>`,
+      actions: [{ id: 'play', label: 'JOGAR DE NOVO' }, { id: 'title', label: 'TÍTULO' }],
     });
   }
 
@@ -219,11 +294,13 @@ export class Game {
 
   private async onAction(id: string): Promise<void> {
     this.sfx.ui();
-    if (id === 'play' || id === 'resume' || id === 'restart' || id === 'retry') {
+    if (id === 'resume' || id === 'play' || id === 'restart' || id === 'retry') {
       await this.audio.unlock();
-      if (id !== 'resume') {
-        this.loadSector(this.sector);
-        this.respawn();
+      if (id === 'play') {
+        this.run = newRun();
+        this.enterSector(0, this.freshState());
+      } else if (id === 'restart' || id === 'retry') {
+        this.enterSector(this.sectorIndex, restoreSnapshot(this.snapshot));
       }
       const ok = await this.input.requestLock();
       if (!ok) {
@@ -236,6 +313,7 @@ export class Game {
       this.mode = 'playing';
     } else if (id === 'title') {
       this.input.releaseLock();
+      this.enterSector(0, this.freshState());
       this.showTitle();
     }
   }
@@ -252,11 +330,60 @@ export class Game {
     for (const r of this.director.robots) r.health = 0;
   }
 
+  /** Atalho de desenvolvimento: pula direto para um setor com o estado atual. */
+  jumpToSector(index: number): void {
+    this.enterSector(index, takeSnapshot(this.vitals, this.rig.arsenal));
+  }
+
+  get devState(): Record<string, unknown> {
+    return {
+      sector: this.sectorIndex, exitOpen: this.exitOpen, elapsed: this.run.elapsed, deaths: this.run.deaths,
+      switches: [...this.level.switches].sort((a, b) => a.index - b.index).map((x) => x.pressed), bossPhase: this.boss?.phase ?? 0, bossFraction: this.boss?.fraction ?? 0,
+    };
+  }
+
+  pressSwitchNear(): void {
+    this.input.simulateKey('KeyE', true);
+  }
+
+  get playerPosition(): { x: number; z: number } {
+    return { x: this.rig.controller.x, z: this.rig.controller.z };
+  }
+
+  get exitPosition(): { x: number; z: number } | null {
+    const e = this.level.exitCells[0];
+    return e ? cellCenter(e.col, e.row) : null;
+  }
+
+  /** Onde ficar para acionar cada interruptor: a célula livre vizinha ao console. */
+  get switchPositions(): { index: number; x: number; z: number; pressed: boolean; stand: { x: number; z: number } }[] {
+    return this.level.switches.map((x) => {
+      const near = ([[1, 0], [-1, 0], [0, 1], [0, -1]] as const).find(([dc, dr]) => this.passable(x.col + dc, x.row + dr, false));
+      const stand = near ? cellCenter(x.col + near[0], x.row + near[1]) : { x: x.x, z: x.z };
+      return { index: x.index, x: x.x, z: x.z, pressed: x.pressed, stand };
+    });
+  }
+
+  /** Atalho de desenvolvimento: pausa como se o mouse tivesse sido solto. */
+  devPause(): void {
+    this.pause();
+  }
+
+  /** Atalho de desenvolvimento: dano direto, mesmo em modo imortal. */
+  devHurt(amount: number): void {
+    const was = this.god;
+    this.god = false;
+    this.hurt(amount, this.rig.controller.x, this.rig.controller.z - 3, 0, 0);
+    this.god = was;
+  }
+
   frame(dt: number, now: number): void {
     this.time = now;
     this.backdrop.update(dt);
     if (this.mode === 'playing') this.updatePlaying(dt);
+    else if (this.mode === 'transition') this.updateTransition(dt);
     else if (this.mode === 'title') this.updateTitle(dt);
+    else if (this.mode === 'dead' || this.mode === 'victory') this.updateWorldFx(dt);
     this.input.endFrame();
     this.render();
   }
@@ -270,9 +397,40 @@ export class Game {
     this.level.update(dt);
   }
 
+  /** Efeitos que seguem rodando com o jogo parado por uma tela: pedaços caindo, faíscas, luzes do setor. */
+  private updateWorldFx(dt: number): void {
+    this.debris.update(dt, this.level.world);
+    this.level.update(dt);
+    updatePickups(this.pickups, this.time);
+    this.sparks.update(dt, 0);
+    this.smoke.update(dt, 0);
+    this.tracers.update(dt);
+  }
+
+  private updateTransition(dt: number): void {
+    this.updateWorldFx(dt);
+    this.transitionTimer -= dt;
+    if (this.transitionTimer > 0) return;
+    this.enterSector(this.sectorIndex + 1, takeSnapshot(this.vitals, this.rig.arsenal));
+    this.screens.hide();
+    this.mode = 'playing';
+    // O jogador pode ter soltado o mouse durante a transição: sem trava, vai direto para a pausa.
+    if (!this.input.locked && !this.input.testMode) this.pause();
+  }
+
+  private beginTransition(): void {
+    const next = SECTORS[this.sectorIndex + 1];
+    if (!next) return;
+    this.mode = 'transition';
+    this.transitionTimer = TRANSITION_TIME;
+    this.worldSfx.transition();
+    this.screens.show('transition', { kicker: 'AVANÇANDO', title: next.name.replace('— ', '· '), actions: [] });
+  }
+
   private updatePlaying(dt: number): void {
     if (import.meta.env.DEV && this.input.pressed('F2')) this.giveAll();
     const c = this.rig.controller;
+    this.run = advanceClock(this.run, dt, this.winTimer < 0);
     const report = this.rig.update(dt, this.input, this.level.world, this.hittables);
     for (const shot of report.shots) {
       if (shot.result.hits > 0) this.hud.showHit(shot.result.head);
@@ -287,19 +445,87 @@ export class Game {
     const bolts = this.projectiles.update(dt, this.level.world, this.playerBody);
     if (bolts.damage > 0) this.hurt(bolts.damage, bolts.fromX, bolts.fromZ, 0, 0);
     this.refreshHittables();
-    this.debris.update(dt, this.level.world);
+    this.updateWorldFx(dt);
     for (const t of this.targets) t.update(dt);
-    this.level.update(dt);
     this.collectPickups();
-    updatePickups(this.pickups, this.time);
-    this.sparks.update(dt, 0);
-    this.smoke.update(dt, 0);
-    this.tracers.update(dt);
+    this.updateSector();
     this.hud.update(dt, {
       health: this.vitals.health, maxHealth: MAX_HEALTH, shield: this.vitals.shield, maxShield: MAX_SHIELD,
       arsenal: this.rig.arsenal, sector: this.sector.name, spreadPx: this.rig.spreadPx(this.container.clientHeight),
     });
-    if (isDead(this.vitals)) this.die();
+    this.hud.setTimer(formatTime(this.run.elapsed));
+    if (this.boss?.alive) this.hud.setBoss(BOSS_NAME, this.boss.fraction);
+    if (this.winTimer >= 0) {
+      this.winTimer -= dt;
+      if (this.winTimer < 0) this.showVictory();
+    } else if (isDead(this.vitals)) this.die();
+  }
+
+  /** Objetivo do setor: interruptores, saída que destrava, seta até a saída e passagem para o próximo setor. */
+  private updateSector(): void {
+    const c = this.rig.controller;
+    const def = this.sector;
+    const pressed = this.level.switches.filter((x) => x.pressed).length;
+    const total = this.level.switches.length;
+    if (!this.exitOpen) {
+      const ready = def.unlock === 'clear' ? this.director.aliveCount === 0 : def.unlock === 'switches' ? pressed === total : false;
+      if (ready) {
+        this.exitOpen = true;
+        this.level.setExitOpen(true);
+        this.worldSfx.unlock();
+      }
+    }
+    let objective: string;
+    if (def.unlock === 'boss') objective = 'DESLIGUE O NÚCLEO';
+    else if (this.exitOpen) objective = 'VÁ ATÉ A SAÍDA';
+    else if (def.unlock === 'switches') objective = `ACIONE OS INTERRUPTORES (${pressed}/${total})`;
+    else objective = `ELIMINE OS ROBÔS (${this.director.aliveCount})`;
+    this.hud.setObjective(objective);
+
+    this.hud.setPrompt(this.nearSwitchPrompt());
+    this.hud.setCompass(this.exitOpen ? this.exitAngle() : null);
+
+    if (this.exitOpen && def.unlock !== 'boss') {
+      const here = worldToCell(c.x, c.z);
+      if (tileAt(this.grid, here.col, here.row) === 'exit') this.beginTransition();
+    }
+  }
+
+  /** Interruptor ao alcance: mostra o aviso e aciona com E. */
+  private nearSwitchPrompt(): string | null {
+    const c = this.rig.controller;
+    let nearest: BuiltSwitch | null = null;
+    let best = SWITCH_REACH;
+    for (const sw of this.level.switches) {
+      if (sw.pressed) continue;
+      const d = Math.hypot(sw.x - c.x, sw.z - c.z);
+      if (d < best) {
+        best = d;
+        nearest = sw;
+      }
+    }
+    if (!nearest) return null;
+    if (this.input.pressed('KeyE')) {
+      if (this.level.pressSwitch(nearest.index)) {
+        this.worldSfx.button();
+        const door = this.level.doors.find((d) => d.index === nearest?.index);
+        if (door) this.worldSfx.door(door.mesh.position.x, 1.5, door.mesh.position.z);
+      }
+      return null;
+    }
+    return '[E] ACIONAR INTERRUPTOR';
+  }
+
+  private exitAngle(): number | null {
+    const e = this.level.exitCells[0];
+    if (!e) return null;
+    const t = cellCenter(e.col, e.row);
+    const c = this.rig.controller;
+    const ax = t.x - c.x;
+    const az = t.z - c.z;
+    const front = ax * -Math.sin(c.yaw) + az * -Math.cos(c.yaw);
+    const right = ax * Math.cos(c.yaw) + az * -Math.sin(c.yaw);
+    return Math.atan2(right, front);
   }
 
   private syncPlayerViews(): void {
