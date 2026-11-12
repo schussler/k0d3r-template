@@ -312,8 +312,8 @@ aberto.
 - [x] Dia zero: `## Stack`, portões, `VERIFY_GATES`, `.gitignore` (commit do `git mv`)
 - [x] Adoção do ECC: `typescript-reviewer` e as rules `typescript/*` e `web/*`
 - [x] Fatia 1 — sensação de tiro (sala de treino no hangar, com alvos; F2 em desenvolvimento dá as três armas)
-- [ ] Playtest da fatia 1
-- [ ] Fatia 2 — inimigos
+- [x] Playtest da fatia 1 (feito pela pessoa em 2026-11-12; sem ajustes pedidos)
+- [x] Fatia 2 — inimigos
 - [ ] Fatia 3 — setores e fluxo
 - [ ] Fatia 4 — som e acabamento
 - [ ] Verificação, revisão e entrega

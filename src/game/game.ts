@@ -1,31 +1,41 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { AudioEngine } from '../audio/engine';
-import { Sfx } from '../audio/sfx';
+import { EnemySfx, Sfx } from '../audio/sfx';
+import { Director } from '../enemies/director';
+import { Drone } from '../enemies/drone';
+import { Projectiles } from '../enemies/projectiles';
+import type { EnemyServices, PlayerView } from '../enemies/robot';
+import type { Hittable } from '../enemies/hittable';
 import { TrainingTarget } from '../enemies/target';
+import { Debris } from '../fx/debris';
 import { Decals } from '../fx/decals';
 import { ParticleSystem } from '../fx/particles';
 import { Shells } from '../fx/shells';
 import { Tracers } from '../fx/tracers';
 import { type BuiltLevel, buildLevel } from '../level/build';
-import { cellCenter, parseGrid } from '../level/grid';
+import { type Grid, cellCenter, isLowCover, isOpenTile, parseGrid, tileAt, worldToCell } from '../level/grid';
 import { SECTORS, type SectorDef } from '../level/sectors';
 import { THEMES } from '../level/themes';
 import { Gunplay } from '../player/gunplay';
 import { PlayerRig } from '../player/rig';
 import { Viewmodel } from '../player/viewmodel';
 import { createBackdrop, type Backdrop } from '../render/space';
-import { addAmmo, createArsenal, giveWeapon, WEAPONS, type WeaponId } from '../rules/arsenal';
+import { WEAPONS, addAmmo, createArsenal, giveWeapon } from '../rules/arsenal';
+import type { Drop } from '../rules/drops';
+import { MAX_HEALTH, MAX_SHIELD, type Vitals, damagePlayer as applyDamage, fullVitals, heal, isDead, tickVitals } from '../rules/vitals';
 import { Hud } from '../ui/hud';
 import { Screens } from '../ui/screens';
 import { Input } from './input';
-import { type Pickup, collect, makePickup, updatePickups } from './pickups';
+import { type Pickup, type PickupKind, collect, makePickup, updatePickups } from './pickups';
 
-export type Mode = 'title' | 'playing' | 'paused' | 'error';
+export type Mode = 'title' | 'playing' | 'paused' | 'dead' | 'error';
 
-const AMMO_PICKUP: Readonly<Record<WeaponId, number>> = { pistol: 0, rifle: 45, shotgun: 8 };
+const AMMO_PICKUP = { pistol: 0, rifle: 45, shotgun: 8 } as const;
+const HEALTH_PICKUP = 35;
+const OPEN_DOOR_PROGRESS = 0.7;
 
-/** O jogo: cena, setor atual, jogador, efeitos, HUD e telas, e a máquina de modos. */
+/** O jogo: cena, setor atual, jogador, robôs, efeitos, HUD e telas, e a máquina de modos. */
 export class Game {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
@@ -33,27 +43,33 @@ export class Game {
   readonly input: Input;
   readonly audio = new AudioEngine();
   readonly sfx = new Sfx(this.audio);
+  readonly enemySfx = new EnemySfx(this.audio);
   readonly hud: Hud;
   readonly screens: Screens;
   readonly rig: PlayerRig;
   readonly vm: Viewmodel;
-  private readonly sparks = new ParticleSystem(900, true, 0.0);
-  private readonly smoke = new ParticleSystem(300, false, 0.2);
+  readonly sparks = new ParticleSystem(900, true, 0.0);
+  readonly smoke = new ParticleSystem(300, false, 0.2);
   private readonly tracers = new Tracers();
   private readonly decals = new Decals();
   private readonly shells = new Shells();
+  private readonly debris = new Debris();
+  private readonly projectiles = new Projectiles(this.sparks);
   private readonly backdrop: Backdrop;
+  readonly director: Director;
   private level!: BuiltLevel;
+  private grid!: Grid;
   private sector!: SectorDef;
   private targets: TrainingTarget[] = [];
   private pickups: Pickup[] = [];
-  private levelRoot = new THREE.Group();
+  private readonly levelRoot = new THREE.Group();
+  private readonly hittables: Hittable[] = [];
+  private readonly playerView: PlayerView = { x: 0, z: 0, feetY: 0, eyeY: 0, crouched: false, vx: 0, vz: 0 };
+  private readonly playerBody = { x: 0, z: 0, feetY: 0, headY: 0 };
   mode: Mode = 'title';
   private time = 0;
-  health = 100;
-  shield = 100;
-  readonly maxHealth = 100;
-  readonly maxShield = 100;
+  vitals: Vitals = fullVitals();
+  god = false;
 
   constructor(private readonly container: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -73,7 +89,18 @@ export class Game {
     this.vm = new Viewmodel(env);
     this.vm.scene.add(this.shells.vmMesh);
     this.backdrop = createBackdrop();
-    this.scene.add(this.backdrop.group, this.levelRoot, this.sparks.points, this.smoke.points, this.tracers.mesh, this.decals.mesh, this.shells.worldMesh);
+
+    const services: EnemyServices = {
+      sfx: this.enemySfx, audio: this.audio, sparks: this.sparks, smoke: this.smoke, projectiles: this.projectiles,
+      spawnDrone: (x, z) => this.director.add(new Drone(x, z, services)),
+      shake: (a) => this.rig.shake.add(a),
+    };
+    this.director = new Director(services, this.debris);
+    this.director.onDrop = (drop, x, z) => this.dropPickup(drop, x, z);
+    this.scene.add(
+      this.backdrop.group, this.levelRoot, this.director.root, this.debris.root, this.sparks.points, this.smoke.points,
+      this.tracers.mesh, this.decals.mesh, this.shells.worldMesh, this.projectiles.mesh,
+    );
 
     this.input = new Input(this.renderer.domElement);
     this.hud = new Hud(container);
@@ -83,6 +110,8 @@ export class Game {
     this.loadSector(this.sector);
     this.rig = new PlayerRig(this.level.world, this.camera, this.vm, gunplay, this.shells, this.sfx, this.audio);
     this.shells.onBounce = (x, y, z, heavy) => this.sfx.brass(x, y, z, heavy);
+    this.debris.onImpact = (x, y, z) => this.enemySfx.clank(x, y, z);
+    this.projectiles.onImpact = (x, y, z) => this.sfx.impact(x, y, z, 'metal');
     this.respawn();
 
     this.input.onLockChange = (locked) => this.onLockChange(locked);
@@ -98,28 +127,32 @@ export class Game {
   private loadSector(def: SectorDef): void {
     this.levelRoot.clear();
     this.level?.dispose();
-    const grid = parseGrid(def.map);
+    this.director.clear();
+    this.debris.clear();
+    this.projectiles.clear();
+    this.grid = parseGrid(def.map);
     const theme = THEMES[def.id];
-    this.level = buildLevel(grid, theme);
+    this.level = buildLevel(this.grid, theme);
     this.levelRoot.add(this.level.group);
     this.scene.fog = new THREE.FogExp2(theme.fogColor, theme.fogDensity);
     this.scene.environmentIntensity = theme.envIntensity;
     this.renderer.toneMappingExposure = theme.exposure;
     this.audio.setReverb(...theme.reverb);
     const spawn = this.level.spawn;
-    this.targets = grid.entities.filter((e) => e.kind === 'target').map((e) => {
+    this.targets = this.grid.entities.filter((e) => e.kind === 'target').map((e) => {
       const c = cellCenter(e.col, e.row);
       const t = new TrainingTarget(c.x, c.z, Math.atan2(spawn.x - c.x, spawn.z - c.z));
       this.levelRoot.add(t.group);
       return t;
     });
-    this.pickups = grid.entities.flatMap((e) => {
+    this.pickups = this.grid.entities.flatMap((e) => {
       if (e.kind !== 'ammo' && e.kind !== 'health' && e.kind !== 'rifle' && e.kind !== 'shotgun') return [];
       const c = cellCenter(e.col, e.row);
       const p = makePickup(e.kind, c.x, c.z);
       this.levelRoot.add(p.mesh);
       return [p];
     });
+    this.director.spawnFromGrid(this.grid);
     this.decals.clear();
     this.sparks.clear();
     this.smoke.clear();
@@ -131,8 +164,7 @@ export class Game {
     const s = this.level.spawn;
     this.rig.controller.place(s.x, s.z, s.yaw);
     this.rig.reset(createArsenal());
-    this.health = this.maxHealth;
-    this.shield = this.maxShield;
+    this.vitals = fullVitals();
   }
 
   private resize(): void {
@@ -169,15 +201,27 @@ export class Game {
     });
   }
 
+  private die(): void {
+    this.mode = 'dead';
+    this.input.releaseLock();
+    this.hud.setVisible(false);
+    this.screens.show('death', {
+      kicker: 'SINAIS VITAIS PERDIDOS',
+      title: 'VOCÊ MORREU',
+      actions: [{ id: 'retry', label: 'TENTAR DE NOVO' }, { id: 'title', label: 'TÍTULO' }],
+      hint: 'Tentar de novo recomeça o setor.',
+    });
+  }
+
   private onLockChange(locked: boolean): void {
     if (!locked && this.mode === 'playing') this.pause();
   }
 
   private async onAction(id: string): Promise<void> {
     this.sfx.ui();
-    if (id === 'play' || id === 'resume' || id === 'restart') {
+    if (id === 'play' || id === 'resume' || id === 'restart' || id === 'retry') {
       await this.audio.unlock();
-      if (id === 'play' || id === 'restart') {
+      if (id !== 'resume') {
         this.loadSector(this.sector);
         this.respawn();
       }
@@ -203,6 +247,11 @@ export class Game {
     this.rig.arsenal = a;
   }
 
+  /** Atalho de desenvolvimento: elimina os robôs do setor. */
+  killAll(): void {
+    for (const r of this.director.robots) r.health = 0;
+  }
+
   frame(dt: number, now: number): void {
     this.time = now;
     this.backdrop.update(dt);
@@ -223,10 +272,22 @@ export class Game {
 
   private updatePlaying(dt: number): void {
     if (import.meta.env.DEV && this.input.pressed('F2')) this.giveAll();
-    const report = this.rig.update(dt, this.input, this.level.world, this.targets);
+    const c = this.rig.controller;
+    const report = this.rig.update(dt, this.input, this.level.world, this.hittables);
     for (const shot of report.shots) {
       if (shot.result.hits > 0) this.hud.showHit(shot.result.head);
+      this.director.hearShot(c.x, c.z, WEAPONS[shot.weapon].noiseRadius, this.level.world, c.eyeY);
     }
+    this.vitals = tickVitals(this.vitals, dt);
+    this.syncPlayerViews();
+    this.director.update({
+      dt, time: this.time, world: this.level.world, grid: this.grid, player: this.playerView,
+      passable: this.passable, damagePlayer: this.hurt,
+    });
+    const bolts = this.projectiles.update(dt, this.level.world, this.playerBody);
+    if (bolts.damage > 0) this.hurt(bolts.damage, bolts.fromX, bolts.fromZ, 0, 0);
+    this.refreshHittables();
+    this.debris.update(dt, this.level.world);
     for (const t of this.targets) t.update(dt);
     this.level.update(dt);
     this.collectPickups();
@@ -235,24 +296,96 @@ export class Game {
     this.smoke.update(dt, 0);
     this.tracers.update(dt);
     this.hud.update(dt, {
-      health: this.health, maxHealth: this.maxHealth, shield: this.shield, maxShield: this.maxShield,
+      health: this.vitals.health, maxHealth: MAX_HEALTH, shield: this.vitals.shield, maxShield: MAX_SHIELD,
       arsenal: this.rig.arsenal, sector: this.sector.name, spreadPx: this.rig.spreadPx(this.container.clientHeight),
     });
+    if (isDead(this.vitals)) this.die();
+  }
+
+  private syncPlayerViews(): void {
+    const c = this.rig.controller;
+    const v = this.playerView;
+    v.x = c.x;
+    v.z = c.z;
+    v.feetY = c.y;
+    v.eyeY = c.eyeY;
+    v.crouched = c.crouched;
+    v.vx = c.vx;
+    v.vz = c.vz;
+    const b = this.playerBody;
+    b.x = c.x;
+    b.z = c.z;
+    b.feetY = c.y;
+    b.headY = c.y + c.height;
+  }
+
+  private refreshHittables(): void {
+    this.hittables.length = 0;
+    for (const t of this.targets) this.hittables.push(t);
+    for (const h of this.director.hittables) this.hittables.push(h);
+  }
+
+  /** Célula livre para andar: piso, e porta aberta. Voadores passam também sobre obstáculos baixos. */
+  private readonly passable = (col: number, row: number, flying: boolean): boolean => {
+    const t = tileAt(this.grid, col, row);
+    if (t === 'floor') return true;
+    if (t === 'door') return this.level.doors.some((d) => d.col === col && d.row === row && d.progress >= OPEN_DOOR_PROGRESS);
+    return flying && isLowCover(t);
+  };
+
+  /** Dano ao jogador: o escudo absorve primeiro; empurra, treme a câmera e aponta de onde veio. */
+  private readonly hurt = (amount: number, fromX: number, fromZ: number, pushX: number, pushZ: number): void => {
+    if (this.god || this.mode !== 'playing') return;
+    const c = this.rig.controller;
+    const shielded = this.vitals.shield > 0;
+    this.vitals = applyDamage(this.vitals, amount);
+    c.vx += pushX;
+    c.vz += pushZ;
+    const ax = fromX - c.x;
+    const az = fromZ - c.z;
+    const front = ax * -Math.sin(c.yaw) + az * -Math.cos(c.yaw);
+    const right = ax * Math.cos(c.yaw) + az * -Math.sin(c.yaw);
+    this.hud.showDamage(Math.atan2(right, front));
+    this.enemySfx.hurt(shielded);
+    this.rig.shake.add(0.25 + amount * 0.012);
+  };
+
+  /** Onde um item pode cair: o ponto do robô se for piso, senão a célula livre mais próxima. */
+  private dropPoint(x: number, z: number): { x: number; z: number } | null {
+    const here = worldToCell(x, z);
+    for (let r = 0; r <= 2; r++) {
+      for (let dr = -r; dr <= r; dr++) {
+        for (let dc = -r; dc <= r; dc++) {
+          if (Math.max(Math.abs(dc), Math.abs(dr)) !== r) continue;
+          if (isOpenTile(tileAt(this.grid, here.col + dc, here.row + dr))) return r === 0 ? { x, z } : cellCenter(here.col + dc, here.row + dr);
+        }
+      }
+    }
+    return null;
+  }
+
+  private dropPickup(drop: Drop, x: number, z: number): void {
+    const at = this.dropPoint(x, z);
+    if (!at) return;
+    const p = makePickup(drop, at.x, at.z);
+    this.levelRoot.add(p.mesh);
+    this.pickups.push(p);
   }
 
   private collectPickups(): void {
     const c = this.rig.controller;
     const a = this.rig.arsenal;
-    const got = collect(this.pickups, c.x, c.y, c.z, (k) => {
-      if (k === 'health') return this.health < this.maxHealth;
+    const accepts = (k: PickupKind): boolean => {
+      if (k === 'health') return this.vitals.health < MAX_HEALTH;
       if (k === 'ammo') return a.owned.some((w) => !WEAPONS[w].infiniteReserve && a.guns[w].reserve < WEAPONS[w].reserveMax);
       return true;
-    });
+    };
+    const got = collect(this.pickups, c.x, c.y, c.z, accepts);
     if (!got) return;
-    if (got.kind === 'health') this.health = Math.min(this.maxHealth, this.health + 35);
+    if (got.kind === 'health') this.vitals = heal(this.vitals, HEALTH_PICKUP);
     else if (got.kind === 'ammo') this.rig.arsenal = a.owned.reduce((s, w) => addAmmo(s, w, AMMO_PICKUP[w]), a);
     else this.rig.arsenal = giveWeapon(a, got.kind);
-    this.sfx.ui();
+    this.enemySfx.pickup(got.kind);
   }
 
   private render(): void {

@@ -147,3 +147,99 @@ export class Sfx {
     tone(v, { type: 'sine', freq: 880, freqEnd: 1320, gain: 0.12, decay: 0.08 });
   }
 }
+
+/** Sons dos robôs e do jogador levando dano. Posicionados no espaço quando vêm de um robô. */
+export class EnemySfx {
+  constructor(private readonly a: AudioEngine) {}
+
+  private at(x: number, y: number, z: number, wet = 0.4) {
+    return this.a.voiceAt(x, y, z, 0, wet);
+  }
+
+  alert(x: number, y: number, z: number, low: boolean): void {
+    const v = this.at(x, y, z);
+    if (!v) return;
+    const f = low ? 220 : 880;
+    tone(v, { type: 'square', freq: f, gain: 0.12, decay: 0.08 });
+    tone(v, { type: 'square', freq: f * 1.5, gain: 0.12, decay: 0.1, at: 0.1 });
+  }
+
+  windup(x: number, y: number, z: number, dur: number): void {
+    const v = this.at(x, y, z);
+    if (!v) return;
+    tone(v, { type: 'sawtooth', freq: 500, freqEnd: 2200, gain: 0.12, attack: dur * 0.8, decay: 0.1 });
+  }
+
+  whoosh(x: number, y: number, z: number): void {
+    const v = this.at(x, y, z);
+    if (!v) return;
+    noise(v, this.a.noise, { filter: 'bandpass', freq: 600, freqEnd: 2400, q: 0.8, gain: 0.5, attack: 0.08, decay: 0.3 });
+  }
+
+  bolt(x: number, y: number, z: number): void {
+    const v = this.at(x, y, z, 0.3);
+    if (!v) return;
+    tone(v, { type: 'square', freq: 1400, freqEnd: 260, gain: 0.16, decay: 0.12 });
+    noise(v, this.a.noise, { filter: 'highpass', freq: 3000, gain: 0.15, decay: 0.05 });
+  }
+
+  charge(x: number, y: number, z: number, dur: number): void {
+    const v = this.at(x, y, z, 0.2);
+    if (!v) return;
+    tone(v, { type: 'sine', freq: 700, freqEnd: 1600, gain: 0.08, attack: dur, decay: 0.05 });
+  }
+
+  roar(x: number, y: number, z: number): void {
+    const v = this.at(x, y, z, 0.6);
+    if (!v) return;
+    tone(v, { type: 'sawtooth', freq: 95, freqEnd: 45, gain: 0.45, attack: 0.1, decay: 0.8 });
+    tone(v, { type: 'square', freq: 140, freqEnd: 70, gain: 0.12, attack: 0.1, decay: 0.6 });
+    noise(v, this.a.noise, { filter: 'lowpass', freq: 900, freqEnd: 200, gain: 0.5, attack: 0.1, decay: 0.8 });
+  }
+
+  stomp(x: number, y: number, z: number, heavy: number): void {
+    const v = this.at(x, y, z, 0.3);
+    if (!v) return;
+    tone(v, { type: 'sine', freq: 70, freqEnd: 35, gain: 0.3 * heavy, decay: 0.15 });
+    noise(v, this.a.noise, { filter: 'lowpass', freq: 500, gain: 0.25 * heavy, decay: 0.1 });
+  }
+
+  swing(x: number, y: number, z: number): void {
+    const v = this.at(x, y, z, 0.2);
+    if (!v) return;
+    noise(v, this.a.noise, { filter: 'bandpass', freq: 400, freqEnd: 1200, q: 1, gain: 0.4, attack: 0.05, decay: 0.2 });
+  }
+
+  clank(x: number, y: number, z: number): void {
+    const v = this.at(x, y, z, 0.3);
+    if (!v) return;
+    noise(v, this.a.noise, { filter: 'bandpass', freq: jitter(2400, 0.2), q: 2, gain: 0.35, decay: 0.06 });
+    tone(v, { type: 'square', freq: jitter(380, 0.2), freqEnd: 200, gain: 0.08, decay: 0.08 });
+  }
+
+  explode(x: number, y: number, z: number, size: number): void {
+    const v = this.at(x, y, z, 0.7);
+    if (!v) return;
+    noise(v, this.a.noise, { filter: 'lowpass', freq: 2600, freqEnd: 120, gain: 0.9 * size, decay: 1.1 });
+    tone(v, { type: 'sine', freq: 75, freqEnd: 28, gain: 0.8 * size, decay: 0.7 });
+    noise(v, this.a.noise, { filter: 'bandpass', freq: 3200, q: 0.8, gain: 0.4 * size, decay: 0.12 });
+    for (let i = 0; i < 4; i++) tone(v, { type: 'triangle', freq: jitter(1800, 0.4), gain: 0.06, decay: 0.08, at: 0.15 + i * 0.09 });
+  }
+
+  /** Jogador atingido: baque grave; o escudo absorvendo soa como um chiado elétrico. */
+  hurt(shielded: boolean): void {
+    const v = this.a.voice(0, 0.1);
+    if (!v) return;
+    tone(v, { type: 'sine', freq: 160, freqEnd: 60, gain: 0.45, decay: 0.15 });
+    if (shielded) noise(v, this.a.noise, { filter: 'bandpass', freq: 4200, q: 1.5, gain: 0.35, decay: 0.18 });
+    else noise(v, this.a.noise, { filter: 'lowpass', freq: 700, gain: 0.4, decay: 0.12 });
+  }
+
+  pickup(kind: string): void {
+    const v = this.a.voice(0, 0.1);
+    if (!v) return;
+    const base = kind === 'health' ? 660 : kind === 'ammo' ? 520 : 440;
+    tone(v, { type: 'triangle', freq: base, gain: 0.15, decay: 0.08 });
+    tone(v, { type: 'triangle', freq: base * 1.5, gain: 0.15, decay: 0.12, at: 0.07 });
+  }
+}

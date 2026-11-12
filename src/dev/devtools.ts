@@ -8,6 +8,11 @@ export interface KeplerHook {
   testMode(on: boolean): void;
   state(): Record<string, unknown>;
   giveAll(): void;
+  killAll(): void;
+  god(on: boolean): void;
+  teleport(x: number, z: number): void;
+  aim(x: number, y: number, z: number): void;
+  robots(): { kind: string; x: number; y: number; z: number; mode: string; health: number }[];
   key(code: string, down: boolean): void;
   mouse(down: boolean): void;
   start(): void;
@@ -61,11 +66,25 @@ export function installDevtools(game: Game): void {
       weapon: game.rig.arsenal.current,
       owned: game.rig.arsenal.owned,
       mag: game.rig.arsenal.guns[game.rig.arsenal.current].mag,
-      health: game.health,
-      shield: game.shield,
+      health: game.vitals.health,
+      shield: game.vitals.shield,
+      enemies: game.director.aliveCount,
       calls: game.renderer.info.render.calls,
     }),
     giveAll: () => game.giveAll(),
+    killAll: () => game.killAll(),
+    god: (on) => {
+      game.god = on;
+    },
+    teleport: (x, z) => game.rig.controller.place(x, z, game.rig.controller.yaw),
+    aim: (x, y, z) => {
+      const c = game.rig.controller;
+      const dx = x - c.x;
+      const dz = z - c.z;
+      c.yaw = Math.atan2(-dx, -dz);
+      c.pitch = Math.atan2(y - c.eyeY, Math.hypot(dx, dz));
+    },
+    robots: () => game.director.robots.map((r) => ({ kind: r.kind, x: r.x, y: r.y, z: r.z, mode: r.mem.mode, health: r.health })),
     key: (code, down) => game.input.simulateKey(code, down),
     mouse: (down) => game.input.simulateMouse(down),
     start: () => {

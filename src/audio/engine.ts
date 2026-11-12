@@ -95,6 +95,7 @@ export class AudioEngine {
     const g = v.ctx.createGain();
     g.connect(p);
     p.connect(v.out);
+    registerPanner(g, p);
     if (wet > 0) {
       const send = v.ctx.createGain();
       send.gain.value = wet;
@@ -207,4 +208,73 @@ export function noise(v: Voice, buffer: AudioBuffer, o: NoiseOpts): void {
   const dur = (o.attack ?? 0.002) + o.decay + 0.05;
   src.start(t, Math.random() * 1.5, dur);
   src.stop(t + dur);
+}
+
+/** Som contínuo posicionado (rotor do drone, zumbido): oscilador + filtro + panner, que o dono move e desliga. */
+export interface Loop {
+  setPosition(x: number, y: number, z: number): void;
+  setPitch(freq: number): void;
+  setLevel(level: number): void;
+  stop(): void;
+}
+
+export function createLoop(a: AudioEngine, type: OscillatorType, freq: number, level: number, filterFreq: number): Loop | null {
+  const v = a.voiceAt(0, 0, 0, 0, 0.15);
+  if (!v) return null;
+  const ctx = v.ctx;
+  const osc = ctx.createOscillator();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 7 + Math.random() * 4;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.value = freq * 0.03;
+  lfo.connect(lfoGain);
+  lfoGain.connect(osc.frequency);
+  const f = ctx.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = filterFreq;
+  const g = ctx.createGain();
+  g.gain.value = 0;
+  g.gain.setTargetAtTime(level, ctx.currentTime, 0.2);
+  osc.connect(f);
+  f.connect(g);
+  g.connect(v.out);
+  osc.start();
+  lfo.start();
+  // A voz posicionada termina num panner; achamos o panner pelo grafo criado em voiceAt.
+  const panner = findPanner(v.out);
+  let stopped = false;
+  return {
+    setPosition(x, y, z) {
+      if (!panner || stopped) return;
+      const t = ctx.currentTime;
+      panner.positionX.setTargetAtTime(x, t, 0.03);
+      panner.positionY.setTargetAtTime(y, t, 0.03);
+      panner.positionZ.setTargetAtTime(z, t, 0.03);
+    },
+    setPitch(fr) {
+      if (!stopped) osc.frequency.setTargetAtTime(fr, ctx.currentTime, 0.08);
+    },
+    setLevel(l) {
+      if (!stopped) g.gain.setTargetAtTime(l, ctx.currentTime, 0.1);
+    },
+    stop() {
+      if (stopped) return;
+      stopped = true;
+      g.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
+      osc.stop(ctx.currentTime + 0.3);
+      lfo.stop(ctx.currentTime + 0.3);
+    },
+  };
+}
+
+const panners = new WeakMap<AudioNode, PannerNode>();
+
+export function registerPanner(input: AudioNode, panner: PannerNode): void {
+  panners.set(input, panner);
+}
+
+function findPanner(input: AudioNode): PannerNode | undefined {
+  return panners.get(input);
 }
