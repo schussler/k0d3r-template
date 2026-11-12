@@ -36,9 +36,21 @@ Toda sugestão sua aparece marcada como **Proposta (agente)**, separada do que a
 - Procure soluções existentes no projeto que possam ser reutilizadas.
 - Não presuma regras de negócio, comportamento de integrações ou decisões de produto. Investigue as fontes disponíveis; o que continuar indefinido vai para a entrevista ou para a spec, como dúvida.
 
-### Mudança sem efeito de comportamento: sem spec
+### Classifique a tarefa
 
-Se a mudança não altera comportamento nem contrato (refactor, dependência, typo, ajuste de teste, renomeação), **não crie spec**, não entreviste e não chame o `test-author`. Na parada, declare "**sem spec: <motivo>**" e mostre só o plano curto e os portões que vão rodar; a pessoa pode pedir a spec. O `docs-check diff`, a verificação e a entrega final valem do mesmo jeito. Na dúvida se há efeito de comportamento, trate como se houvesse.
+Depois de entender o estado atual e antes de entrevistar, ponha a tarefa numa destas vias. Vá de cima para baixo e fique na primeira que servir: a via decide o que roda daqui em diante.
+
+| Via | Quando | Doc | Entrevista e `test-author` |
+| --- | --- | --- | --- |
+| **Sem spec** | Não muda comportamento nem contrato: refactor, dependência, typo, ajuste de teste, renomeação | Nenhum | Não |
+| **Correção** | Devolve um comportamento que um doc de `implemented/` já descreve | Nenhum doc novo: cite o doc e a seção. Se o doc também estava errado, corrija-o no mesmo commit | Não. O teste é seu e falha antes da correção |
+| **Ajuste pontual** | Muda pouco algo que já existe (um texto, um layout, um valor, uma regra existente), sem fluxo novo, num PR só e sem decisão de produto em aberto | Edite a spec de `implemented/` direto, no mesmo commit, sem arquivo em `in-progress/` | Não. O teste é seu, quando houver comportamento a testar |
+| **Editar a spec** ou **delta** | Muda uma feature existente além do pontual | Pelo critério de [spec × delta](../rules/common/feature-lifecycle.md#spec-ou-delta) | Sim |
+| **Spec nova** | Comportamento novo | Spec nova, a partir do template | Sim |
+
+- **Na dúvida, desça uma via, não mais.** A dúvida entre correção e ajuste pontual fica no ajuste; entre ajuste pontual e editar a spec, fica em editar. Dúvida nunca vira spec nova.
+- **Nas vias sem spec, correção e ajuste pontual**, não entreviste (salvo uma pergunta que mude a via) e não escreva spec. Na parada, mostre a via, o motivo, o doc e a seção citados, o plano curto e os portões que vão rodar. O `docs-check diff`, a verificação e a entrega final valem do mesmo jeito.
+- **O que você achar fora do caminho** (um defeito, a parte de uma feature que fica para depois) vira uma linha em [`docs/planned/backlog.md`](../../docs/planned/backlog.md), com a reprodução ou o que falta, e não uma spec nova.
 
 ### Modelo da sessão
 
@@ -107,9 +119,9 @@ Nesta etapa, altere apenas a documentação necessária ao planejamento. Não im
 
 Esta é a única parada de aprovação antes da entrega. Após preparar a spec:
 
-1. Apresente o caminho do documento (ou "sem spec: <motivo>", com o plano curto e os portões que vão rodar).
+1. Comece pela via e pelo motivo, numa linha (por exemplo: "**Correção**: devolve o que `<doc> › <seção>` descreve"). Depois, o caminho da spec, quando a via tem spec, ou o plano curto e os portões que vão rodar. A pessoa pode trocar a via.
 2. Resuma a solução proposta, seu alcance e os principais impactos.
-3. Declare se a mudança **edita a spec de `implemented/`** ou **abre um delta em `planned/`**, e por quê, pelo critério de [spec × delta](../rules/common/feature-lifecycle.md#spec-ou-delta): depois do merge, a spec em `implemented/` continua dizendo a verdade? No caso "editar a spec de `implemented/`", a spec da tarefa fica em `docs/in-progress/<área>/<nome>.md` durante a tarefa; no caso delta, o ciclo é o normal.
+3. Na via editar a spec ou delta, declare se a mudança **edita a spec de `implemented/`** ou **abre um delta em `planned/`**, e por quê, pelo critério de [spec × delta](../rules/common/feature-lifecycle.md#spec-ou-delta): depois do merge, a spec em `implemented/` continua dizendo a verdade? No caso "editar a spec de `implemented/`", a spec da tarefa fica em `docs/in-progress/<área>/<nome>.md` durante a tarefa; no caso delta, o ciclo é o normal.
 4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** que precisam de aprovação. Se a tarefa preenche ou muda a `## Stack`, diga que a adoção do ECC fica pendente, fora da tarefa (`/sync-ecc-tools --adopt`).
 5. Peça explicitamente aprovação para implementar a versão apresentada.
 6. Encerre sua resposta e aguarde.
@@ -126,7 +138,7 @@ Comece somente após aprovação explícita. A partir daqui, siga até a entrega
 
 ### Testes por contexto limpo
 
-Numa tarefa com spec, chame o agent `test-author` antes de escrever o código que os testes dele cobrem. O brief leva **só o caminho da spec aprovada**: não leve o seu plano, o que você pretende implementar nem o resultado que espera. Ele devolve os testes que falham e a lista critério → teste.
+Nas vias editar a spec, delta e spec nova, chame o agent `test-author` antes de escrever o código que os testes dele cobrem. Nas vias correção e ajuste pontual, o teste é seu: prove que ele falha contra o código de antes ([`verification.md`](../rules/common/verification.md), regra 6). O brief leva **só o caminho da spec aprovada**: não leve o seu plano, o que você pretende implementar nem o resultado que espera. Ele devolve os testes que falham e a lista critério → teste.
 
 - **Com mais de uma fatia, os testes vêm por fatia.** No começo de cada fatia com critério ligado, chame o `test-author` com um brief de duas coisas: o caminho da spec e o nome da fatia como está no plano. Testes de todas as fatias de uma vez deixam o portão de teste vermelho até a última e travam o commit de cada fatia.
 - **Espere ele devolver antes de escrever o código da fatia.** Chame-o em primeiro plano: não em segundo plano, e sem esperar por ele com laço de `sleep` sobre o arquivo de saída. Código escrito enquanto ele trabalha tira dele a prova de que os testes falham antes do comportamento existir, e ele pode ler esse código.
@@ -167,11 +179,11 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever o código qu
 - Verifique você mesmo os critérios de aceite com evidências adequadas: testes, verificações de contrato, análise do caminho de execução ou execução da jornada, conforme o caso. O `acceptance-verifier` é a segunda conferência, não a única.
 - Execute os portões da tabela **Portões de verificação** do `CLAUDE.md`, sem pipe que mascare o exit code, e mais `docs-check diff` e `docs-check links`, ambos com exit 0.
 - Com os portões verdes, chame na mesma mensagem, em paralelo:
-    - o agent `acceptance-verifier`, com um brief que leva **só o caminho da spec e a ref base do diff**. Não leve o resumo do que você fez nem o que espera que ele conclua. Na tarefa sem spec, o brief leva a ref base e a afirmação "sem efeito de comportamento", para ele procurar o efeito;
+    - o agent `acceptance-verifier`, com um brief que leva **só o caminho da spec e a ref base do diff**. Não leve o resumo do que você fez nem o que espera que ele conclua. Na via sem spec, o brief leva a ref base e a afirmação "sem efeito de comportamento", para ele procurar o efeito. Na correção, a ref base e a afirmação "devolve o que `<doc> › <seção>` descreve"; no ajuste pontual, a ref base e a seção editada da spec de `implemented/`;
     - as revisões: agents `code-reviewer`, `security-reviewer` (quando tocar auth, entrada de usuário ou segredo), `silent-failure-hunter` e os reviewers de stack adotados, se houver.
 - Corrija cada critério que voltou **falhou** e os achados dos reviewers, rode os portões de novo e chame um `acceptance-verifier` novo. A tarefa só é entregue sem nenhum **falhou**.
 - Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. Quando o comportamento entregue é o aprovado e é o texto do critério que não o descreve, corrija a redação do critério na spec e siga. Quem implementou acabou de mexer na régua do verificador, então a pessoa precisa ver isso para conferir: na entrega, mostre o texto antigo, o texto novo e por que o comportamento entregue é o aprovado. Se o que teria de mudar é o comportamento aprovado, e não a redação, pare e pergunte só sobre esse critério.
-- Um defeito que a revisão acha num código que você não tocou, fora do caminho da tarefa, vai para a entrega e para o backlog, com a reprodução. Não o corrija aqui.
+- Um defeito que a revisão acha num código que você não tocou, fora do caminho da tarefa, vai para a entrega e para uma linha em [`docs/planned/backlog.md`](../../docs/planned/backlog.md), com a reprodução. Não o corrija aqui e não abra spec para ele.
 - Os critérios **não conferido** e as mudanças que o diff traz e a spec não cobre vão para a entrega, com esses nomes.
 - Informe o que cada evidência demonstra e suas limitações.
 - Confira nos dois sentidos:

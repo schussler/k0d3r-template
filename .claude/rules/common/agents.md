@@ -60,7 +60,8 @@ Their brief carries:
   of each slice with the path of the spec and the slice's name, in the foreground, and the slice's code waits
   for it.
 - `acceptance-verifier`: the path of the spec and the base ref of the diff. In a task without a spec, the base
-  ref and the claim "no behaviour change".
+  ref and the claim "no behaviour change". In a fix, the base ref and the claim "restores what `<doc> › <section>`
+  describes"; in a small adjustment, the base ref and the edited section of the `implemented/` spec.
 
 Leave out your plan, your summary of what was done and the conclusion you expect: an agent handed your
 conclusion tends to return it confirmed. Read the diff an agent produced before relying on it

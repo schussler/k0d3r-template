@@ -20,7 +20,9 @@ log de build:
 
 Um doc na pasta errada, ou um doc em `implemented/` que afirma comportamento que o código ainda não tem, é um
 defeito. **Feature parcial é dividida, nunca estacionada**: a parte construída e alcançável vai para
-`implemented/`, o resto vira spec em `planned/`. Não há painel de status: a árvore de pastas é o estado.
+`implemented/`, o resto vira uma linha em [`docs/planned/backlog.md`](../../../docs/planned/backlog.md). Vira spec
+em `planned/` só o resto cujo desenho já foi escrito e aprovado. Não há painel de status: a árvore de pastas é o
+estado.
 
 Um doc mantém o mesmo caminho relativo ao trocar de estado:
 `git mv docs/<estado>/<área>/x.md docs/<novo-estado>/<área>/x.md`.
@@ -43,7 +45,8 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 
 A **`/k0d3r-task`** conduz uma tarefa inteira, de Especificar a Encerrar: investigação, entrevista, spec, **uma
 parada para aprovação**, testes por agent de contexto limpo, implementação até o fim, verificação e entrega.
-Mudança sem efeito de comportamento passa por ela sem spec. O que dispensa aprovação e o que a pede está na
+Antes de tudo, ela põe a tarefa numa via: sem spec, correção, ajuste pontual, editar a spec, delta ou spec nova;
+só as três últimas escrevem spec, e as duas do meio decidem como abaixo. O que dispensa aprovação e o que a pede está na
 seção **Como trabalhar** do [`CLAUDE.md`](../../../CLAUDE.md).
 
 Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras de fase. Escreva o estado
@@ -144,7 +147,9 @@ corrige ([`verificacao-de-docs.md`](../../../docs/implemented/processo/verificac
 
 ## Mudando uma feature já entregue {#spec-ou-delta}
 
-A pergunta que decide:
+A correção (devolve o que a spec de `implemented/` já diz) e o ajuste pontual (muda pouco, sem fluxo novo, num PR
+e sem decisão aberta, editando a spec de `implemented/` direto) não chegam aqui: são vias da `/k0d3r-task`. Para
+o resto, a pergunta que decide:
 
 > **Depois do merge deste PR, a spec em `implemented/` continua dizendo a verdade?**
 > Sim (a mudança cabe num PR e a spec editada nele descreve exatamente o entregue) → edite a spec de

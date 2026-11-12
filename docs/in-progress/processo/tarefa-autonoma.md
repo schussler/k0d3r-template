@@ -382,6 +382,33 @@ A aprovação é a da parada da spec, sem parada nova. Depois dela, a `## Stack`
 parágrafo entram no `CLAUDE.md` no primeiro commit da tarefa. Com os trechos preenchidos, nada disso roda. A
 adoção do ECC continua fora da tarefa (seção 7).
 
+### 11. Classificar a tarefa antes de escrever spec
+
+Acrescentado em 2026-11-12, na branch `harness-meio-termo`. No MN-Clinic, que usa uma versão anterior deste
+harness, entraram umas 30 specs em `planned/` e `in-progress/` em 10 dias. Três regras geravam spec onde não
+precisava: só "sem efeito de comportamento" escapava da spec, então uma correção de bug ganhava spec própria
+(`prescricao-quebra-de-pagina-formula.md`); a sobra de uma feature virava spec em `planned/`
+(`bottombar-migracao-dos-editores.md`, nascida num commit `fix`); e um defeito de revisão virava spec
+(`sair-da-conta-fila-e-chave.md`: "este documento registra o defeito para a correção ter uma spec própria").
+
+A `/k0d3r-task` passa a pôr a tarefa numa via logo depois de entender o estado atual, de cima para baixo:
+
+| Via | Quando | Doc | Entrevista e `test-author` |
+| --- | --- | --- | --- |
+| Sem spec | Não muda comportamento nem contrato | Nenhum | Não |
+| Correção | Devolve o que um doc de `implemented/` já descreve | Nenhum doc novo; cita o doc e a seção | Não; o teste é da sessão |
+| Ajuste pontual | Muda pouco algo que existe, sem fluxo novo, num PR, sem decisão aberta | Edita a spec de `implemented/` direto | Não; o teste é da sessão |
+| Editar a spec ou delta | Muda uma feature além do pontual | Critério de spec × delta | Sim |
+| Spec nova | Comportamento novo | Spec nova | Sim |
+
+- Na dúvida, a sessão desce uma via, não mais: dúvida nunca vira spec nova.
+- A parada começa pela via e pelo motivo; a pessoa pode trocar a via.
+- O verificador do fim recebe, na correção, a afirmação "devolve o que `<doc> › <seção>` descreve" e, no
+  ajuste pontual, a seção editada.
+- A sobra de feature e o defeito fora do caminho viram uma linha em
+  [`docs/planned/backlog.md`](../../planned/backlog.md), novo. Vira spec em `planned/` só a sobra cujo desenho já
+  foi escrito e aprovado. A `/audit-docs` também passa a mandar divergência para o backlog.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -401,6 +428,7 @@ adoção do ECC continua fora da tarefa (seção 7).
 | Seção 8 (cortes de custo) | `k0d3r-task.md` (conferência ao fim de cada fatia), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, "O que devolver" do `acceptance-verifier.md` e do `test-author.md`, nível do `acceptance-verifier` no `model-routing.json` e o frontmatter dele, linha da compactação no [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) |
 | Seção 9 (sem verificador por fatia) | `k0d3r-task.md` (sai a "Conferência ao fim de cada fatia"), `acceptance-verifier.md` (sai o brief de fatia), `agents.md` (tabela, ordem dos agents e brief), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, inventário do `.claude/README.md`, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), nota `adaptation` do `agents.md` no manifest |
 | Seção 10 (dia zero completo) | `k0d3r-task.md` ("Dia zero e adoção do ECC"), gatilho da `## Stack` no `CLAUDE.md`, linha Dia zero das duas tabelas, seção 0 do `feature-lifecycle.md`, checklist do `README.md` da raiz |
+| Seção 11 (classificar a tarefa) | `k0d3r-task.md` ("Classifique a tarefa", item 1 e 3 da parada, testes, brief do verificador, defeito na Etapa 3), `acceptance-verifier.md` (briefs de correção e ajuste), `agents.md` (brief), `audit-docs.md`, regra de feature parcial no `CLAUDE.md` e no `feature-lifecycle.md`, parágrafo da `/k0d3r-task` nos dois, "spec × delta" do `feature-lifecycle.md`, [`docs/planned/backlog.md`](../../planned/backlog.md) (novo) e o `README.md` de `planned/` |
 | Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 
 ## Critérios de aceite
@@ -487,6 +515,16 @@ adoção do ECC continua fora da tarefa (seção 7).
     (agente)**; e manda os dois entrarem no `CLAUDE.md` no primeiro commit da tarefa, sem parada nova.
 31. A linha Dia zero é igual no `CLAUDE.md` e no `feature-lifecycle.md` e cita o idioma e o parágrafo do
     projeto; o gatilho da `## Stack` e a seção 0 do `feature-lifecycle.md` dizem o mesmo que o command.
+32. A `/k0d3r-task` tem a seção "Classifique a tarefa" com as cinco vias na ordem (sem spec, correção, ajuste
+    pontual, editar a spec ou delta, spec nova), a regra "desça uma via, não mais" e, nas três primeiras, sem
+    entrevista, sem spec e sem `test-author`, com o teste da sessão provado contra o código de antes.
+33. O item 1 da parada começa pela via e pelo motivo; o `acceptance-verifier.md` e o `agents.md` têm os briefs
+    de correção e de ajuste pontual.
+34. A regra de feature parcial, igual em sentido no `CLAUDE.md` e no `feature-lifecycle.md`, manda a sobra para
+    `docs/planned/backlog.md` e só a sobra com desenho aprovado para `planned/`; a Etapa 3 da `/k0d3r-task` e a
+    `/audit-docs` mandam defeito e divergência para o backlog, e o arquivo existe.
+35. A busca por "vira spec em `planned/`" e por "passa por ela sem spec" em `.claude/` e no `CLAUDE.md` não
+    acha nada.
 
 ## Estratégia de testes e verificação
 
@@ -542,6 +580,9 @@ adoção do ECC continua fora da tarefa (seção 7).
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **Classificar a tarefa em cinco vias** (proposta do agente, aprovada pela pessoa em 2026-11-12: "sim e
+  atualize o novo 4"), com o backlog do projeto para sobras e defeitos. Rejeitado: só alargar o "sem spec" sem
+  tornar a escolha da via explícita; manter sobra e defeito como spec em `planned/`.
 - **Dia zero completo na primeira tarefa** (proposta do agente, aprovada pela pessoa em 2026-11-12: "sim").
   O idioma vira pergunta da entrevista e o parágrafo do projeto vira proposta, na mesma parada da spec.
   Rejeitado: deixar a cargo da sessão, como antes (a `novo` não perguntou; a `novo2` perguntou).
@@ -615,7 +656,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 31 conferidos, menos os substituídos (12, 14, 15 e 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 35 conferidos, menos os substituídos (12, 14, 15 e 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -665,6 +706,8 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
+- [ ] Fatia 11 (seção 11, critérios 32 a 35): command, os dois agents, `agents.md`, `audit-docs.md`, regras de
+      feature parcial e da `/k0d3r-task`, "spec × delta", backlog do projeto; conferência por contexto limpo.
 - [x] Fatia 10 (seção 10, critérios 30 e 31): command, gatilho, linhas Dia zero, seção 0 do
       `feature-lifecycle.md`, `README.md`; conferência por contexto limpo.
 

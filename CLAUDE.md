@@ -17,7 +17,8 @@ design**. O código implementa a spec e é revisado contra ela.
   relativo ao trocar de estado (`git mv docs/<estado>/<área>/x.md docs/<novo-estado>/<área>/x.md`). Regras de
   placement em [`docs/README.md`](docs/README.md).
 - **Feature parcial é dividida, nunca estacionada**: a parte construída e alcançável vai para `implemented/`, o
-  resto vira spec em `planned/`. Um doc em `implemented/` que afirma comportamento que o código não tem é um
+  resto vira uma linha em [`docs/planned/backlog.md`](docs/planned/backlog.md). Vira spec em `planned/` só o
+  resto cujo desenho já foi escrito e aprovado, para não perdê-lo. Um doc em `implemented/` que afirma comportamento que o código não tem é um
   defeito.
 - **Spec e código andam juntos** no mesmo PR, e quando o estado de uma feature muda, a spec muda de pasta no mesmo
   PR. O processo completo está em [`.claude/rules/common/feature-lifecycle.md`](.claude/rules/common/feature-lifecycle.md).
@@ -137,8 +138,9 @@ Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras
 - **A `/k0d3r-task` é o caminho padrão para qualquer mudança de código**, de Especificar a Encerrar:
   investigação, entrevista (uma pergunta por vez, só o que o repositório não responde), spec, **uma parada
   para aprovação**, testes escritos por um agent de contexto limpo, implementação até o fim, verificação por
-  outro agent de contexto limpo e entrega. Mudança sem efeito de comportamento (refactor, dependência, typo,
-  ajuste de teste, renomeação) passa por ela **sem spec**. Se um pedido chegar fora do command
+  outro agent de contexto limpo e entrega. Antes de tudo, ela põe a tarefa numa via: **sem spec**, **correção**
+  (devolve o que um doc de `implemented/` já descreve), **ajuste pontual** (edita a spec de `implemented/`
+  direto), **editar a spec**, **delta** ou **spec nova**. Só as três últimas escrevem spec. Se um pedido chegar fora do command
   e mudar comportamento ou contrato, sugira a `/k0d3r-task` antes de implementar. Em qualquer caso, os portões
   valem, incluindo `docs-check diff` e `docs-check links`.
 - **Docs:** escreva conforme [`docs-writing.md`](.claude/rules/common/docs-writing.md); a manutenção dos docs

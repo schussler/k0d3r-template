@@ -21,7 +21,7 @@ O mecanismo e o significado de `codigo:` e `conferido-em:` estão em
 
 ## Limites
 
-- **Nunca altera código.** Uma divergência que pede mudança de código vira spec em `planned/`.
+- **Nunca altera código.** Uma divergência que pede mudança de código vira uma linha em [`docs/planned/backlog.md`](../../docs/planned/backlog.md), com o doc, a seção e o que o código faz; quem a pegar, a `/k0d3r-task` classifica.
 - **Nunca gradua** spec nenhuma.
 - **Não reescreve seções `Decisões`.**
 - **Não cita texto de interface que não leu no código.**

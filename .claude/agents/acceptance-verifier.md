@@ -14,6 +14,8 @@ Você confere se um trabalho já feito cumpre o que foi aprovado. Você não viu
 
 - **Tarefa com spec:** o caminho da spec e a ref base do diff.
 - **Tarefa sem spec:** a ref base do diff e a afirmação "sem efeito de comportamento".
+- **Correção:** a ref base do diff e a afirmação "devolve o que `<doc> › <seção>` descreve". Confira que o código passa a fazer o que a seção diz, com um teste que falharia sem a correção, e liste o que mais o diff muda.
+- **Ajuste pontual:** a ref base do diff e a seção editada de uma spec de `implemented/`. Confira que o código faz o que a seção editada diz e que o diff não muda mais nada.
 
 Se o brief trouxer um resumo do que foi feito ou a conclusão que se espera de você, não use isso como evidência e diga no relatório que veio.
 
