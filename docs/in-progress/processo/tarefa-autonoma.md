@@ -706,8 +706,16 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
-- [ ] Fatia 11 (seção 11, critérios 32 a 35): command, os dois agents, `agents.md`, `audit-docs.md`, regras de
+- [x] Fatia 11 (seção 11, critérios 32 a 35): command, os dois agents, `agents.md`, `audit-docs.md`, regras de
       feature parcial e da `/k0d3r-task`, "spec × delta", backlog do projeto; conferência por contexto limpo.
+
+Resultado da conferência da fatia 11, por um `acceptance-verifier` novo (base `4ccd685`): critérios 33 a 35
+vistos funcionando, por leitura e busca; o 32 também, com uma ressalva: o command abria uma exceção à regra "sem
+entrevista" ("salvo uma pergunta que mude a via"), que a pessoa não aprovou. A exceção saiu: se a via não está
+clara, a sessão desce uma. Ele também apontou a `description` do command e a linha do inventário, que ainda
+diziam só "sem efeito de comportamento passa sem spec"; as duas citam as vias agora. Não conferido: as vias numa
+tarefa real.
+
 - [x] Fatia 10 (seção 10, critérios 30 e 31): command, gatilho, linhas Dia zero, seção 0 do
       `feature-lifecycle.md`, `README.md`; conferência por contexto limpo.
 

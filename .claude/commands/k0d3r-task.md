@@ -1,5 +1,5 @@
 ---
-description: Processo de tarefa — investigação, entrevista, spec, uma parada para aprovação, testes por agent de contexto limpo, implementação até o fim, verificação (portões do CLAUDE.md + docs-check + verificador de aceite) e entrega com a reconciliação documental. Caminho padrão para qualquer mudança de código; mudança sem efeito de comportamento passa sem spec.
+description: Processo de tarefa — investigação, entrevista, spec, uma parada para aprovação, testes por agent de contexto limpo, implementação até o fim, verificação (portões do CLAUDE.md + docs-check + verificador de aceite) e entrega com a reconciliação documental. Caminho padrão para qualquer mudança de código; classifica a tarefa antes (sem spec, correção, ajuste pontual, editar a spec ou delta, spec nova), e só as duas últimas escrevem spec.
 argument-hint: "## OBJETIVO <obrigatório> ## FLUXO DESEJADO <opcional> ## CRITÉRIOS DE ACEITE <opcional>"
 ---
 
@@ -49,7 +49,7 @@ Depois de entender o estado atual e antes de entrevistar, ponha a tarefa numa de
 | **Spec nova** | Comportamento novo | Spec nova, a partir do template | Sim |
 
 - **Na dúvida, desça uma via, não mais.** A dúvida entre correção e ajuste pontual fica no ajuste; entre ajuste pontual e editar a spec, fica em editar. Dúvida nunca vira spec nova.
-- **Nas vias sem spec, correção e ajuste pontual**, não entreviste (salvo uma pergunta que mude a via) e não escreva spec. Na parada, mostre a via, o motivo, o doc e a seção citados, o plano curto e os portões que vão rodar. O `docs-check diff`, a verificação e a entrega final valem do mesmo jeito.
+- **Nas vias sem spec, correção e ajuste pontual**, não entreviste e não escreva spec; se a via não está clara, desça uma. Na parada, mostre a via, o motivo, o doc e a seção citados, o plano curto e os portões que vão rodar. O `docs-check diff`, a verificação e a entrega final valem do mesmo jeito.
 - **O que você achar fora do caminho** (um defeito, a parte de uma feature que fica para depois) vira uma linha em [`docs/planned/backlog.md`](../../docs/planned/backlog.md), com a reprodução ou o que falta, e não uma spec nova.
 
 ### Modelo da sessão

@@ -68,7 +68,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `/security-scan` | ECC (adapt) | Auditoria do `.claude/` com AgentShield (`npx ecc-agentshield@1.6.0`). |
 | `/sync-ecc-tools` | local | Atualizar do ECC; `--adopt` para adotar itens da stack. |
 | `/toolset-retro` | local | Retro do toolset no fim da sessão. |
-| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: investigação, entrevista (uma pergunta por vez), spec, uma parada para aprovação, testes pelo `test-author`, implementação até o fim, verificação (portões + `docs-check` + `acceptance-verifier`) e entrega. Sem spec quando não há efeito de comportamento. |
+| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: investigação, entrevista (uma pergunta por vez), spec, uma parada para aprovação, testes pelo `test-author`, implementação até o fim, verificação (portões + `docs-check` + `acceptance-verifier`) e entrega. Antes, classifica a tarefa: sem spec, correção e ajuste pontual não escrevem spec nova. |
 | `/audit-docs` | local | Auditoria dos docs desatualizados ou nunca conferidos: um subagente por doc, amostra relida, parada para aprovação, correção e `conferido-em`. |
 
 ## Rules (`rules/common/`)
