@@ -53,7 +53,8 @@ limite estourar, as consultas falham até a janela renovar.
 
 ## Checklist da primeira sessão
 
-- [ ] Preencher **Projeto em um parágrafo** no `CLAUDE.md` e o [`docs/vision-and-scope.md`](docs/vision-and-scope.md).
+- [ ] Preencher **Projeto em um parágrafo** no `CLAUDE.md` (a primeira `/k0d3r-task` propõe o texto) e o
+      [`docs/vision-and-scope.md`](docs/vision-and-scope.md).
 - [ ] **Dia zero:** se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repo,
       detectar a stack e propor o texto da seção (a primeira `/k0d3r-task` faz isso). Depois, rodar você mesmo
       **`/sync-ecc-tools --adopt`**: a tarefa não adota itens do ECC, só avisa que a adoção está pendente (nada
@@ -61,7 +62,7 @@ limite estourar, as consultas falham até a janela renovar.
 - [ ] Preencher a tabela **Portões de verificação** do `CLAUDE.md`, com a coluna "Quando" ("na iteração" para
       os portões rápidos, "antes do commit" para os lentos), e ajustar `VERIFY_GATES` (e, se preciso,
       `PROTECTED_BRANCHES`) no topo de `scripts/hooks/guard-shell.mjs`.
-- [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md`.
+- [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md` (a primeira `/k0d3r-task` pergunta).
 - [ ] Registrar as primeiras **Regras de arquitetura**, cada uma com o porquê e o doc que a detalha.
 - [ ] Rodar os testes do toolset: `node --test` em `scripts/hooks/guard-shell.test.mjs`,
       `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs`,

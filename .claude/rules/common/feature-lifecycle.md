@@ -29,7 +29,7 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack` e tabela de portões preenchidas pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
+| Dia zero | Stack detectada, `## Stack`, tabela de portões, idioma (pergunta da entrevista) e parágrafo do projeto (proposta) preenchidos pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
@@ -53,7 +53,9 @@ Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras
 
 Se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repositório, antes da primeira
 tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação" (com
-a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos). A adoção dos itens
+a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos). Se o idioma de
+"Convenções" e "Projeto em um parágrafo" ainda forem placeholder, o idioma vira pergunta da entrevista e o
+parágrafo vira proposta na spec; tudo entra no `CLAUDE.md` no primeiro commit da tarefa. A adoção dos itens
 do ECC é um passo da pessoa, fora da tarefa (`/sync-ecc-tools --adopt`): a `/k0d3r-task` só avisa que ela está
 pendente. Nada é adotado sem confirmação humana.
 

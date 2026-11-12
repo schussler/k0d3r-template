@@ -44,9 +44,16 @@ Se a mudança não altera comportamento nem contrato (refactor, dependência, ty
 
 Numa tarefa com spec, leia o nível `orquestrador` em `.claude/model-routing.json`. Se a sessão roda em outro modelo, diga em uma linha qual é o modelo e o esforço recomendados e como trocar (`/model <alias>`, `/effort <nível>`), e siga sem esperar resposta. A escolha é da pessoa ([`model-routing.md`](../rules/common/model-routing.md)).
 
-### Stack e adoção do ECC
+### Dia zero e adoção do ECC
 
-Se a `## Stack` do `CLAUDE.md` está vazia, não reflete o repositório ou muda com esta tarefa, a tarefa preenche a seção e as linhas da tabela de portões. Ela **não propõe nem roda a adoção de itens do ECC**: a adoção é um passo da pessoa, fora da tarefa. Diga em uma linha, na parada e na entrega, que a adoção está pendente e que o comando é `/sync-ecc-tools --adopt`.
+Se a `## Stack` do `CLAUDE.md` está vazia, não reflete o repositório ou muda com esta tarefa, a tarefa preenche a seção e as linhas da tabela de portões.
+
+Na primeira tarefa do repositório, dois outros trechos do `CLAUDE.md` costumam ainda ser placeholder, e a tarefa trata os dois:
+
+- **O idioma em "Convenções"** (do código, dos docs e da interface) vira uma pergunta da entrevista, com a sua recomendação.
+- **"Projeto em um parágrafo"** você propõe a partir do pedido, marcado como **Proposta (agente)** na spec.
+
+Na parada, a spec mostra a `## Stack`, as linhas de portões, o idioma e o parágrafo, e a aprovação é a mesma da spec. Depois dela, tudo entra no `CLAUDE.md` no primeiro commit da tarefa. Se esses trechos já estão preenchidos, nada disso roda. Ela **não propõe nem roda a adoção de itens do ECC**: a adoção é um passo da pessoa, fora da tarefa. Diga em uma linha, na parada e na entrega, que a adoção está pendente e que o comando é `/sync-ecc-tools --adopt`.
 
 ### Reconcilie a documentação necessária ao planejamento
 

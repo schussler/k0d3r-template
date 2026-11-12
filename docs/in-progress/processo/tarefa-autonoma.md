@@ -366,6 +366,22 @@ dentro de cada fatia.
 Custo aceito: um defeito de uma fatia só aparece no fim, e as correções vêm todas de uma vez. Na `novo2`, o
 verificador por fatia achou 3 **falhou** reais nas fatias 2 e 3.
 
+### 10. Dia zero completo na primeira tarefa
+
+Acrescentado em 2026-11-12, na branch `harness-meio-termo`. A `novo` não fez nenhuma pergunta e não tratou o
+dia zero. A `novo2` perguntou o idioma por conta própria ("as convenções de idioma do CLAUDE.md ainda são
+placeholder") e commitou "base do jogo e dia zero do CLAUDE.md". O gatilho só citava a `## Stack` e os
+portões, então o resultado dependia da sessão.
+
+Na primeira tarefa do repositório, se ainda forem placeholder:
+
+- o idioma de "Convenções" (código, docs, interface) vira uma pergunta da entrevista;
+- "Projeto em um parágrafo" vira **Proposta (agente)** na spec.
+
+A aprovação é a da parada da spec, sem parada nova. Depois dela, a `## Stack`, os portões, o idioma e o
+parágrafo entram no `CLAUDE.md` no primeiro commit da tarefa. Com os trechos preenchidos, nada disso roda. A
+adoção do ECC continua fora da tarefa (seção 7).
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -384,6 +400,7 @@ verificador por fatia achou 3 **falhou** reais nas fatias 2 e 3.
 | Seção 6 (testes por fatia) | `k0d3r-task.md` ("Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, inventário do `.claude/README.md`, notas `adaptation` do manifest |
 | Seção 8 (cortes de custo) | `k0d3r-task.md` (conferência ao fim de cada fatia), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, "O que devolver" do `acceptance-verifier.md` e do `test-author.md`, nível do `acceptance-verifier` no `model-routing.json` e o frontmatter dele, linha da compactação no [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) |
 | Seção 9 (sem verificador por fatia) | `k0d3r-task.md` (sai a "Conferência ao fim de cada fatia"), `acceptance-verifier.md` (sai o brief de fatia), `agents.md` (tabela, ordem dos agents e brief), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, inventário do `.claude/README.md`, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), nota `adaptation` do `agents.md` no manifest |
+| Seção 10 (dia zero completo) | `k0d3r-task.md` ("Dia zero e adoção do ECC"), gatilho da `## Stack` no `CLAUDE.md`, linha Dia zero das duas tabelas, seção 0 do `feature-lifecycle.md`, checklist do `README.md` da raiz |
 | Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 
 ## Critérios de aceite
@@ -465,6 +482,11 @@ verificador por fatia achou 3 **falhou** reais nas fatias 2 e 3.
     não acha nada.
 29. A linha Construir é igual no `CLAUDE.md` e no `feature-lifecycle.md` e não cita o `acceptance-verifier`;
     o `acceptance-verifier.md` tem dois tipos de brief, com spec e sem spec.
+30. A `/k0d3r-task` manda, quando o idioma de "Convenções" ainda é placeholder, fazer dele uma pergunta da
+    entrevista e, quando "Projeto em um parágrafo" ainda é placeholder, propô-lo na spec como **Proposta
+    (agente)**; e manda os dois entrarem no `CLAUDE.md` no primeiro commit da tarefa, sem parada nova.
+31. A linha Dia zero é igual no `CLAUDE.md` e no `feature-lifecycle.md` e cita o idioma e o parágrafo do
+    projeto; o gatilho da `## Stack` e a seção 0 do `feature-lifecycle.md` dizem o mesmo que o command.
 
 ## Estratégia de testes e verificação
 
@@ -520,6 +542,9 @@ verificador por fatia achou 3 **falhou** reais nas fatias 2 e 3.
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **Dia zero completo na primeira tarefa** (proposta do agente, aprovada pela pessoa em 2026-11-12: "sim").
+  O idioma vira pergunta da entrevista e o parágrafo do projeto vira proposta, na mesma parada da spec.
+  Rejeitado: deixar a cargo da sessão, como antes (a `novo` não perguntou; a `novo2` perguntou).
 - **Meio-termo: sem verificador por fatia** (decisão da pessoa, 2026-11-12: "aprovado o meio termo"). Fica o
   `test-author` por fatia, que é barato, e o verificador só no fim. Substitui o "Verificador ao fim de cada
   fatia" de 2026-11-11 e o limite de duas rodadas. Rejeitado: só roteamento e entrevista, sem `test-author`; manter
@@ -590,7 +615,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 29 conferidos, menos os substituídos (12, 14, 15 e 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 31 conferidos, menos os substituídos (12, 14, 15 e 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -640,6 +665,8 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
+- [ ] Fatia 10 (seção 10, critérios 30 e 31): command, gatilho, linhas Dia zero, seção 0 do
+      `feature-lifecycle.md`, `README.md`; conferência por contexto limpo.
 - [x] Fatia 9 (seção 9, critérios 27 a 29): command, `acceptance-verifier.md`, `agents.md`,
       `feature-lifecycle.md`, linhas Construir, inventário, template de spec, manifest; conferência por
       contexto limpo.

@@ -46,8 +46,10 @@ Mudar uma regra exige uma decisão registrada na seção **Decisões** do doc af
 - Testes: <runner de teste e de e2e>
 
 > **Gatilho:** se esta seção estiver vazia ou não refletir os arquivos do repo, antes da primeira tarefa de
-> código: detecte a stack e proponha o texto desta seção e as linhas da tabela de portões. A adoção dos itens
-> do ECC ligados à stack é um passo da pessoa, fora da tarefa: `/sync-ecc-tools --adopt`.
+> código: detecte a stack e proponha o texto desta seção e as linhas da tabela de portões. Na mesma tarefa, o
+> idioma de "Convenções" vira pergunta da entrevista e "Projeto em um parágrafo" vira proposta, se ainda forem
+> placeholder. A adoção dos itens do ECC ligados à stack é um passo da pessoa, fora da tarefa:
+> `/sync-ecc-tools --adopt`.
 
 ## Portões de verificação
 
@@ -118,7 +120,7 @@ ferramenta nem os arquivos abertos.
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack` e tabela de portões preenchidas pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
+| Dia zero | Stack detectada, `## Stack`, tabela de portões, idioma (pergunta da entrevista) e parágrafo do projeto (proposta) preenchidos pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
