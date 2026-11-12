@@ -101,7 +101,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 |---|---|---|
 | `docs-check/docs-check.mjs` | local | `links`, `diff` e `stale`: liga docs ao código e aponta os que ficaram para trás ([`verificacao-de-docs.md`](../docs/implemented/processo/verificacao-de-docs.md)). |
 | `ecc-sync/report.mjs` | local | Relatório, catálogo, inventário e bootstrap do sync com o ECC. |
-| `model-routing/model-routing.mjs` | local | `check` (portão) e `apply`: derivam do `model-routing.json` o `model:` e o `effort:` de cada agent e o `advisorModel` do `settings.json`. |
+| `model-routing/model-routing.mjs` | local | `check` (portão) e `apply`: derivam do `model-routing.json` o `model:` e o `effort:` de cada agent e o `advisorModel` do `settings.json` (removido com o conselheiro em `null`). |
 
 ## MCP
 

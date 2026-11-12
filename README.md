@@ -89,8 +89,8 @@ conselheiro.
 | Você quer o conselheiro | Ele vem desligado (`"conselheiro": null`). Aponte `conselheiro` para um nível com `fable`, `opus` ou `sonnet` e rode o `apply`. |
 | Entrou um agent novo | Dê um nível a ele em `agents` e rode o `apply`. |
 
-O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e a chave `advisorModel` no
-`.claude/settings.json`. O `check` é portão: falha quando algo diverge do arquivo. O conselheiro, quando
+O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e cuida da chave `advisorModel` no
+`.claude/settings.json`: escreve com o conselheiro ligado, remove com `null`. O `check` é portão: falha quando algo diverge do arquivo. O conselheiro, quando
 ligado, usa o recurso advisor do Claude Code, que é experimental e exige a API da Anthropic ou a Claude Platform on AWS; onde ele não
 está disponível, a sessão roda sem conselheiro e sem erro. As regras de uso estão em
 [`model-routing.md`](.claude/rules/common/model-routing.md).

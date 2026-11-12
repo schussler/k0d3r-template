@@ -329,8 +329,9 @@ O que muda:
 - **No máximo duas rodadas de verificador por fatia** (seção 5). O verificador da Etapa 3 continua conferindo a
   spec inteira, e a entrega continua sem nenhum **falhou**.
 - **Relatórios curtos dos dois agents de contexto limpo.** Uma linha por critério que passou; o detalhe para agir
-  (o que viu, o que a spec pedia, como reproduzir) só em **falhou** e **não conferido**. O `test-author` devolve
-  critério → arquivo e nome do teste, e mantém a lista de lacunas da spec. A economia não foi medida.
+  (o que viu, o que a spec pedia, como reproduzir) só em **falhou** e **não conferido**; o que o diff muda e a spec
+  não cobre, uma linha por item. O `test-author` devolve critério → arquivo e nome do teste, nomeia os testes não
+  vistos falhando e mantém a lista de lacunas da spec. A economia não foi medida.
 - **`acceptance-verifier` no nível `padrao`** (Sonnet), decisão registrada na
   [spec do roteamento](roteamento-de-modelos.md). Os tokens ficam parecidos; o preço por token cai. O risco é
   ele achar menos defeitos: a próxima corrida conta os **falhou**.
@@ -355,6 +356,7 @@ porque o código feito na própria sessão também faz o contexto dela crescer.
 | Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), linha do agent no inventário do `.claude/README.md`, nota `adaptation` do `agents.md` no manifest |
 | Seção 6 (portões rápidos e lentos) | `CLAUDE.md` (coluna "Quando" e a linha sobre quando rodar), `verification.md` (rodar só os rápidos na iteração, todos antes do commit), `k0d3r-task.md` ("Implemente até o fim"), seções 0 e 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, item do checklist do `README.md` da raiz |
 | Seção 6 (testes por fatia) | `k0d3r-task.md` ("Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, inventário do `.claude/README.md`, notas `adaptation` do manifest |
+| Seção 8 (cortes de custo) | `k0d3r-task.md` (conferência ao fim de cada fatia), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, "O que devolver" do `acceptance-verifier.md` e do `test-author.md`, nível do `acceptance-verifier` no `model-routing.json` e o frontmatter dele, linha da compactação no [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) |
 | Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 
 ## Critérios de aceite

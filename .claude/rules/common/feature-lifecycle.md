@@ -96,7 +96,8 @@ Mantenha o checklist do plano honesto conforme as fatias entram.
 Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega. Ao fim de cada
 fatia com critério ligado, menos a última, um `acceptance-verifier` novo confere os critérios dela, recebendo só a spec, a ref base
 da fatia e o nome da fatia. A fatia seguinte espera, em no máximo duas rodadas: o que ainda falha na segunda é
-corrigido sem nova rodada, fica anotado no plano e o verificador final confere.
+corrigido e commitado sem nova rodada e fica anotado no plano. O verificador final confere a spec inteira, e a
+entrega continua sem nenhum "falhou".
 
 ## 4. Verificar e revisar
 

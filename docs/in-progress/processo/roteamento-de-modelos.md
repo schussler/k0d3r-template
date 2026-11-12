@@ -92,7 +92,7 @@ modelo para "your hardest and longest-running tasks".
 | --- | --- | --- |
 | **Orquestrador** | A sessão que conduz uma `/k0d3r-task` com spec | Recomendação, não imposição: a `/k0d3r-task` compara o modelo da sessão com o nível `orquestrador` e, se for outro, diz em uma linha qual é o recomendado e como trocar (`/model`, `/effort`). Depois segue. |
 | **Planejamento aberto** | `planner`, `architect` e o nativo `Plan`, no nível `fronteira` | Frontmatter, pelo `apply`. |
-| **Conselheiro** | Sessão e agents em Opus, Sonnet ou Haiku consultam o Fable antes de fechar uma abordagem, num erro que se repete e antes de declarar pronto | `advisorModel` no `.claude/settings.json`, escrito pelo `apply` a partir de `conselheiro`. Os subagents herdam o conselheiro da sessão. |
+| **Conselheiro** (desligado desde 2026-11-12, `"conselheiro": null`; ver Decisões) | Ligado, a sessão e os agents em Opus, Sonnet ou Haiku consultam o Fable antes de fechar uma abordagem, num erro que se repete e antes de declarar pronto | `advisorModel` no `.claude/settings.json`, escrito pelo `apply` a partir de `conselheiro`, e removido por ele com `null`. Os subagents herdam o conselheiro da sessão. |
 | **Escalada** | Um agent de `raciocinio` que não achou a causa, ou que falhou duas vezes na mesma coisa | A rule manda refazer a chamada no nível `fronteira` e dizer isso na entrega. |
 
 Onde o Fable **não** entra: revisão de diff, escrita de testes, atualização de docs e busca. São tarefas bem
