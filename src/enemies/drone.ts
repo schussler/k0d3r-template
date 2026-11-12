@@ -78,9 +78,7 @@ export class Drone extends Robot {
       fin.position.set(side * 0.16, 0.26, -0.26);
       this.body.add(arm, pod, rotor, fin);
     }
-    this.body.traverse((o) => {
-      if (o instanceof THREE.Mesh) o.castShadow = true;
-    });
+    // Sem sombra projetada: são pequenos e muitos; cada peça a mais dobraria as chamadas de desenho no setor.
   }
 
   override dispose(): void {
@@ -124,7 +122,9 @@ export class Drone extends Robot {
       this.faceTowards(goal.x, goal.z, 2, dt);
     }
     this.navigate(f, goal.x, goal.z, mode === 'patrol' ? SPEED * 0.4 : SPEED, 4);
-    const wantY = (mode === 'combat' ? 2.6 : this.altitude) + Math.sin(this.bob * 2.3) * 0.25;
+    // O teto do setor limita a altitude: nos laboratórios (3,6 m) um drone a 4 m ficaria atrás do forro, invisível e imune a tiro.
+    const ceiling = f.world.ceilingY - 0.9;
+    const wantY = Math.min(ceiling, (mode === 'combat' ? 2.6 : this.altitude) + Math.sin(this.bob * 2.3) * 0.25);
     this.y += (wantY - this.y) * Math.min(1, dt * 2.5);
     this.body.rotation.z = -this.vx * 0.05;
   }
@@ -142,8 +142,7 @@ export class Drone extends Robot {
     this.eyeMat.emissiveIntensity = 3 + this.phaseTime * 14;
     this.dive.set(f.player.x - this.x, f.player.eyeY - 0.5 - this.y, f.player.z - this.z);
     const back = this.dive.clone().normalize().multiplyScalar(-1.2 * f.dt);
-    this.x += back.x;
-    this.z += back.z;
+    this.nudge(f.world, back.x, back.z);
     if (this.phaseTime < WINDUP) return;
     this.dive.normalize().multiplyScalar(DIVE_SPEED);
     this.phase = 'dive';
@@ -155,7 +154,7 @@ export class Drone extends Robot {
   private doDive(f: EnemyFrame): void {
     const dt = f.dt;
     const hit = this.moveFree(f, this.dive.x * dt, this.dive.z * dt);
-    this.y = Math.max(0.7, Math.min(6, this.y + this.dive.y * dt));
+    this.y = Math.max(0.7, Math.min(f.world.ceilingY - 0.9, this.y + this.dive.y * dt));
     this.body.rotation.x = 0.4;
     const p = f.player;
     if (!this.diveHit && Math.hypot(p.x - this.x, p.z - this.z) < 1.1 && this.y > p.feetY - 0.2 && this.y < p.eyeY + 0.4) {

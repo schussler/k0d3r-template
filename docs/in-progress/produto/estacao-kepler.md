@@ -68,12 +68,12 @@ cobertura, caixas, munição e vida espalhadas e um caminho claro até a saída.
 - **Saída do setor.** Uma porta de saída marcada com luz verde, que destrava quando o setor é limpo (hangar e
   estufa) ou quando o último interruptor é acionado (laboratórios). Uma seta no HUD aponta a saída depois que o
   setor é liberado.
-- **Transição de setor.** Fade curto com o nome do setor ("Setor 2 — Laboratórios"); o progresso do setor
-  anterior é salvo em memória como ponto de reinício.
+- **Transição de setor.** Tela escura de 1,7 s com o nome do setor ("Setor 2 · Laboratórios"); o estado do
+  jogador ao entrar no setor novo é guardado em memória como ponto de reinício.
 - **Pausa.** Esc solta o mouse (comportamento nativo do navegador) e a soltura do mouse **é** o gatilho da pausa:
   o jogo para (simulação, tempo e música de combate). "Continuar" exige um clique para travar o mouse de novo.
   Opções: Continuar, Recomeçar setor, Sair para o título.
-- **Morte.** Câmera cai, tela escurece em vermelho; opções: Tentar de novo (começo do setor) e Título.
+- **Morte.** A tela escurece em vermelho; opções: Tentar de novo (começo do setor) e Título.
 - **Reinício do setor.** Restaura o estado do jogador **na entrada do setor** (vida, escudo, armas e munição) e
   recria inimigos, caixas, pickups e portas do setor como no início. É o mesmo caminho para a morte e para
   "Recomeçar setor".
@@ -139,14 +139,15 @@ ao morrer, desmonta em pedaços com física e às vezes solta munição ou vida.
   paredes; drones contornam pelo alto e pelos mesmos caminhos.
 - **Atingido**: faísca no ponto do acerto, recuo curto proporcional ao dano, pisca branco.
 - **Morte**: o modelo desmonta nas peças de que é feito, que voam com gravidade, quicam no chão e somem depois de
-  alguns segundos. Chance de drop: 35% munição da arma atual (ou de uma arma que esteja com reserva baixa), 15%
-  vida, conforme a tabela de drop.
+  alguns segundos. Chance de drop: 35% de caixa de munição (dá munição a todas as armas que o jogador tem, menos
+  a pistola) e 15% de vida; o resto não solta nada (`src/rules/drops.ts`).
 
 **Proposta (agente)** — distribuição por setor (ajustada no playtest):
 
-- Hangar: 3 drones e 2 sentinelas, em duas levas; cobertura generosa.
-- Laboratórios: drones e sentinelas em corredores, 2 brutamontes; 3 interruptores de porta.
-- Estufa: a mistura dos três, em mais quantidade, com a neblina reduzindo o alcance das sentinelas.
+- Hangar: 3 drones e 2 sentinelas espalhados em dois grupos (um em cada metade do salão); cobertura generosa e
+  quatro alvos de treino parados perto do início.
+- Laboratórios: 7 drones, 5 sentinelas e 2 brutamontes em corredores e salas; 3 interruptores de porta.
+- Estufa: 3 drones, 3 sentinelas e 2 brutamontes; a neblina esconde os robôs de longe.
 
 ## Chefe — Núcleo
 
@@ -254,6 +255,25 @@ pt-BR, tempo sem pausas somando tentativas, reinício pelo estado de entrada do 
 no laboratório. As decisões técnicas estão em
 [`../arquitetura/estacao-kepler-motor.md`](../arquitetura/estacao-kepler-motor.md#decisões).
 
+**Decisões do agente durante a implementação.** A pessoa aprovou seguir "até o fim" sem revisar item a item;
+estas escolhas saíram da construção e ficam registradas para revisão:
+
+- **Vida mínima ao reiniciar o setor: 30.** O reinício restaura o estado de entrada, mas nunca abaixo de 30 de
+  vida. Por quê: entrar num setor quase morto e morrer de novo sem chance de agir seria um laço sem saída. O
+  escudo e as armas voltam exatamente como estavam (`src/rules/progress.ts#restoreSnapshot`). Alternativa
+  rejeitada: restauração exata (pode travar a partida).
+- **Hangar sem "levas".** Os 5 robôs ficam em dois grupos no mapa, todos presentes desde o início, e não em duas
+  ondas. Por quê: uma onda exigiria gatilho, aviso e regra de limpeza que o hangar, feito para aprender, não
+  precisa. Alternativa rejeitada: onda 2 ao cruzar o meio do salão.
+- **Robôs veem menos longe em patrulha.** Em patrulha enxergam até 20 m e só à frente; em combate, 36 m. Por quê:
+  com a visão cheia, robôs do outro lado do hangar entravam em combate no instante em que a fase começava.
+- **Dano das armas cai com a distância**, até um piso por arma (escopeta a 25% depois de 20 m). Não estava na
+  tabela da spec; entrou para a escopeta ser "potente de perto" como o pedido diz.
+- **Chefe com 1300 de vida e corpo blindado (−25% nas fases 1 e 2).** A cabeça e o núcleo do peito (fase 3) dão
+  tiro na cabeça. Atordoado na troca de fase, não toma dano por 2,2 s. Números ajustáveis no playtest.
+- **Sem bloom.** O brilho vem de materiais emissivos; um passe de pós-processamento ia contra o orçamento de
+  desempenho para ganho pequeno.
+
 ## Dúvidas e decisões (resolvidas em 2026-11-12)
 
 1. **Divisão em PRs.** Um jogo inteiro do zero é grande para revisar de uma vez. Opções:
@@ -315,5 +335,6 @@ aberto.
 - [x] Playtest da fatia 1 (feito pela pessoa em 2026-11-12; sem ajustes pedidos)
 - [x] Fatia 2 — inimigos
 - [x] Fatia 3 — setores e fluxo
-- [ ] Fatia 4 — som e acabamento
-- [ ] Verificação, revisão e entrega
+- [x] Fatia 4 — som e acabamento (verificar com as revisões e os portões antes de marcar a entrega)
+- [x] Verificação e revisão (code-reviewer, typescript-reviewer, silent-failure-hunter; achados corrigidos)
+- [ ] Entrega e graduação (aguarda aprovação da pessoa)

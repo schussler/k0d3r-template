@@ -55,17 +55,24 @@ export class Input {
   async requestLock(): Promise<boolean> {
     if (this.testMode) return true;
     try {
-      await this.target.requestPointerLock({ unadjustedMovement: true });
-      return true;
+      await this.lockOnce(true);
+      return this.locked;
     } catch {
       try {
-        await this.target.requestPointerLock();
-        return true;
+        await this.lockOnce(false);
+        return this.locked;
       } catch (err) {
         console.info('Trava do mouse recusada pelo navegador; aguardando novo clique.', err);
         return false;
       }
     }
+  }
+
+  /** Navegadores sem a versão com promessa devolvem `undefined`: espera um instante pelo evento de trava. */
+  private async lockOnce(raw: boolean): Promise<void> {
+    const result: unknown = raw ? this.target.requestPointerLock({ unadjustedMovement: true }) : this.target.requestPointerLock();
+    if (result instanceof Promise) await result;
+    else await new Promise<void>((resolve) => setTimeout(resolve, 150));
   }
 
   releaseLock(): void {

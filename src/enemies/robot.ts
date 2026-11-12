@@ -114,6 +114,10 @@ export abstract class Robot implements Hittable {
   private pathI = 0;
   private repath = 0;
   private pathGoal = -1;
+  /** A última busca de caminho não achou rota. Quem chama decide o que fazer (outra cobertura, outro ponto). */
+  protected noRoute = false;
+  /** Contador de diagnóstico: quantas buscas de caminho falharam. Sem isso a falha não muda nada na saída. */
+  static readonly diagnostics = { noRoute: 0 };
   private stuckTimer = 0;
   private stuckX = 0;
   private stuckZ = 0;
@@ -207,7 +211,9 @@ export abstract class Robot implements Hittable {
   /** Pisca branco no acerto: mistura a cor de brilho de cada material com branco. */
   private applyFlash(): void {
     for (const m of this.flashMats) {
-      const base = m.userData.baseColor as THREE.Color;
+      const base = m.userData.baseColor as THREE.Color | undefined;
+      // Material que não veio de `robotMaterial` não tem cor-base: pisca nada em vez de quebrar o laço.
+      if (!base) continue;
       const f = this.flash * this.flashStrength;
       m.emissive.copy(base).lerp(WHITE, f * 0.7);
       m.emissiveIntensity = (m.userData.base as number) + f * 2;
@@ -282,10 +288,18 @@ export abstract class Robot implements Hittable {
     if (this.repath <= 0 || goalKey !== this.pathGoal) {
       const here = worldToCell(this.x, this.z);
       const start = this.nearestPassable(f, here.col, here.row) ?? here;
-      this.path = findPath(f.grid, start, goal, (c, r) => f.passable(c, r, this.flying)) ?? [];
+      const found = findPath(f.grid, start, goal, (c, r) => f.passable(c, r, this.flying));
+      this.noRoute = found === null;
+      if (this.noRoute) Robot.diagnostics.noRoute++;
+      this.path = found ?? [];
       this.pathI = Math.min(1, this.path.length - 1);
       this.pathGoal = goalKey;
       this.repath = REPATH_INTERVAL + Math.random() * 0.3;
+    }
+    // Sem rota (alvo atrás de porta fechada ou isolado): para em vez de andar reto contra a parede.
+    if (this.noRoute) {
+      this.stopMoving();
+      return true;
     }
     const last = this.pathI >= this.path.length - 1;
     const wp = last ? null : this.path[this.pathI];

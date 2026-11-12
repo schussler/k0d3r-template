@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { AudioEngine } from '../audio/engine';
+import { Ambience } from '../audio/ambience';
+import { Music } from '../audio/music';
 import { EnemySfx, Sfx, WorldSfx } from '../audio/sfx';
 import { Boss } from '../enemies/boss';
 import { Director } from '../enemies/director';
@@ -15,19 +17,21 @@ import { ParticleSystem } from '../fx/particles';
 import { Shells } from '../fx/shells';
 import { Tracers } from '../fx/tracers';
 import { type BuiltLevel, type BuiltSwitch, buildLevel } from '../level/build';
-import { type Grid, cellCenter, entitiesOf, isLowCover, isOpenTile, parseGrid, tileAt, worldToCell } from '../level/grid';
+import { CollisionWorld } from '../world/collision';
+import { CELL, type Grid, cellCenter, entitiesOf, isLowCover, isOpenTile, parseGrid, tileAt, worldToCell } from '../level/grid';
 import { SECTORS, type SectorDef, type SectorId } from '../level/sectors';
 import { THEMES } from '../level/themes';
 import { Gunplay } from '../player/gunplay';
 import { PlayerRig } from '../player/rig';
 import { Viewmodel } from '../player/viewmodel';
 import { createBackdrop, type Backdrop } from '../render/space';
+import { type Station, createStation } from '../render/station';
 import { WEAPONS, addAmmo, createArsenal, giveWeapon } from '../rules/arsenal';
 import type { Drop } from '../rules/drops';
 import { type RunStats, type Snapshot, advanceClock, formatTime, newRun, recordDeath, restoreSnapshot, takeSnapshot } from '../rules/progress';
 import { MAX_HEALTH, MAX_SHIELD, type Vitals, damagePlayer as applyDamage, fullVitals, heal, isDead, tickVitals } from '../rules/vitals';
 import { Hud } from '../ui/hud';
-import { Screens } from '../ui/screens';
+import { Screens, escapeHtml } from '../ui/screens';
 import { Input } from './input';
 import { type Pickup, type PickupKind, collect, makePickup, updatePickups } from './pickups';
 
@@ -36,6 +40,7 @@ export type Mode = 'title' | 'playing' | 'paused' | 'dead' | 'transition' | 'vic
 const AMMO_PICKUP = { pistol: 0, rifle: 45, shotgun: 8 } as const;
 const HEALTH_PICKUP = 35;
 const OPEN_DOOR_PROGRESS = 0.7;
+const MIN_PIXEL_RATIO = 0.6;
 const SWITCH_REACH = 2.9;
 const TRANSITION_TIME = 1.7;
 const VICTORY_DELAY = 3;
@@ -58,6 +63,8 @@ export class Game {
   readonly sfx = new Sfx(this.audio);
   readonly enemySfx = new EnemySfx(this.audio);
   readonly worldSfx = new WorldSfx(this.audio);
+  private readonly music = new Music(this.audio);
+  private readonly ambience = new Ambience(this.audio);
   readonly hud: Hud;
   readonly screens: Screens;
   readonly rig: PlayerRig;
@@ -70,6 +77,12 @@ export class Game {
   private readonly debris = new Debris();
   private readonly projectiles = new Projectiles(this.sparks);
   private readonly backdrop: Backdrop;
+  private readonly station: Station;
+  private readonly stationLights = new THREE.Group();
+  private readonly basePixelRatio: number;
+  private frameAvg = 1 / 60;
+  private slowTime = 0;
+  private fastTime = 0;
   readonly director: Director;
   private level!: BuiltLevel;
   private readonly services: EnemyServices;
@@ -79,6 +92,7 @@ export class Game {
   private exitOpen = false;
   private transitionTimer = 0;
   private winTimer = -1;
+  private actionBusy = false;
   private finalTime = 0;
   private boss: Boss | null = null;
   private grid!: Grid;
@@ -96,12 +110,15 @@ export class Game {
 
   constructor(private readonly container: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio));
+    this.basePixelRatio = Math.min(1.5, window.devicePixelRatio);
+    this.renderer.setPixelRatio(this.basePixelRatio);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.autoClear = false;
+    // Duas passagens por quadro (mundo e arma): a contagem do painel F3 soma as duas.
+    this.renderer.info.autoReset = false;
     this.renderer.setClearColor(0x02040a);
     container.appendChild(this.renderer.domElement);
 
@@ -112,6 +129,12 @@ export class Game {
     this.vm = new Viewmodel(env);
     this.vm.scene.add(this.shells.vmMesh);
     this.backdrop = createBackdrop();
+    this.station = createStation();
+    const sun = new THREE.DirectionalLight(0xfff0dd, 3.4);
+    sun.position.set(-30, 40, 20);
+    this.stationLights.add(sun, new THREE.HemisphereLight(0x6fa8ff, 0x0a0c14, 0.5));
+    this.stationLights.visible = this.station.group.visible = false;
+    this.scene.add(this.station.group, this.stationLights);
 
     const services: EnemyServices = this.services = {
       sfx: this.enemySfx, audio: this.audio, sparks: this.sparks, smoke: this.smoke, projectiles: this.projectiles,
@@ -132,9 +155,8 @@ export class Game {
     this.hud = new Hud(container);
     this.screens = new Screens(container);
     const gunplay = new Gunplay(this.sparks, this.smoke, this.tracers, this.decals);
-    this.sector = SECTORS[0] as SectorDef;
-    this.loadSector(this.sector);
-    this.rig = new PlayerRig(this.level.world, this.camera, this.vm, gunplay, this.shells, this.sfx, this.audio);
+    // O setor é construído uma vez só, por `enterSector`; o jogador nasce com um mundo vazio de passagem.
+    this.rig = new PlayerRig(new CollisionWorld(1, 1, CELL, 0, 6), this.camera, this.vm, gunplay, this.shells, this.sfx, this.audio);
     this.shells.onBounce = (x, y, z, heavy) => this.sfx.brass(x, y, z, heavy);
     this.debris.onImpact = (x, y, z) => this.enemySfx.clank(x, y, z);
     this.projectiles.onImpact = (x, y, z) => this.sfx.impact(x, y, z, 'metal');
@@ -206,7 +228,11 @@ export class Game {
       this.boss.yaw = 0;
       this.boss.onPhaseChange = () => this.restockArena();
     }
+    this.director.rebuildHittables();
+    this.refreshHittables();
     this.backdrop.placePlanet(...PLANET_ANCHOR[this.sector.id]);
+    this.ambience.setSector(this.sector.id);
+    this.music.setSector(this.sector.id);
     this.hud.setBoss(null, 0);
   }
 
@@ -236,11 +262,34 @@ export class Game {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.vm.setAspect(w / h);
+    this.scaleParticles();
+  }
+
+  /** O tamanho do ponto é em pixels do buffer: acompanha a resolução adaptativa. */
+  private scaleParticles(): void {
+    const h = this.container.clientHeight * this.renderer.getPixelRatio();
     this.sparks.setScale(h);
     this.smoke.setScale(h);
   }
 
+  /** Título: a estação girando com o planeta atrás; o setor fica escondido. */
+  private setTitleScene(on: boolean): void {
+    this.station.group.visible = this.stationLights.visible = on;
+    this.levelRoot.visible = this.director.root.visible = this.debris.root.visible = !on;
+    if (on) {
+      this.scene.fog = null;
+      this.scene.environmentIntensity = 0.45;
+      this.renderer.toneMappingExposure = 1.05;
+      this.backdrop.placePlanet(-62, -34, -150);
+      this.station.group.position.set(17, 1, -48);
+      this.camera.position.set(0, 2, 0);
+      this.camera.lookAt(5, 1, -52);
+      this.camera.updateMatrixWorld();
+    }
+  }
+
   private showTitle(): void {
+    this.setTitleScene(true);
     this.mode = 'title';
     this.hud.setVisible(false);
     this.screens.show('title', {
@@ -255,6 +304,7 @@ export class Game {
   private pause(): void {
     if (this.mode !== 'playing') return;
     this.mode = 'paused';
+    this.audio.duck(true);
     this.screens.show('pause', {
       kicker: 'SISTEMA EM ESPERA',
       title: 'PAUSADO',
@@ -266,6 +316,8 @@ export class Game {
   private die(): void {
     this.run = recordDeath(this.run);
     this.mode = 'dead';
+    this.audio.duck(true);
+    this.music.setTarget(0);
     this.input.releaseLock();
     this.hud.setVisible(false);
     this.screens.show('death', {
@@ -293,9 +345,27 @@ export class Game {
   }
 
   private async onAction(id: string): Promise<void> {
+    // Duplo clique ou Enter segurado não pode reconstruir o setor duas vezes.
+    if (this.actionBusy) return;
+    this.actionBusy = true;
+    try {
+      await this.handleAction(id);
+    } catch (err) {
+      console.error('Erro ao tratar a ação do menu.', id, err);
+      this.fail(err);
+    } finally {
+      this.actionBusy = false;
+    }
+  }
+
+  private async handleAction(id: string): Promise<void> {
     this.sfx.ui();
     if (id === 'resume' || id === 'play' || id === 'restart' || id === 'retry') {
       await this.audio.unlock();
+      this.audio.duck(false);
+      this.setTitleScene(false);
+      this.music.start();
+      this.ambience.resume();
       if (id === 'play') {
         this.run = newRun();
         this.enterSector(0, this.freshState());
@@ -314,6 +384,9 @@ export class Game {
     } else if (id === 'title') {
       this.input.releaseLock();
       this.enterSector(0, this.freshState());
+      this.ambience.stop();
+      this.music.stop();
+      this.audio.duck(false);
       this.showTitle();
     }
   }
@@ -332,6 +405,7 @@ export class Game {
 
   /** Atalho de desenvolvimento: pula direto para um setor com o estado atual. */
   jumpToSector(index: number): void {
+    if (!SECTORS[index]) throw new Error(`setor ${index} não existe`);
     this.enterSector(index, takeSnapshot(this.vitals, this.rig.arsenal));
   }
 
@@ -377,8 +451,36 @@ export class Game {
     this.god = was;
   }
 
+  /**
+   * Resolução adaptativa: se o quadro passa do orçamento por 2 s, a resolução interna cai em passos; com folga por
+   * 5 s, volta. Mantém o jogo liso em notebooks com GPU integrada.
+   */
+  private adaptResolution(dt: number): void {
+    this.frameAvg += (dt - this.frameAvg) * 0.05;
+    const ratio = this.renderer.getPixelRatio();
+    if (this.frameAvg > 1 / 45) {
+      this.slowTime += dt;
+      this.fastTime = 0;
+    } else if (this.frameAvg < 1 / 58) {
+      this.fastTime += dt;
+      this.slowTime = 0;
+    } else {
+      this.slowTime = this.fastTime = 0;
+    }
+    if (this.slowTime > 2 && ratio > MIN_PIXEL_RATIO) {
+      this.renderer.setPixelRatio(Math.max(MIN_PIXEL_RATIO, ratio - 0.15));
+      this.scaleParticles();
+      this.slowTime = 0;
+    } else if (this.fastTime > 5 && ratio < this.basePixelRatio) {
+      this.renderer.setPixelRatio(Math.min(this.basePixelRatio, ratio + 0.1));
+      this.scaleParticles();
+      this.fastTime = 0;
+    }
+  }
+
   frame(dt: number, now: number): void {
     this.time = now;
+    if (this.mode === 'playing') this.adaptResolution(dt);
     this.backdrop.update(dt);
     if (this.mode === 'playing') this.updatePlaying(dt);
     else if (this.mode === 'transition') this.updateTransition(dt);
@@ -389,12 +491,7 @@ export class Game {
   }
 
   private updateTitle(dt: number): void {
-    const s = this.level.spawn;
-    const t = this.time * 0.08;
-    this.camera.position.set(s.x + Math.sin(t) * 6, 3.2, s.z - 8 + Math.cos(t) * 4);
-    this.camera.lookAt(s.x - 10, 2.4, s.z - 24);
-    this.camera.updateMatrixWorld();
-    this.level.update(dt);
+    this.station.update(dt, this.time);
   }
 
   /** Efeitos que seguem rodando com o jogo parado por uma tela: pedaços caindo, faíscas, luzes do setor. */
@@ -449,6 +546,7 @@ export class Game {
     for (const t of this.targets) t.update(dt);
     this.collectPickups();
     this.updateSector();
+    this.updateAudio(dt);
     this.hud.update(dt, {
       health: this.vitals.health, maxHealth: MAX_HEALTH, shield: this.vitals.shield, maxShield: MAX_SHIELD,
       arsenal: this.rig.arsenal, sector: this.sector.name, spreadPx: this.rig.spreadPx(this.container.clientHeight),
@@ -459,6 +557,21 @@ export class Game {
       this.winTimer -= dt;
       if (this.winTimer < 0) this.showVictory();
     } else if (isDead(this.vitals)) this.die();
+  }
+
+  /** Intensidade da música: combate acelera, alerta esquenta; a sirene do laboratório segue a luz. */
+  private updateAudio(dt: number): void {
+    let level = 0;
+    for (const r of this.director.robots) {
+      if (r.mem.mode === 'combat') {
+        level = 1;
+        break;
+      }
+      if (r.mem.mode === 'alert' || r.mem.mode === 'search') level = 0.4;
+    }
+    this.music.setTarget(level);
+    this.music.update(dt);
+    this.ambience.setAlarm(this.level.alarmPulse());
   }
 
   /** Objetivo do setor: interruptores, saída que destrava, seta até a saída e passagem para o próximo setor. */
@@ -604,7 +717,8 @@ export class Game {
     const accepts = (k: PickupKind): boolean => {
       if (k === 'health') return this.vitals.health < MAX_HEALTH;
       if (k === 'ammo') return a.owned.some((w) => !WEAPONS[w].infiniteReserve && a.guns[w].reserve < WEAPONS[w].reserveMax);
-      return true;
+      // Arma já na mão com a reserva cheia: o item fica no chão, não se perde.
+      return !a.owned.includes(k) || a.guns[k].reserve < WEAPONS[k].reserveMax;
     };
     const got = collect(this.pickups, c.x, c.y, c.z, accepts);
     if (!got) return;
@@ -615,6 +729,7 @@ export class Game {
   }
 
   private render(): void {
+    this.renderer.info.reset();
     this.backdrop.group.position.copy(this.camera.position);
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
@@ -625,13 +740,17 @@ export class Game {
   }
 
   fail(err: unknown): void {
+    if (this.mode === 'error') return;
     this.mode = 'error';
+    this.music.stop();
+    this.ambience.stop();
+    void this.audio.suspend();
     this.input.releaseLock();
     this.hud.setVisible(false);
     this.screens.show('error', {
       kicker: 'FALHA CRÍTICA',
       title: 'ERRO NO JOGO',
-      body: `O jogo parou por um erro inesperado: ${err instanceof Error ? err.message : String(err)}. Recarregue a página para tentar de novo.`,
+      body: `O jogo parou por um erro inesperado: ${escapeHtml(err instanceof Error ? err.message : String(err))}. Recarregue a página para tentar de novo.`,
       actions: [],
     });
   }

@@ -27,27 +27,29 @@ Sem nenhuma outra dependência de execução: física, IA, navegação, áudio e
 
 ## Forma do sistema
 
-Aplicação de página única na raiz do repositório (`index.html`, `src/`), sem servidor. Um laço de jogo com passo
-fixo de simulação (60 Hz, acumulador) e renderização a cada quadro.
+Aplicação de página única na raiz do repositório (`index.html`, `src/`), sem servidor. Um laço de jogo
+(`src/game/loop.ts`) com passo variável limitado a 50 ms, protegido por uma borda de erro que mostra a tela de
+erro em vez de travar em silêncio.
 
 ```
 src/
-  main.ts            entrada: cria o renderizador, o jogo e as telas; trata WebGL indisponível
-  game/              laço, máquina de telas (título, jogo, pausa, morte, vitória), sessão e cronômetro
-  rules/             regras puras, sem Three.js nem DOM: dano e escudo, armas (estado de tiro/recarga/troca),
-                     IA (transições), snapshot e reinício, tabela de drop, cronômetro, mola do coice
-  level/             dados dos setores (mapa de células + entidades), leitura, construção da cena, grade de
-                     navegação e busca de caminho
-  player/            controle (olhar, movimento, colisão), armas em primeira pessoa (modelo, animação)
-  enemies/           percepção, os 3 robôs e o chefe (comportamento sobre as regras de `rules/`)
-  fx/                partículas, faíscas, cápsulas, traçantes, marcas e pedaços — tudo em pool
-  render/            materiais e texturas procedurais, luzes por setor, pós-processamento, resolução adaptativa
-  audio/             síntese de efeitos, ambiente por setor, música adaptativa, alarme
+  main.ts            entrada: confere WebGL, cria o jogo e liga o laço
+  game/              jogo (modos e fluxo dos setores), laço, entrada e trava do mouse, itens no chão
+  rules/             regras puras, sem Three.js nem DOM: armas, dano, dispersão, mola do coice, vida e escudo,
+                     drops, IA (transições), cronômetro e ponto de reinício
+  level/             mapas dos setores em texto, leitura, construção da cena, temas, navegação (A*)
+  world/             colisão (caixas por célula, raio) e movimento de corpos circulares
+  player/            controle, armas em primeira pessoa, resolução do tiro, o jogador por inteiro
+  enemies/           base dos robôs, drone, sentinela, brutamontes, chefe, míssil, projéteis, diretor, alvo de treino
+  fx/                partículas, traçantes, marcas de tiro, cápsulas, pedaços — tudo em pool
+  render/            texturas procedurais, fundo espacial, estação do título, tremor de câmera
+  audio/             motor, efeitos, música adaptativa, ambiente por setor
   ui/                HUD e telas em SVG/DOM sobre o canvas; ícones SVG desenhados no código
   dev/               painel F3 e gancho `window.__kepler`, carregados só em `import.meta.env.DEV`
 tests/
-  unit/              Vitest sobre `rules/` e `level/`
-  e2e/               Playwright: partida completa e console limpo
+  unit/              Vitest sobre `rules/`, `level/` e `world/`
+  e2e/               Playwright: tiro, robôs e a partida completa
+scripts/check-dist.mjs   confere o build: só HTML, JS e CSS, e nenhum gancho de teste
 ```
 
 ## Contratos internos
@@ -66,17 +68,19 @@ tests/
 
 ## Orçamento de desempenho
 
-Meta: **60 FPS a 1080p num notebook com GPU integrada** (classe Intel Iris Xe / Apple M1). Regras para chegar lá:
+Meta: **60 FPS a 1080p num notebook com GPU integrada** (classe Intel Iris Xe / Apple M1). Como chegar lá:
 
-- até **150 draw calls** e **8 luzes dinâmicas** por setor; paredes, caixas e plantas em `InstancedMesh`;
-- sombras só da luz principal de cada setor, com mapa pequeno;
-- partículas, cápsulas, traçantes, marcas e pedaços em **pool** pré-alocado (nada de criar objeto no tiro);
-- `devicePixelRatio` limitado a 1,5; **resolução adaptativa**: se a média do quadro passar de 18 ms por 2 s, a
-  resolução interna cai em passos até 0,6, e volta quando sobra folga;
-- pós-processamento (bloom) em meia resolução.
+- paredes, caixas, pilares, canteiros e plantas em `InstancedMesh`; até **8 lâmpadas** por setor, e sombra só da
+  luz principal (os drones não projetam sombra);
+- partículas, cápsulas, traçantes, marcas de tiro e pedaços em **pool** pré-alocado (nada é criado no tiro);
+- `devicePixelRatio` limitado a 1,5; **resolução adaptativa** (`Game#adaptResolution`): se o quadro passa de
+  22 ms por 2 s, a escala cai 0,15 por vez até 0,6; com folga (abaixo de 17 ms) por 5 s, sobe de volta;
+- sem pós-processamento: o brilho vem de materiais emissivos.
 
-O painel F3 mostra FPS, tempo de quadro, `renderer.info` e a escala de resolução atual. A medição é feita nesta
-máquina e relatada; um "notebook comum" de verdade não é medível daqui.
+Medido nesta máquina (Apple GPU, Chromium, 1280×720) com o painel F3, somando a passada do mundo, a da arma e a de
+sombra: **60 FPS e de 109 (núcleo) a 253 (estufa) chamadas de desenho** nos quatro setores. O orçamento inicial era
+de 150 chamadas; ficou em até ~260 porque cada robô tem de 15 a 40 peças e a sombra repete as que projetam. Um
+"notebook comum" de verdade não é medível daqui: a resolução adaptativa é a rede de segurança.
 
 ## Console limpo
 
@@ -89,14 +93,20 @@ máquina e relatada; um "notebook comum" de verdade não é medível daqui.
 
 ## Verificação
 
-- **Unitário (Vitest)** em `rules/` e `level/`, com meta de **80% de cobertura** nessas pastas: dano por parte,
-  escudo e cabeça; ângulo do escudo frontal; estado das armas; mola do coice; transições de IA; snapshot e
-  restauração; tabela de drop com semente; cronômetro com pausa; leitura dos setores; existência de caminho da
-  entrada à saída e alcance de todo pickup.
-- **E2E (Playwright, Chromium)**: abre `npm run dev`, entra pelo título e atravessa os setores e o chefe pelo
-  gancho de desenvolvimento, falhando em qualquer `console.error` ou `pageerror`; captura tela de cada setor,
-  do disparo de cada arma e da morte de um robô. Limitação: sem tela, o navegador não trava o mouse de verdade, então
-  o E2E não prova a sensação de controle.
+- **Unitário (Vitest)** em `rules/`, `level/` e `world/`, com meta de **80% de cobertura** em `rules/` e `level/`:
+  dano por parte, escudo e cabeça; ângulo do escudo frontal; estado das armas; mola do coice; dispersão; vida e
+  escudo; transições de IA e flanco; snapshot e restauração; tabela de drop com semente; cronômetro com pausa;
+  leitura dos mapas; busca de caminho; colisão e movimento; e, em cada setor, a existência de caminho da entrada
+  à saída, o alcance de todo item e inimigo, e, nos laboratórios, que cada interruptor é alcançável antes da porta
+  que ele abre.
+- **E2E (Playwright, Chromium, `tests/e2e/`)**: as três armas atiram, trocam e recarregam; os robôs patrulham,
+  ouvem o tiro e morrem; a partida completa do hangar à vitória (a saída destrava ao limpar o setor ou acionar os
+  interruptores, e o jogador é levado à saída pelo gancho de desenvolvimento); a pausa para o cronômetro; a morte
+  oferece tentar de novo. Todos falham em qualquer `console.error` ou `pageerror`. Limitação: sem tela o navegador
+  não trava o mouse de verdade e o teste teletransporta o jogador, então o E2E não prova a sensação de controle
+  nem que o caminho a pé é confortável; a existência do caminho é provada pelo teste unitário dos mapas.
+- **Build**: `npm run build` roda `scripts/check-dist.mjs`, que falha se `dist/` tiver algo além de HTML, JS e
+  CSS, ou o gancho `__kepler`.
 - **Manual**: playtest depois de cada fatia, relatado na entrega.
 
 ## Decisões

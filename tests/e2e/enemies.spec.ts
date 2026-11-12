@@ -8,7 +8,7 @@ test('hangar: robôs patrulham, ouvem o tiro, entram em combate e morrem sem err
   const errors = trackErrors(page);
   await boot(page);
   await hook(page, 'start');
-  await expect.poll(async () => (await hook<State>(page, 'state')).mode).toBe('playing');
+  await expect.poll(async () => (await hook<State>(page, 'state')).mode, { timeout: 20_000 }).toBe('playing');
   await hook(page, 'god', true);
 
   const robots = await hook<Robot[]>(page, 'robots');

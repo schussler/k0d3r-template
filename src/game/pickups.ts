@@ -26,9 +26,21 @@ function materials() {
   return shared;
 }
 
+const glowCache = new Map<PickupKind, THREE.MeshStandardMaterial>();
+
+/** Um material de brilho por tipo de item: drops repetidos não criam material novo a cada robô morto. */
+function glowMaterial(kind: PickupKind): THREE.MeshStandardMaterial {
+  let m = glowCache.get(kind);
+  if (!m) {
+    m = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: COLORS[kind], emissiveIntensity: 2.2 });
+    glowCache.set(kind, m);
+  }
+  return m;
+}
+
 export function makePickup(kind: PickupKind, x: number, z: number): Pickup {
   const m = materials();
-  const glow = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: COLORS[kind], emissiveIntensity: 2.2 });
+  const glow = glowMaterial(kind);
   const g = new THREE.Group();
   g.position.set(x, 0, z);
   const ring = new THREE.Mesh(m.ring, glow);

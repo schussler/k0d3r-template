@@ -4,12 +4,18 @@
  */
 export type ScreenName = 'title' | 'pause' | 'death' | 'victory' | 'error' | 'transition' | 'none';
 
+/** `body` é HTML confiável: só literais e números do jogo. Texto de fora do código passa por `escapeHtml` antes. */
 export interface ScreenContent {
   readonly kicker?: string;
   readonly title: string;
   readonly body?: string;
   readonly actions: readonly { readonly id: string; readonly label: string }[];
   readonly hint?: string;
+}
+
+/** Texto vindo de fora do código (mensagem de erro) nunca entra no HTML sem escapar. */
+export function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
 }
 
 export class Screens {
@@ -35,7 +41,7 @@ export class Screens {
   show(name: ScreenName, c: ScreenContent): void {
     this.current = name;
     this.root.className = `screen screen-${name}`;
-    const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] ?? ch);
+    const esc = escapeHtml;
     this.root.innerHTML = `
       <div class="card">
         ${c.kicker ? `<div class="kicker">${esc(c.kicker)}</div>` : ''}

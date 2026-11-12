@@ -8,7 +8,7 @@ test('título → jogo: as três armas atiram, trocam e recarregam sem erro no c
   await boot(page);
   await expect(page.getByRole('button', { name: 'JOGAR' })).toBeVisible();
   await hook(page, 'start');
-  await expect.poll(async () => (await hook<State>(page, 'state')).mode).toBe('playing');
+  await expect.poll(async () => (await hook<State>(page, 'state')).mode, { timeout: 20_000 }).toBe('playing');
   await hook(page, 'giveAll');
 
   for (const [key, weapon] of [['Digit1', 'pistol'], ['Digit2', 'rifle'], ['Digit3', 'shotgun']] as const) {

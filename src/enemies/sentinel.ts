@@ -18,6 +18,7 @@ const BOLT_DAMAGE = 8;
 const BOLT_COLOR = new THREE.Color(3, 0.5, 0.3);
 const MIN_RANGE = 7;
 const MAX_RANGE = 22;
+const COVER_RETRY = 1.5;
 
 type Phase = 'move' | 'hide' | 'aim' | 'burst';
 
@@ -38,6 +39,7 @@ export class Sentinel extends Robot {
   private phaseTime = 0;
   private shots = 0;
   private cover: { x: number; z: number } | null = null;
+  private coverRetry = 0;
   private coverAge = 0;
   private crouch = 0;
   private walkPhase = 0;
@@ -150,16 +152,31 @@ export class Sentinel extends Robot {
   private combat(f: EnemyFrame): boolean {
     const p = f.player;
     const dist = this.distanceToPlayer(f);
+    this.coverRetry -= f.dt;
     const needCover = !this.cover || (shouldFlank(this.mem) && this.coverAge > 3) || dist < MIN_RANGE * 0.6 || this.coverAge > 14;
-    if (needCover && this.phase !== 'burst') {
-      this.cover = this.pickCover(f, shouldFlank(this.mem)) ?? this.cover ?? { x: this.x, z: this.z };
+    if (needCover && this.phase !== 'burst' && this.coverRetry <= 0) {
+      const found = this.pickCover(f, shouldFlank(this.mem));
+      this.cover = found ?? this.cover;
+      // Sem cobertura achada, tenta de novo daqui a pouco em vez de varrer o mapa todo quadro.
+      if (!found) this.coverRetry = COVER_RETRY;
       this.coverAge = 0;
-      this.phase = 'move';
-      this.laser.visible = false;
+      if (found || this.cover) {
+        this.phase = 'move';
+        this.laser.visible = false;
+      }
+    }
+    if (this.phase === 'move' && !this.cover) {
+      // Sem cobertura à vista: avança até uma distância boa de tiro e atira de pé.
+      const close = dist < MAX_RANGE * 0.7;
+      if (!close) this.navigate(f, p.x, p.z, RUN);
+      this.faceTowards(p.x, p.z, 6, f.dt);
+      if (close) this.setPhase('aim');
+      return !close;
     }
     if (this.phase === 'move') {
       const c = this.cover ?? { x: this.x, z: this.z };
       const arrived = this.navigate(f, c.x, c.z, RUN);
+      if (this.noRoute) this.cover = null;
       this.faceTowards(arrived ? p.x : this.x + this.vx, arrived ? p.z : this.z + this.vz, 6, f.dt);
       if (arrived) this.setPhase('hide');
       return !arrived;
@@ -168,7 +185,7 @@ export class Sentinel extends Robot {
     this.faceTowards(p.x, p.z, 5, f.dt);
     if (this.phase === 'hide') {
       this.crouch = Math.min(1, this.crouch + f.dt * 4);
-      if (this.phaseTime > 1.2 + Math.random() * 0.02 + (this.cover ? 0.6 : 0)) {
+      if (this.phaseTime > 1.2 + Math.random() * 0.02 + 0.6) {
         this.setPhase('aim');
         this.services.sfx.charge(this.x, this.y + 1.2, this.z, AIM_TIME);
       }

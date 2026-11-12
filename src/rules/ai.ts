@@ -44,7 +44,8 @@ function nextMode(m: AiMemory, s: Senses, lastSeenAgo: number): AiMode {
 }
 
 export function stepAi(m: AiMemory, s: Senses, dt: number): AiMemory {
-  const lastSeenAgo = s.sees ? 0 : m.lastSeenAgo + dt;
+  // Levar tiro também conta como "acabei de saber onde está": sem isso o robô baleado pelas costas cairia em busca no quadro seguinte.
+  const lastSeenAgo = s.sees || s.damaged ? 0 : m.lastSeenAgo + dt;
   const mode = nextMode(m, s, lastSeenAgo);
   const restart = mode !== m.mode || (s.heard && (mode === 'alert' || mode === 'search'));
   return { mode, modeTime: restart ? 0 : m.modeTime + dt, lastSeenAgo };

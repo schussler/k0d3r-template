@@ -1,3 +1,4 @@
+import { Robot } from '../enemies/robot';
 import type { Game } from '../game/game';
 
 /**
@@ -49,6 +50,7 @@ export function installDevtools(game: Game): void {
         `draw calls ${info.render.calls}  triângulos ${info.render.triangles}`,
         `geometrias ${info.memory.geometries}  texturas ${info.memory.textures}`,
         `pixel ratio ${game.renderer.getPixelRatio().toFixed(2)}  modo ${game.mode}`,
+        `robôs sem rota (acumulado) ${Robot.diagnostics.noRoute}`,
       ].join('\n');
       frames = 0;
       acc = 0;

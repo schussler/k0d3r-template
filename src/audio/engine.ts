@@ -2,6 +2,8 @@
  * Motor de áudio: tudo sintetizado com Web Audio, sem arquivo. O contexto nasce no primeiro clique (política de
  * autoplay do navegador); antes disso os sons são ignorados em silêncio de propósito, o jogo roda mudo.
  */
+const RESUME_TIMEOUT_MS = 2000;
+
 export interface Voice {
   readonly ctx: AudioContext;
   readonly t: number;
@@ -18,15 +20,18 @@ export class AudioEngine {
   private reverb!: ConvolverNode;
   noise!: AudioBuffer;
   private listenerReady = false;
+  private failed = false;
 
   /** Chamado dentro de um gesto do usuário. */
   async unlock(): Promise<void> {
-    if (!this.ctx) this.build();
-    if (this.ctx && this.ctx.state !== 'running') {
+    if (!this.ctx && !this.failed) this.build();
+    const ctx = this.ctx;
+    if (ctx && ctx.state !== 'running') {
       try {
-        await this.ctx.resume();
+        // Sem prazo, um contexto "interrompido" deixaria o botão do menu sem resposta.
+        await Promise.race([ctx.resume(), new Promise<void>((_, reject) => setTimeout(() => reject(new Error('resume() demorou demais')), RESUME_TIMEOUT_MS))]);
       } catch (err) {
-        console.warn('Áudio não pôde ser retomado; o jogo segue mudo até o próximo clique.', err);
+        console.warn('Áudio não pôde ser retomado; o jogo segue mudo até o próximo clique em um botão.', err);
       }
     }
   }
@@ -35,9 +40,19 @@ export class AudioEngine {
     if (this.ctx?.state === 'running') await this.ctx.suspend();
   }
 
+  /** Falha de áudio degrada para mudo e nunca propaga para o jogo. */
   private build(): void {
+    try {
+      this.buildGraph();
+    } catch (err) {
+      this.ctx = null;
+      this.failed = true;
+      console.warn('Áudio indisponível; o jogo segue mudo.', err);
+    }
+  }
+
+  private buildGraph(): void {
     const ctx = new AudioContext({ latencyHint: 'interactive' });
-    this.ctx = ctx;
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14;
     comp.knee.value = 8;
@@ -54,6 +69,7 @@ export class AudioEngine {
     this.reverbSend = gain(ctx, 0.28, this.reverb);
     this.reverb.connect(this.master);
     this.noise = noiseBuffer(ctx, 2);
+    this.ctx = ctx;
   }
 
   setReverb(seconds: number, decay: number, send: number): void {
@@ -78,6 +94,20 @@ export class AudioEngine {
       send.connect(this.reverbSend);
     }
     return { ctx: this.ctx, t: this.ctx.currentTime + delay, out };
+  }
+
+  /** Voz da música, no barramento próprio (volume independente dos efeitos). */
+  musicVoice(delay = 0): Voice | null {
+    if (!this.ready || !this.ctx) return null;
+    const out = this.ctx.createGain();
+    out.connect(this.music);
+    return { ctx: this.ctx, t: this.ctx.currentTime + delay, out };
+  }
+
+  /** Abaixa tudo (pausa) ou volta ao normal. */
+  duck(on: boolean): void {
+    if (!this.ctx) return;
+    this.master.gain.setTargetAtTime(on ? 0.18 : 0.85, this.ctx.currentTime, 0.12);
   }
 
   /** Voz posicionada no espaço 3D (robôs, impactos distantes). */

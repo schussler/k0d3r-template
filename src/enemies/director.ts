@@ -96,6 +96,12 @@ export class Director {
     this.reap();
   }
 
+  /** Recompõe a lista de alvos do tiro depois de criar ou limpar robôs fora do `update`. */
+  rebuildHittables(): void {
+    this.hittables.length = 0;
+    for (const r of this.robots) if (r.alive) this.hittables.push(r, ...r.extraTargets());
+  }
+
   /** Quem entra em combate chama os vizinhos próximos. */
   private callAllies(): void {
     for (const r of this.robots) {

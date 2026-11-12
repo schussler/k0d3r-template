@@ -15,6 +15,13 @@ describe('AI state machine', () => {
     expect(stepAi(heard, { ...quiet, sees: true }, 0.1).mode).toBe('combat');
   });
 
+  test('a robot shot from behind stays in combat instead of dropping to search on the next frame', () => {
+    let m = stepAi(initialMemory(), { ...quiet, damaged: true }, 0.1);
+    for (let i = 0; i < 5; i++) m = stepAi(m, quiet, 0.1);
+    expect(m.mode).toBe('combat');
+    expect(run(m, {}, AI.LOSE_SIGHT + 0.3).mode).toBe('search');
+  });
+
   test('an ally call alerts; being shot goes straight to combat', () => {
     expect(stepAi(initialMemory(), { ...quiet, allyCall: true }, 0.1).mode).toBe('alert');
     expect(stepAi(initialMemory(), { ...quiet, damaged: true }, 0.1).mode).toBe('combat');

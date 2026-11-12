@@ -11,7 +11,8 @@ const flow = (page: Parameters<typeof hook>[0]) => hook<Flow>(page, 'flow');
 async function start(page: Parameters<typeof hook>[0]): Promise<void> {
   await boot(page);
   await hook(page, 'start');
-  await expect.poll(async () => (await hook<State>(page, 'state')).mode).toBe('playing');
+  // Folga larga: o primeiro quadro constrói o setor e, sem gesto real, o áudio espera até 2 s pelo `resume()`.
+  await expect.poll(async () => (await hook<State>(page, 'state')).mode, { timeout: 20_000 }).toBe('playing');
 }
 
 /** Leva o jogador à saída e espera a transição para o setor seguinte. */

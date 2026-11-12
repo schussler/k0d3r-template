@@ -11,6 +11,24 @@ const HEALTH = 18;
 const HIT_RADIUS = 1.0;
 const DAMAGE = 22;
 
+/** Geometria e materiais são criados uma vez e reaproveitados por todos os mísseis (3 por salva, a luta inteira). */
+let cache: {
+  body: THREE.CylinderGeometry; tip: THREE.ConeGeometry; flame: THREE.ConeGeometry;
+  hull: THREE.MeshStandardMaterial; glow: THREE.MeshStandardMaterial; fire: THREE.MeshBasicMaterial;
+} | null = null;
+
+function shared() {
+  cache ??= {
+    body: new THREE.CylinderGeometry(0.16, 0.2, 1.1, 10),
+    tip: new THREE.ConeGeometry(0.16, 0.34, 10),
+    flame: new THREE.ConeGeometry(0.13, 0.7, 8),
+    hull: new THREE.MeshStandardMaterial({ color: 0x59606a, metalness: 0.85, roughness: 0.3 }),
+    glow: new THREE.MeshStandardMaterial({ color: 0xff3a1a, emissive: 0xff2a10, emissiveIntensity: 2 }),
+    fire: new THREE.MeshBasicMaterial({ color: 0xffa040, toneMapped: false }),
+  };
+  return cache;
+}
+
 export class Missile implements Hittable {
   readonly mesh = new THREE.Group();
   alive = true;
@@ -26,15 +44,13 @@ export class Missile implements Hittable {
   constructor(from: THREE.Vector3, dir: THREE.Vector3) {
     this.pos.copy(from);
     this.vel.copy(dir).normalize().multiplyScalar(SPEED);
-    const body = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.16, 0.2, 1.1, 10),
-      new THREE.MeshStandardMaterial({ color: 0x59606a, metalness: 0.85, roughness: 0.3 }),
-    );
+    const parts = shared();
+    const body = new THREE.Mesh(parts.body, parts.hull);
     body.rotation.x = Math.PI / 2;
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.34, 10), new THREE.MeshStandardMaterial({ color: 0xff3a1a, emissive: 0xff2a10, emissiveIntensity: 2 }));
+    const tip = new THREE.Mesh(parts.tip, parts.glow);
     tip.rotation.x = Math.PI / 2;
     tip.position.z = 0.7;
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.7, 8), new THREE.MeshBasicMaterial({ color: 0xffa040, toneMapped: false }));
+    const flame = new THREE.Mesh(parts.flame, parts.fire);
     flame.rotation.x = -Math.PI / 2;
     flame.position.z = -0.85;
     this.mesh.add(body, tip, flame);

@@ -244,9 +244,9 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
   // Interruptores: console com tela que passa do âmbar ao verde ao ser acionado.
   const switches: BuiltSwitch[] = entitiesOf(grid, 'switch').map((e) => {
     const c = cellCenter(e.col, e.row);
-    const base = new THREE.Mesh(track(new THREE.BoxGeometry(1.5, 1.1, 1.0)), track(new THREE.MeshStandardMaterial({ color: 0x2c333b, metalness: 0.8, roughness: 0.35 })));
+    const base = new THREE.Mesh(track(new THREE.BoxGeometry(1.5, 1.1, 1.0)), track(new THREE.MeshStandardMaterial({ color: 0x57626e, metalness: 0.55, roughness: 0.45 })));
     base.position.set(c.x, 0.55, c.z);
-    const screen = track(new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xffa020, emissiveIntensity: 2.2 }));
+    const screen = track(new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xffa020, emissiveIntensity: 0.9 }));
     const face = new THREE.Mesh(track(new THREE.PlaneGeometry(1.1, 0.55)), screen);
     face.position.set(0, 0.28, 0.51);
     face.rotation.x = -0.35;
@@ -394,7 +394,7 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
         lamps.forEach((l) => (l.intensity = theme.lampIntensity * (0.08 + 0.92 * alarm)));
         fixtureMat.emissiveIntensity = 0.4 + 3.2 * alarm;
       }
-      for (const sw of switches) if (!sw.pressed) sw.screen.emissiveIntensity = 1.4 + Math.sin(clock * 6) * 0.9;
+      for (const sw of switches) if (!sw.pressed) sw.screen.emissiveIntensity = 0.75 + Math.sin(clock * 6) * 0.35;
       exitProgress = Math.max(0, Math.min(1, exitProgress + (exitOpen ? dt : -dt) * 0.8));
       for (const g of gates) g.mesh.position.y = 1.7 + exitProgress * 3.3;
       for (const d of doors) {
@@ -405,7 +405,12 @@ export function buildLevel(grid: Grid, theme: Theme): BuiltLevel {
     },
     dispose() {
       for (const d of disposables) d.dispose();
-      for (const m of [lowerMesh, upperMesh, crateMesh, stackMesh, fixtures]) m.dispose();
+      // O mapa de sombra só é liberado por `shadow.dispose()`; as malhas instanciadas, pelo próprio `dispose()`.
+      key.shadow.dispose();
+      key.dispose();
+      group.traverse((o) => {
+        if (o instanceof THREE.InstancedMesh) o.dispose();
+      });
     },
   };
 }

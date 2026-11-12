@@ -34,6 +34,12 @@ describe('parseGrid', () => {
     expect(() => parseGrid([])).toThrow(/vazio/);
   });
 
+  test('rejects a switch without its door and a door without its switch', () => {
+    expect(() => parseGrid(['#Px#'])).toThrow(/não casam/);
+    expect(() => parseGrid(['#P1#'])).toThrow(/não casam/);
+    expect(() => parseGrid(['#Px1#'])).not.toThrow();
+  });
+
   test('cell and world coordinates round-trip', () => {
     const c = cellCenter(3, 2);
     expect(worldToCell(c.x, c.z)).toEqual({ col: 3, row: 2 });

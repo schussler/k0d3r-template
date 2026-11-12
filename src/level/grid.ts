@@ -90,6 +90,10 @@ export function parseGrid(lines: readonly string[]): Grid {
     });
   });
   if ((counts.get('player') ?? 0) !== 1) throw new GridError('o mapa precisa de exatamente um P');
+  // Interruptor sem porta (ou o contrário) liberaria a saída sem abrir nada: o mapa é recusado na leitura.
+  const switchIds = entities.filter((e) => e.kind === 'switch').map((e) => e.index).sort();
+  const doorIds = doors.map((d) => d.index).sort();
+  if (switchIds.join() !== doorIds.join()) throw new GridError(`interruptores [${switchIds.join(",")}] e portas [${doorIds.join(",")}] não casam`);
   return { cols, rows, tiles, entities, doors };
 }
 
