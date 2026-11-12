@@ -46,7 +46,7 @@ escrita como proposta.>
 <!-- Seções de plano: entram quando a spec vai para in-progress/ e saem na graduação.
 ## Plano de build
 ### Escopo e fatias
-<com mais de uma fatia, cada uma diz quais critérios de aceite entrega: é o que o verificador da fatia confere.>
+<com mais de uma fatia, cada uma diz quais critérios de aceite entrega: é o que o test-author da fatia recebe.>
 ### Definição de pronto
 ### Feito vs pendente
 -->

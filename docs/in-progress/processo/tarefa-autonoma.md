@@ -201,6 +201,9 @@ o `acceptance-verifier` é a segunda conferência e não a única.
 
 ### 5. Conferência ao fim de cada fatia
 
+> **Substituída pela seção 9 em 2026-11-12:** na branch `harness-meio-termo`, não há verificador por fatia. O
+> texto abaixo fica como registro do que a corrida `novo2` exercitou.
+
 Acrescentado em 2026-11-11, depois de comparar a `/k0d3r-task` com o prompt "jeito certo" do gist, que manda
 conferir o trabalho por subagente em pontos de controle, e não só no fim.
 
@@ -314,6 +317,9 @@ vezes na vida de um projeto.
 
 ### 8. Cortes de custo depois da corrida `novo2`
 
+> O limite de duas rodadas desta seção caiu junto com o verificador por fatia (seção 9). O verificador em
+> `padrao` e os relatórios curtos continuam.
+
 Acrescentado em 2026-11-12, na branch `harness-v2`. A corrida `novo2` da Estação Kepler (Sonnet 5.5, parada
 pela pessoa na fatia 4 de 6) gastou 140 mi de cache read e 1,11 mi de output, contra 72,7 mi e 526 mil da
 `bobtail` inteira, com o template antigo:
@@ -340,6 +346,22 @@ Fora: a compactação automática mais cedo (`CLAUDE_CODE_AUTO_COMPACT_WINDOW`),
 para depois (decisão da pessoa, 2026-11-12) e foi para o backlog; e proibir a sessão de delegar a implementação,
 porque o código feito na própria sessão também faz o contexto dela crescer.
 
+### 9. Meio-termo: sem verificador por fatia
+
+Acrescentado em 2026-11-12, na branch `harness-meio-termo`, criada a partir da `harness-v2`. Na `novo2`, o
+verificador por fatia foi a parte mais cara e mais lenta dos agents de contexto limpo: 18,1 mi de cache read e 52
+minutos em 6 rodadas, com a fatia seguinte esperando. O `test-author` por fatia custou 2,7 mi e uns 14 minutos.
+
+O que fica: a entrevista, a parada única, "dono do código" e "termine o trabalho"; o roteamento; o
+`test-author` no começo de cada fatia, em primeiro plano; o plano dizendo quais critérios cada fatia entrega,
+que é o que o `test-author` da fatia recebe; os portões "na iteração" e "antes do commit"; o
+`acceptance-verifier` uma vez, na Etapa 3, sobre a spec inteira, com os reviewers.
+
+O que sai: o `acceptance-verifier` ao fim de cada fatia, o brief de fatia dele e o limite de duas rodadas.
+
+Custo aceito: um defeito de uma fatia só aparece no fim, e as correções vêm todas de uma vez. Na `novo2`, o
+verificador por fatia achou 3 **falhou** reais nas fatias 2 e 3.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -357,6 +379,7 @@ porque o código feito na própria sessão também faz o contexto dela crescer.
 | Seção 6 (portões rápidos e lentos) | `CLAUDE.md` (coluna "Quando" e a linha sobre quando rodar), `verification.md` (rodar só os rápidos na iteração, todos antes do commit), `k0d3r-task.md` ("Implemente até o fim"), seções 0 e 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, item do checklist do `README.md` da raiz |
 | Seção 6 (testes por fatia) | `k0d3r-task.md` ("Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, inventário do `.claude/README.md`, notas `adaptation` do manifest |
 | Seção 8 (cortes de custo) | `k0d3r-task.md` (conferência ao fim de cada fatia), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, "O que devolver" do `acceptance-verifier.md` e do `test-author.md`, nível do `acceptance-verifier` no `model-routing.json` e o frontmatter dele, linha da compactação no [`toolset-backlog.md`](../../planned/processo/toolset-backlog.md) |
+| Seção 9 (sem verificador por fatia) | `k0d3r-task.md` (sai a "Conferência ao fim de cada fatia"), `acceptance-verifier.md` (sai o brief de fatia), `agents.md` (tabela, ordem dos agents e brief), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, inventário do `.claude/README.md`, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), nota `adaptation` do `agents.md` no manifest |
 | Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 
 ## Critérios de aceite
@@ -389,16 +412,16 @@ porque o código feito na própria sessão também faz o contexto dela crescer.
     aprovado, manda parar quando o que teria de mudar é o comportamento, e manda a entrega mostrar, para cada
     critério corrigido, o texto antigo, o novo e o porquê. (Critério acrescentado em 2026-11-11 e reescrito no
     mesmo dia com a troca de decisão.)
-12. A `/k0d3r-task` manda, numa tarefa com spec e mais de uma fatia, chamar um `acceptance-verifier` novo ao
+12. (Substituído pela seção 9 em 2026-11-12; ver o critério 28.) A `/k0d3r-task` manda, numa tarefa com spec e mais de uma fatia, chamar um `acceptance-verifier` novo ao
     fim de cada fatia com critério ligado, menos a última, com um brief de três itens: o caminho da spec, a ref
     base da fatia e o nome da fatia. E manda a fatia seguinte esperar a conferência, em no máximo duas rodadas
     (redação de 2026-11-12, com o limite da seção 8; antes: "não começar a fatia seguinte enquanto houver um
     **falhou**").
 13. A `/k0d3r-task` e o comentário de "Escopo e fatias" do `feature-spec-template.md` pedem que o plano diga
     quais critérios cada fatia entrega, quando há mais de uma fatia.
-14. `acceptance-verifier.md` descreve o brief de fatia: confere só os critérios ligados à fatia, com o diff a
+14. (Substituído pela seção 9 em 2026-11-12; ver o critério 28.) `acceptance-verifier.md` descreve o brief de fatia: confere só os critérios ligados à fatia, com o diff a
     partir da ref base da fatia, e lista o que esse diff muda e a spec não cobre.
-15. `agents.md` descreve o brief do verificador de fatia, e a linha Construir, igual no `CLAUDE.md` e no
+15. (Substituído pela seção 9 em 2026-11-12; ver o critério 28.) `agents.md` descreve o brief do verificador de fatia, e a linha Construir, igual no `CLAUDE.md` e no
     `feature-lifecycle.md`, cita a conferência por fatia.
 16. A `/k0d3r-task` manda, numa tarefa com mais de uma fatia, chamar o `test-author` no começo de cada fatia
     com critério ligado, com um brief de dois itens (o caminho da spec e o nome da fatia), em primeiro plano, e
@@ -423,7 +446,7 @@ porque o código feito na própria sessão também faz o contexto dela crescer.
     lugares manda a tarefa rodar o `--adopt`.
 23. A seção "Quando rodar" do `ecc-sync.md` e o checklist e a tabela de gatilhos do `README.md` da raiz dizem o
     mesmo que o critério 22.
-24. A `/k0d3r-task` limita a conferência de cada fatia a duas rodadas: com um **falhou** na segunda, a sessão
+24. (Substituído pela seção 9 em 2026-11-12; ver o critério 28.) A `/k0d3r-task` limita a conferência de cada fatia a duas rodadas: com um **falhou** na segunda, a sessão
     corrige, commita, anota no plano os critérios corrigidos sem nova conferência e segue, sem terceira rodada; a
     Etapa 3 continua exigindo nenhum **falhou**. A seção 3 do `feature-lifecycle.md` diz o mesmo, e a linha
     Construir, igual no `CLAUDE.md` e no `feature-lifecycle.md`, diz "em até duas rodadas".
@@ -431,6 +454,13 @@ porque o código feito na própria sessão também faz o contexto dela crescer.
     conferido**, o que viu, o que a spec pedia e como reproduzir. `test-author.md` pede uma linha por critério →
     teste e mantém a lista de lacunas da spec.
 26. A busca por "só começa sem nenhum" em `.claude/` e no `CLAUDE.md` não acha nada.
+27. A `/k0d3r-task` não tem verificador por fatia: o `acceptance-verifier` é chamado só na Etapa 3, sobre a
+    spec inteira. O `test-author` continua no começo de cada fatia.
+28. A busca por "fim de cada fatia", "Fim de uma fatia", "end of each slice", "end of a slice", "duas rodadas" e
+    "verificador da fatia" em `.claude/` (sem o `catalog.json`), no `CLAUDE.md` e no `feature-spec-template.md`
+    não acha nada.
+29. A linha Construir é igual no `CLAUDE.md` e no `feature-lifecycle.md` e não cita o `acceptance-verifier`;
+    o `acceptance-verifier.md` tem dois tipos de brief, com spec e sem spec.
 
 ## Estratégia de testes e verificação
 
@@ -486,6 +516,10 @@ porque o código feito na própria sessão também faz o contexto dela crescer.
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **Meio-termo: sem verificador por fatia** (decisão da pessoa, 2026-11-12: "aprovado o meio termo"). Fica o
+  `test-author` por fatia, que é barato, e o verificador só no fim. Substitui o "Verificador ao fim de cada
+  fatia" de 2026-11-11 e o limite de duas rodadas. Rejeitado: só roteamento e entrevista, sem `test-author`; manter
+  o verificador por fatia (`harness-v2`), que fica como alternativa a medir.
 - **No máximo duas rodadas de verificador por fatia** (decisão da pessoa, 2026-11-12, na branch `harness-v2`:
   "de resto aceito"). Substitui, no número de rodadas, a resposta "Espera e corrige" de 2026-11-11: a fatia
   seguinte continua esperando, mas não por uma terceira rodada. Rejeitado: rodadas sem limite, como na `novo2`;
@@ -552,7 +586,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 26 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 29 conferidos, menos os substituídos (12, 14, 15 e 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -602,6 +636,9 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
+- [ ] Fatia 9 (seção 9, critérios 27 a 29): command, `acceptance-verifier.md`, `agents.md`,
+      `feature-lifecycle.md`, linhas Construir, inventário, template de spec, manifest; conferência por
+      contexto limpo.
 - [x] Fatia 8 (seção 8, critérios 24 a 26): command, `feature-lifecycle.md`, linhas Construir, os dois agents;
       conferência por contexto limpo.
 

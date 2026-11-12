@@ -33,7 +33,7 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
-| Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia; com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte, em até duas rodadas | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
+| Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia | agent `test-author`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
 | Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
@@ -93,11 +93,9 @@ fatia e **push depois de cada commit**, tudo na branch única da sessão (Conven
 durante a fatia, rodam só os portões "na iteração".
 Mantenha o checklist do plano honesto conforme as fatias entram.
 
-Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega. Ao fim de cada
-fatia com critério ligado, menos a última, um `acceptance-verifier` novo confere os critérios dela, recebendo só a spec, a ref base
-da fatia e o nome da fatia. A fatia seguinte espera, em no máximo duas rodadas: o que ainda falha na segunda é
-corrigido e commitado sem nova rodada e fica anotado no plano. O verificador final confere a spec inteira, e a
-entrega continua sem nenhum "falhou".
+Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega: é o que o
+`test-author` recebe no começo de cada uma. A conferência dos critérios por um `acceptance-verifier` é uma só,
+no fim, sobre a spec inteira (seção 4).
 
 ## 4. Verificar e revisar
 
