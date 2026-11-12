@@ -215,11 +215,15 @@ Numa tarefa com spec e **mais de uma fatia**:
 - **A próxima fatia só começa sem nenhum falhou na anterior** (decisão da pessoa, 2026-11-11): a sessão
   corrige, roda os portões, commita e chama um verificador novo. A regra da correção da redação de um critério
   (seção 4) vale aqui também.
-- **Proposta (agente):** a última fatia não tem verificador próprio. O verificador da Etapa 3 confere a spec
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente:** a última fatia não tem verificador próprio. O verificador da Etapa 3 confere a spec
   inteira logo em seguida, e essa conferência final continua, porque uma fatia pode quebrar um critério que uma
   anterior entregou.
-- **Proposta (agente):** uma fatia sem critério ligado não tem verificador.
-- **Proposta (agente):** os reviewers (`code-reviewer` e os outros) continuam só no fim, na Etapa 3.
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente:** uma fatia sem critério ligado não tem
+  verificador.
+- **Aprovada pela pessoa em 2026-11-11, por proposta do agente:** os reviewers (`code-reviewer` e os outros)
+  continuam só no fim, na Etapa 3.
+- Caso de borda decidido na implementação: se o plano não liga nenhum critério à fatia do brief, ou não tem uma
+  fatia com esse nome, o verificador diz isso e para, em vez de conferir a spec inteira.
 - Tarefa de uma fatia só, ou sem spec: nada muda.
 
 Custo: um `acceptance-verifier`, no nível `raciocinio`, por fatia intermediária com critério, mais as rodadas
@@ -238,7 +242,7 @@ depois de um **falhou**.
 | `.claude/ecc-sync/manifest.json` | entradas novas; `testing.md` vira `adapt`; notas `adaptation` |
 | `.claude/README.md` | inventário |
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md) | conferidos pelo `docs-check diff`; atualizados onde citam o fluxo da tarefa |
-| Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md) |
+| Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), linha do agent no inventário do `.claude/README.md`, nota `adaptation` do `agents.md` no manifest |
 
 ## Critérios de aceite
 
@@ -290,7 +294,8 @@ depois de um **falhou**.
 - Os critérios 4 a 8 são conferidos por comando, com o código de saída na entrega.
 - Portões: todos os testes do toolset, `model-routing check`, `docs-check diff` e `docs-check links`.
 - Seção 5: os critérios 12 a 15 são texto de prompt, conferidos por leitura e busca, e por um
-  `acceptance-verifier` novo. **Proposta (agente):** sem `test-author` nesta parte, porque não há comportamento
+  `acceptance-verifier` novo. **Aprovada pela pessoa em 2026-11-11, por proposta do agente:** sem
+  `test-author` nesta parte, porque não há comportamento
   executável para um teste falhar antes. O verificador por fatia rodando numa tarefa real fica **não
   conferido** até a primeira `/k0d3r-task` com mais de uma fatia.
 
@@ -390,8 +395,15 @@ Critérios 1 a 15 conferidos; nenhum **falhou** do `acceptance-verifier`; todos 
 - [x] Fatia 2: seção "Como trabalhar" e reescrita da `/k0d3r-task`.
 - [x] Fatia 3: rules, tabelas de etapas, manifest.
 - [x] Fatia 4: READMEs, docs de `implemented/` conferidos, backlog, conferência por contexto limpo e ensaio.
-- [ ] Fatia 5 (seção 5, critérios 12 a 15): command, `acceptance-verifier.md`, `agents.md`, tabelas Construir,
+- [x] Fatia 5 (seção 5, critérios 12 a 15): command, `acceptance-verifier.md`, `agents.md`, tabelas Construir,
       seção 3 do `feature-lifecycle.md`, template de spec; conferência por contexto limpo.
+
+Resultado da conferência da fatia 5, por um `acceptance-verifier` novo: critérios 12 a 15 vistos funcionando,
+por leitura e busca (a igualdade das linhas Construir, por comparação de strings, com o controle de que a linha
+antiga difere). Nenhum **falhou**. Ele listou o que o diff trazia e esta spec não dizia: o inventário e a nota do
+manifest, o caso de borda "diga isso e pare" do agent e a falta da exceção "fatia sem critério" na seção 3 do
+`feature-lifecycle.md`. Os dois primeiros entraram na tabela de contratos, o terceiro na seção 5, e a exceção
+entrou no `feature-lifecycle.md`.
 
 Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
 **falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de

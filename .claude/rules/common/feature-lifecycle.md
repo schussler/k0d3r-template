@@ -89,7 +89,7 @@ fatia e **push depois de cada commit**, tudo na branch única da sessão (Conven
 Mantenha o checklist do plano honesto conforme as fatias entram.
 
 Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega. Ao fim de cada
-fatia, menos a última, um `acceptance-verifier` novo confere os critérios dela, recebendo só a spec, a ref base
+fatia com critério ligado, menos a última, um `acceptance-verifier` novo confere os critérios dela, recebendo só a spec, a ref base
 da fatia e o nome da fatia; a fatia seguinte só começa sem nenhum "falhou".
 
 ## 4. Verificar e revisar
