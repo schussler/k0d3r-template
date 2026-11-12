@@ -50,8 +50,11 @@ pode sair com 0 nem quebrar.
 
 - Cada um dos quatro scripts compara o **caminho real** dos dois lados: o do arquivo e o da linha de comando.
   Chamado por qualquer caminho que leve a ele, link ou não, o script roda; importado por outro módulo, não roda.
-- **Se a comparação não puder ser feita** (o caminho real não pode ser lido), o script **roda**. Para os hooks,
-  que o Claude Code só chama como programa, rodar é o lado seguro: um `guard-shell` que não roda libera o comando.
+- **Se o caminho real do próprio arquivo não puder ser lido**, o script **roda**. Para os hooks, que o Claude
+  Code só chama como programa, rodar é o lado seguro: um `guard-shell` que não roda libera o comando.
+- **Se o caminho da linha de comando não existir** (`node -e`, `node -`, um glob no `--test`), quem rodou como
+  programa foi outro, e o script, só importado, **não roda**. Um hook chamado pelo Claude Code nunca cai aqui: o
+  caminho dele sempre existe.
 - A comparação fica escrita no próprio arquivo de cada script, sem módulo compartilhado: o `guard-shell` importa
   só módulos do Node, e um import a mais é mais um jeito de ele quebrar antes de avaliar o comando.
 - O `model-routing.mjs` passa a ter a mesma forma, com o mesmo comportamento quando a comparação não pode ser
@@ -91,8 +94,11 @@ simbólico para o diretório `scripts/` do repositório, criado num diretório t
 6. **Importar não roda:** os testes que importam funções desses scripts (`evaluate` do `guard-shell`,
    `staleCounts` e as outras do `docs-check`, as do `report` e do `toolset-staleness`) continuam passando, sem
    ficar esperando stdin e sem sair no meio.
-7. **Guarda única:** os cinco scripts (os quatro e o `model-routing.mjs`) comparam o caminho real dos dois lados
-   e, quando a comparação não pode ser feita, rodam.
+7. **Guarda única:** os cinco scripts (os quatro e o `model-routing.mjs`) comparam o caminho real dos dois lados;
+   se o do próprio arquivo não puder ser lido, rodam; se o da linha de comando não existir, não rodam.
+9. **Importado com um caminho inexistente não roda:** `node -e "import('<url do script>').then(() =>
+   process.stdout.write('RETORNOU'))" /caminho/que/nao/existe.mjs` sai com código 0, escreve só `RETORNOU` no
+   stdout e nada no stderr, para cada um dos cinco scripts.
 8. A linha do backlog saiu, e todos os portões do `CLAUDE.md` saem com código 0.
 
 ## Estratégia de testes e verificação
@@ -101,9 +107,9 @@ simbólico para o diretório `scripts/` do repositório, criado num diretório t
   temporário. Os do critério 3 passam o payload por stdin, nunca na linha de comando: o `guard-shell` desta
   sessão bloqueia um comando cujo texto tenha `rm -rf`.
 - O critério 6 é provado pelos testes que já existem.
-- O critério 7, no ramo "a comparação não pode ser feita", é conferido **só por leitura**: o caminho real do
-  próprio script em execução sempre pode ser lido, e não achei um estado que provoque a falha sem alterar o
-  script.
+- O critério 9 tem um teste em cada um dos cinco arquivos de teste.
+- O ramo "o caminho do próprio arquivo não pode ser lido" é conferido **só por leitura**: o caminho real do
+  script em execução sempre pode ser lido, e não achei um estado real que provoque a falha.
 
 ## Plano
 
@@ -114,6 +120,15 @@ Uma fatia só: testes do `test-author` → guarda nos cinco scripts → backlog 
 - [x] Guarda nos cinco scripts, como a função `isEntrypoint` em cada arquivo. 171 testes passam.
 - [x] Backlog: saiu a linha do link simbólico; entrou a do `onFailure: "block"`.
 - [x] `verificacao-de-docs.md` e `ecc-sync.md` conferidos: nenhum descreve a guarda de entrada.
+
+- [x] Revisão: o `acceptance-verifier` devolveu **falhou** no critério 7, e os dois revisores reproduziram o mesmo
+      defeito. Com a regra "na dúvida, roda", um módulo só importado rodava o `main()` quando o caminho da linha de
+      comando não existia; no `toolset-staleness`, o `docs-check` importado encerrava o processo com código 2. A
+      pessoa decidiu dividir os dois lados (decisão abaixo). Os cinco testes do critério 9 falharam contra a
+      guarda anterior e passam com a nova: 176 testes.
+- [x] Fora da spec, feito nesta fatia: os imports sem uso (`mkdirSync`, `writeFileSync`) saíram de três testes de
+      link; e a linha do backlog "Falta um executor da tabela de portões" perdeu a frase que citava o teste por
+      link, que já existe.
 
 Aprovado pela pessoa em 2026-11-11, com as duas decisões abaixo e a proposta do `onFailure` indo para o backlog.
 
@@ -127,8 +142,11 @@ Aprovado pela pessoa em 2026-11-11, com as duas decisões abaixo e a proposta do
 - **Sem módulo compartilhado** (proposta do agente): a guarda fica em cada arquivo. Por quê: o `guard-shell` não
   deve depender de outro arquivo para avaliar um comando. Rejeitado: um `scripts/lib/` com a função, importado
   pelos cinco.
-- **Na dúvida, roda** (proposta do agente): se o caminho real não puder ser lido, o script roda. Rejeitado: não
-  rodar (é o lado que abre o `guard-shell`); deixar a exceção subir (código 1, que também não bloqueia).
+- **Os dois lados da dúvida** (decisão da pessoa, 2026-11-11, que substitui "na dúvida, roda", aprovada antes
+  no mesmo dia): se o caminho do próprio arquivo não puder ser lido, o script roda; se o da linha de comando não
+  existir, não roda. Por quê: "na dúvida, roda" fazia um módulo só importado rodar, o que os três revisores
+  reproduziram. Rejeitado: manter "na dúvida, roda" como limite conhecido; "na dúvida, não roda" nos dois lados
+  (reabre o hook se o próprio arquivo ficar ilegível); deixar a exceção subir (código 1, que não bloqueia).
 
 ## Fora de escopo / questões em aberto
 

@@ -929,13 +929,21 @@ function main() {
 
 // Os dois lados passam pelo caminho real: chamado por um caminho com link simbólico (um worktree, `/tmp` no
 // macOS), `import.meta.url` já vem resolvido e `process.argv[1]` não, e a comparação crua saía com 0 sem rodar.
-// Se o caminho real não puder ser lido, roda: não rodar é o lado que deixa um portão verde ou um hook aberto.
 function isEntrypoint() {
   if (!process.argv[1]) return false;
+  let self;
   try {
-    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+    self = fs.realpathSync(fileURLToPath(import.meta.url));
   } catch {
+    // O próprio arquivo ilegível: roda, porque não rodar é o lado que deixa um portão verde ou um hook aberto.
     return true;
+  }
+  try {
+    return fs.realpathSync(process.argv[1]) === self;
+  } catch {
+    // A linha de comando não aponta para um arquivo (`node -e`, `node -`, um glob no `--test`): quem rodou como
+    // programa foi outro, e este módulo só foi importado.
+    return false;
   }
 }
 

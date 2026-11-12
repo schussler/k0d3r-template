@@ -392,7 +392,7 @@ test('the header shows date and age, and warns only when the target is younger t
 
 // --- Guarda de entrada: chamado por um caminho com link simbólico (spec guarda-de-entrada-dos-scripts.md) ---
 import { spawnSync as linkSpawn } from 'node:child_process';
-import { mkdtempSync as linkMkdtemp, mkdirSync as linkMkdir, writeFileSync as linkWrite, symlinkSync as linkSymlink, rmSync as linkRm } from 'node:fs';
+import { mkdtempSync as linkMkdtemp, symlinkSync as linkSymlink, rmSync as linkRm } from 'node:fs';
 import { tmpdir as linkTmpdir } from 'node:os';
 import linkPath from 'node:path';
 import { fileURLToPath as linkFileURLToPath } from 'node:url';
@@ -424,3 +424,18 @@ test('report chamado por link simbólico falha com código 1 e "[ecc-sync] Not a
   assert.equal(linked.stderr, real.stderr);
 });
 
+
+// --- Guarda de entrada: importado não roda, nem quando a linha de comando aponta para um caminho que não existe ---
+import { spawnSync as entrySpawn } from 'node:child_process';
+import entryPath from 'node:path';
+import { fileURLToPath as entryFileURLToPath, pathToFileURL as entryPathToFileURL } from 'node:url';
+
+test('report.mjs só importado, com a linha de comando apontando para um caminho que não existe, não roda', () => {
+  // `node -e`, `node -` e um glob no `--test` deixam em process.argv[1] algo que não é arquivo.
+  const url = entryPathToFileURL(entryPath.join(entryPath.dirname(entryFileURLToPath(import.meta.url)), 'report.mjs')).href;
+  const code = `import(${JSON.stringify(url)}).then(() => process.stdout.write('RETORNOU'))`;
+  const r = entrySpawn(process.execPath, ['-e', code, '/caminho/que/nao/existe.mjs'], { encoding: 'utf8', input: '', timeout: 20000 });
+  assert.equal(r.stderr, '', 'o main() do módulo importado não pode ter escrito nada');
+  assert.equal(r.stdout, 'RETORNOU', 'o import tem de voltar sem o main() encerrar o processo');
+  assert.equal(r.status, 0);
+});

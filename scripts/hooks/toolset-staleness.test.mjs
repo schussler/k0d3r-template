@@ -146,3 +146,18 @@ test('toolset-staleness chamado por link simbólico imprime o aviso de sync velh
   assert.equal(linked.stdout, real.stdout);
 });
 
+
+// --- Guarda de entrada: importado não roda, nem quando a linha de comando aponta para um caminho que não existe ---
+import { spawnSync as entrySpawn } from 'node:child_process';
+import entryPath from 'node:path';
+import { fileURLToPath as entryFileURLToPath, pathToFileURL as entryPathToFileURL } from 'node:url';
+
+test('toolset-staleness.mjs só importado, com a linha de comando apontando para um caminho que não existe, não roda', () => {
+  // `node -e`, `node -` e um glob no `--test` deixam em process.argv[1] algo que não é arquivo.
+  const url = entryPathToFileURL(entryPath.join(entryPath.dirname(entryFileURLToPath(import.meta.url)), 'toolset-staleness.mjs')).href;
+  const code = `import(${JSON.stringify(url)}).then(() => process.stdout.write('RETORNOU'))`;
+  const r = entrySpawn(process.execPath, ['-e', code, '/caminho/que/nao/existe.mjs'], { encoding: 'utf8', input: '', timeout: 20000 });
+  assert.equal(r.stderr, '', 'o main() do módulo importado não pode ter escrito nada');
+  assert.equal(r.stdout, 'RETORNOU', 'o import tem de voltar sem o main() encerrar o processo');
+  assert.equal(r.status, 0);
+});
