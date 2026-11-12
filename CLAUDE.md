@@ -49,8 +49,8 @@ Mudar uma regra exige uma decisão registrada na seção **Decisões** do doc af
 > **Gatilho:** se esta seção estiver vazia ou não refletir os arquivos do repo, antes da primeira tarefa de
 > código: detecte a stack e proponha o texto desta seção e as linhas da tabela de portões. Na mesma tarefa, o
 > idioma de "Convenções" vira pergunta da entrevista e "Projeto em um parágrafo" vira proposta, se ainda forem
-> placeholder. A adoção dos itens do ECC ligados à stack é um passo da pessoa, fora da tarefa:
-> `/sync-ecc-tools --adopt`.
+> placeholder. A tarefa também propõe na spec os itens do ECC que ajudariam nela (revisores, skills de padrões
+> e de testes) e os adota depois da aprovação, num commit à parte.
 
 ## Portões de verificação
 
@@ -121,10 +121,10 @@ ferramenta nem os arquivos abertos.
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack`, tabela de portões, idioma (pergunta da entrevista) e parágrafo do projeto (proposta) preenchidos pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
+| Dia zero | Stack detectada, `## Stack`, tabela de portões, idioma (pergunta da entrevista) e parágrafo do projeto (proposta) preenchidos pela primeira tarefa; os itens do ECC que ajudam na tarefa são propostos na spec e adotados depois da aprovação | gatilho do CLAUDE.md; `catalog.json` e o passo de adoção do `/sync-ecc-tools` |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
-| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
+| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit; adoção dos itens do ECC aprovados na spec | `planner`, `/feature-dev`; passo de adoção do `/sync-ecc-tools` |
 | Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia | agent `test-author`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |

@@ -65,8 +65,9 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 
 | Gatilho | Modo |
 | --- | --- |
-| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
-| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa, depois que a tarefa atualiza a `## Stack` |
+| Dia zero (a `## Stack` acabou de ser preenchida) | A `/k0d3r-task` propõe os itens na spec e os adota depois da aprovação, pelo passo de adoção do `/sync-ecc-tools` |
+| Uma spec que muda a stack vai para `in-progress/` | O mesmo: proposta na spec, adoção depois da aprovação |
+| Adotar fora de uma tarefa | `/sync-ecc-tools --adopt` |
 | O hook de `SessionStart` (`toolset-staleness.mjs`) ou o `/toolset-retro` avisa que o último sync passou de `syncStaleDays` dias (campo do manifest) | `/sync-ecc-tools` |
 | A retro acha uma ferramenta faltante que o catálogo tem | `/sync-ecc-tools --adopt` |
 | A qualquer momento | `/sync-ecc-tools` |

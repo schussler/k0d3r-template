@@ -36,6 +36,13 @@ conferido-em: AAAA-MM-DD   # a data da graduação: "o código citado não mudou
 <dados pessoais ou sensíveis que a feature toca; quem pode ler e escrever; segredos envolvidos; retenção e
 exclusão; o que nunca pode ir para log, URL ou mensagem de erro.>
 
+## Ferramentas do ECC para esta tarefa
+
+<Itens do `.claude/ecc-sync/catalog.json` com `adopted: false` que ajudariam nesta tarefa, como **Proposta
+(agente)**: uma linha por item, com o que faz, por que ajuda aqui e em qual etapa entra (revisão, testes,
+código). Regras de linguagem em lista separada, desmarcada. Se nada serve, diga isso e onde procurou. A
+aprovação da spec aprova a adoção do que ficar.>
+
 ## Decisões
 <o quê / por quê / alternativa rejeitada, 2–6 linhas cada. Decisão ainda não aprovada pela pessoa é
 escrita como proposta.>

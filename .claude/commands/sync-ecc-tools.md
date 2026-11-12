@@ -134,6 +134,8 @@ keyword match in code.
 - **WAIT for confirmation.** The human may add, drop or swap items.
 
 ### 3. Land the adoption
+- **Called from `/k0d3r-task` after its approval stop:** the list the human approved in the spec ("Ferramentas do
+  ECC para esta tarefa") is the confirmation of step 2. Do not ask again; cloning ECC is part of what was approved.
 - Ensure the ECC clone (ask before cloning, as above). Copy each confirmed item **at the manifest's `targetRef`**
   (`git -C <ecc> show <ref>:<source> > <downstream>`; skills copy the whole dir; rules go to
   `.claude/rules/<dir>/<file>.md`). Never retype.

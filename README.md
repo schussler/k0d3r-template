@@ -56,9 +56,9 @@ limite estourar, as consultas falham até a janela renovar.
 - [ ] Preencher **Projeto em um parágrafo** no `CLAUDE.md` (a primeira `/k0d3r-task` propõe o texto) e o
       [`docs/vision-and-scope.md`](docs/vision-and-scope.md).
 - [ ] **Dia zero:** se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repo,
-      detectar a stack e propor o texto da seção (a primeira `/k0d3r-task` faz isso). Depois, rodar você mesmo
-      **`/sync-ecc-tools --adopt`**: a tarefa não adota itens do ECC, só avisa que a adoção está pendente (nada
-      é adotado sem confirmação).
+      detectar a stack e propor o texto da seção (a primeira `/k0d3r-task` faz isso). A mesma tarefa propõe na
+      spec os itens do ECC que ajudam nela e os adota depois que você aprova (nada é adotado sem confirmação).
+      Para adotar fora de uma tarefa, rode **`/sync-ecc-tools --adopt`**.
 - [ ] Preencher a tabela **Portões de verificação** do `CLAUDE.md`, com a coluna "Quando" ("na iteração" para
       os portões rápidos, "antes do commit" para os lentos), e ajustar `VERIFY_GATES` (e, se preciso,
       `PROTECTED_BRANCHES`) no topo de `scripts/hooks/guard-shell.mjs`.
@@ -112,8 +112,8 @@ Os gatilhos:
 
 | Gatilho | O que fazer |
 | --- | --- |
-| Dia zero | `## Stack` preenchida → você roda `/sync-ecc-tools --adopt` (fora da `/k0d3r-task`, que só avisa). |
-| Início de feature que muda a stack | A tarefa atualiza a `## Stack` no mesmo commit do `git mv` para `in-progress/` e avisa → você roda `/sync-ecc-tools --adopt`, fora da tarefa. |
+| Dia zero | A primeira `/k0d3r-task` preenche a `## Stack`, propõe na spec os itens do ECC que ajudam e os adota depois da aprovação. |
+| Início de feature que muda a stack | A tarefa atualiza a `## Stack` no mesmo commit do `git mv` para `in-progress/` e adota os itens do ECC que a spec propôs e você aprovou. |
 | Início de sessão | O hook `toolset-staleness` avisa quando o último sync passou de `syncStaleDays` dias. |
 | Retro do toolset | O `/toolset-retro` faz a mesma checagem e consulta o `catalog.json` antes de mandar uma ferramenta faltante para o backlog. |
 | Sync manual | `/sync-ecc-tools` a qualquer momento: atualiza os itens adotados, regenera o catálogo e lista os candidatos novos, separados entre os ligados à stack e os outros. |

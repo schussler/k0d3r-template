@@ -65,7 +65,9 @@ Na primeira tarefa do repositório, dois outros trechos do `CLAUDE.md` costumam 
 - **O idioma em "Convenções"** (do código, dos docs e da interface) vira uma pergunta da entrevista, com a sua recomendação.
 - **"Projeto em um parágrafo"** você propõe a partir do pedido, marcado como **Proposta (agente)** na spec.
 
-Na parada, a spec mostra a `## Stack`, as linhas de portões, o idioma e o parágrafo, e a aprovação é a mesma da spec. Depois dela, tudo entra no `CLAUDE.md` no primeiro commit da tarefa. Se esses trechos já estão preenchidos, nada disso roda. Ela **não propõe nem roda a adoção de itens do ECC**: a adoção é um passo da pessoa, fora da tarefa. Diga em uma linha, na parada e na entrega, que a adoção está pendente e que o comando é `/sync-ecc-tools --adopt`.
+Na parada, a spec mostra a `## Stack`, as linhas de portões, o idioma e o parágrafo, e a aprovação é a mesma da spec. Depois dela, tudo entra no `CLAUDE.md` no primeiro commit da tarefa. Se esses trechos já estão preenchidos, nada disso roda.
+
+**Ferramentas do ECC para esta tarefa.** Nas vias com spec, cruze as linguagens e camadas que a spec vai tocar com o [`catalog.json`](../ecc-sync/catalog.json): para cada item com `adopted: false`, julgue pela descrição se ele ajuda nesta tarefa. Os candidatos de costume são o revisor de cada linguagem do diff, as skills de padrões e de testes da linguagem e do framework e o resolvedor de build. Escreva a lista na seção "Ferramentas do ECC para esta tarefa" da spec, como **Proposta (agente)**: uma linha por item, com o que ele faz, por que ajuda aqui e em qual etapa entra. As regras de linguagem (`rules/<linguagem>/*`) entram na mesma seção, separadas e desmarcadas: elas ficam no contexto de toda sessão, e a pessoa as marca se quiser. Se nada no catálogo serve, a seção diz isso e onde você procurou. Não adote nada antes da parada.
 
 ### Reconcilie a documentação necessária ao planejamento
 
@@ -122,7 +124,7 @@ Esta é a única parada de aprovação antes da entrega. Após preparar a spec:
 1. Comece pela via e pelo motivo, numa linha (por exemplo: "**Correção**: devolve o que `<doc> › <seção>` descreve"). Depois, o caminho da spec, quando a via tem spec, ou o plano curto e os portões que vão rodar. A pessoa pode trocar a via.
 2. Resuma a solução proposta, seu alcance e os principais impactos.
 3. Na via editar a spec ou delta, declare se a mudança **edita a spec de `implemented/`** ou **abre um delta em `planned/`**, e por quê, pelo critério de [spec × delta](../rules/common/feature-lifecycle.md#spec-ou-delta): depois do merge, a spec em `implemented/` continua dizendo a verdade? No caso "editar a spec de `implemented/`", a spec da tarefa fica em `docs/in-progress/<área>/<nome>.md` durante a tarefa; no caso delta, o ciclo é o normal.
-4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** que precisam de aprovação. Se a tarefa preenche ou muda a `## Stack`, diga que a adoção do ECC fica pendente, fora da tarefa (`/sync-ecc-tools --adopt`).
+4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** que precisam de aprovação, entre elas a lista de "Ferramentas do ECC para esta tarefa": a pessoa pode cortar itens, e aprovar a spec aprova a adoção do que ficou.
 5. Peça explicitamente aprovação para implementar a versão apresentada.
 6. Encerre sua resposta e aguarde.
 
@@ -135,6 +137,15 @@ Se forem solicitados ajustes, atualize a spec e reapresente-a para aprovação. 
 ## ETAPA 2 — TESTES PRIMEIRO E IMPLEMENTAÇÃO
 
 Comece somente após aprovação explícita. A partir daqui, siga até a entrega.
+
+### Adote as ferramentas aprovadas
+
+Se a parada aprovou itens da lista "Ferramentas do ECC para esta tarefa", adote-os antes do primeiro `test-author`, num commit só (`chore(toolset): adopt <itens> from ECC`), seguindo o passo "Land the adoption" do [`/sync-ecc-tools`](sync-ecc-tools.md) (modo `--adopt`). A confirmação que ele pede é a da parada: não pergunte de novo, e o clone do ECC faz parte do que foi aprovado. Em cada agente adotado:
+
+- dê um nível no [`model-routing.json`](../model-routing.json) (`padrao` para revisores, salvo outro motivo dito na spec) e rode o `apply`;
+- reescreva a `description` que manda delegar sempre ("MUST BE USED", "Use PROACTIVELY"), para ele ser chamado pela tarefa e não a cada mudança, e registre a troca na nota `adaptation` do manifest.
+
+Os agentes adotados só ficam disponíveis pelo nome numa sessão nova. Nesta, chame cada um por um `general-purpose` com o arquivo dele como instrução, confira o `git status` depois de cada chamada e diga isso na entrega ([`verification.md`](../rules/common/verification.md), regra 9). As skills adotadas valem nesta sessão: carregue as que a fatia pede.
 
 ### Testes por contexto limpo
 
@@ -204,7 +215,7 @@ Comece pelo resultado, em uma ou duas frases: o que funciona agora e o que não 
     |Comportamento ou contrato|Documento e seção|Atualização ou conferência realizada|Evidência|
     |---|---|---|---|
 
-5. Pendências, divergências relevantes fora do escopo e decisões humanas necessárias, se houver. Se a tarefa preencheu ou mudou a `## Stack`, inclua aqui a adoção do ECC pendente (`/sync-ecc-tools --adopt`).
+5. Pendências, divergências relevantes fora do escopo e decisões humanas necessárias, se houver. Diga quais ferramentas do ECC foram adotadas, quais a pessoa cortou e, para cada linguagem do diff sem revisor adotado, que essa revisão não aconteceu.
 6. O estado da spec e, quando aplicável, o pedido de aprovação para graduação, conforme as regras do projeto. No caso "editar a spec de `implemented/`", o conteúdo da spec da tarefa foi incorporado ao doc de `implemented/` e o arquivo temporário de `docs/in-progress/` foi apagado, no mesmo PR.
 
 A tarefa só está concluída quando houver coerência entre o comportamento aprovado, a implementação e a documentação afetada, dentro do alcance explicitamente verificado. Código compilando e declaração genérica de “documentação atualizada” não são comprovação suficiente.

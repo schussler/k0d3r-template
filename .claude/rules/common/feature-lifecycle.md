@@ -31,10 +31,10 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack`, tabela de portões, idioma (pergunta da entrevista) e parágrafo do projeto (proposta) preenchidos pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
+| Dia zero | Stack detectada, `## Stack`, tabela de portões, idioma (pergunta da entrevista) e parágrafo do projeto (proposta) preenchidos pela primeira tarefa; os itens do ECC que ajudam na tarefa são propostos na spec e adotados depois da aprovação | gatilho do CLAUDE.md; `catalog.json` e o passo de adoção do `/sync-ecc-tools` |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
-| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
+| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit; adoção dos itens do ECC aprovados na spec | `planner`, `/feature-dev`; passo de adoção do `/sync-ecc-tools` |
 | Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia | agent `test-author`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
@@ -58,9 +58,10 @@ Se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivo
 tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação" (com
 a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos). Se o idioma de
 "Convenções" e "Projeto em um parágrafo" ainda forem placeholder, o idioma vira pergunta da entrevista e o
-parágrafo vira proposta na spec; tudo entra no `CLAUDE.md` no primeiro commit da tarefa. A adoção dos itens
-do ECC é um passo da pessoa, fora da tarefa (`/sync-ecc-tools --adopt`): a `/k0d3r-task` só avisa que ela está
-pendente. Nada é adotado sem confirmação humana.
+parágrafo vira proposta na spec; tudo entra no `CLAUDE.md` no primeiro commit da tarefa. Os itens do ECC que
+ajudariam na tarefa (revisores, skills de padrões e de testes) vão para a spec como proposta, e a `/k0d3r-task`
+os adota depois da aprovação, num commit à parte. Nada é adotado sem confirmação humana: a confirmação é a da
+parada.
 
 ## 1. Pesquisar e especificar
 
@@ -83,8 +84,8 @@ questões abertas; um checklist "feito vs pendente". Marque essas seções como 
 na graduação). **Aprovação humana antes do código.**
 
 **Se a spec introduz linguagem, framework, banco ou serviço novo**, atualize a `## Stack` do `CLAUDE.md` no mesmo
-commit do `git mv` e avise que a adoção das peças do ECC da stack nova está pendente: ela é um passo da pessoa,
-fora da tarefa (`/sync-ecc-tools --adopt`).
+commit do `git mv`; os itens do ECC da stack nova que a spec propôs e a pessoa aprovou são adotados logo depois,
+num commit à parte.
 
 ## 3. Construir — commit e push por fatia
 

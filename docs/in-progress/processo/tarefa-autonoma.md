@@ -290,6 +290,9 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
 
 ### 7. A adoção do ECC sai da tarefa
 
+> **Substituída em parte pela seção 12 em 2026-11-12:** a tarefa volta a propor e adotar itens do ECC, agora
+> dentro da spec e aprovados na parada única. O texto abaixo fica como registro.
+
 Acrescentado em 2026-11-12, depois das duas corridas da Estação Kepler na versão nova.
 
 O que as corridas mostraram: nas duas, a sessão leu o gatilho da `## Stack` do `CLAUDE.md` ("detecte a stack,
@@ -409,6 +412,26 @@ A `/k0d3r-task` passa a pôr a tarefa numa via logo depois de entender o estado 
   [`docs/planned/backlog.md`](../../planned/backlog.md), novo. Vira spec em `planned/` só a sobra cujo desenho já
   foi escrito e aprovado. A `/audit-docs` também passa a mandar divergência para o backlog.
 
+### 12. A tarefa propõe e adota as ferramentas do ECC que ajudam nela
+
+Acrescentado em 2026-11-12, na branch `harness-meio-termo`. Com a adoção fora da tarefa (seção 7), o CRM-k0d3r
+nunca adotou um pacote da stack: na corrida `gramma` (importação de dados, Go e Vue), o catálogo tinha
+`go-reviewer`, `typescript-reviewer`, `vue-reviewer`, `golang-testing`, `vue-patterns` e `postgres-patterns`
+sem adotar, e a revisão do fim só teria os revisores genéricos. O aviso "adoção pendente" não bastou.
+
+- **Na investigação**, nas vias com spec, a tarefa cruza as linguagens e camadas que a spec toca com o
+  `catalog.json` e escreve na spec a seção "Ferramentas do ECC para esta tarefa", como **Proposta (agente)**: uma
+  linha por item, com o que faz, por que ajuda e em qual etapa entra. As regras de linguagem vêm separadas e
+  desmarcadas, porque ficam no contexto de toda sessão.
+- **Na parada**, a pessoa corta o que quiser; aprovar a spec aprova a adoção do resto. Não há pergunta à parte.
+- **Depois da aprovação**, antes do primeiro `test-author`, a tarefa adota os itens num commit só, pelo passo de
+  adoção do `/sync-ecc-tools`: nível no roteamento (`padrao` para revisores) e `description` sem "MUST BE
+  USED", com a troca na nota `adaptation`. Agent adotado só fica disponível pelo nome numa sessão nova; nesta, a
+  tarefa o chama por um `general-purpose` com o arquivo dele e confere o `git status` depois (regra 9 do
+  `verification.md`).
+- **Na entrega**, ela diz o que adotou, o que a pessoa cortou e qual linguagem do diff ficou sem revisor.
+- O `/sync-ecc-tools --adopt` continua para adotar fora de uma tarefa.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -429,6 +452,7 @@ A `/k0d3r-task` passa a pôr a tarefa numa via logo depois de entender o estado 
 | Seção 9 (sem verificador por fatia) | `k0d3r-task.md` (sai a "Conferência ao fim de cada fatia"), `acceptance-verifier.md` (sai o brief de fatia), `agents.md` (tabela, ordem dos agents e brief), seção 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, inventário do `.claude/README.md`, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), nota `adaptation` do `agents.md` no manifest |
 | Seção 10 (dia zero completo) | `k0d3r-task.md` ("Dia zero e adoção do ECC"), gatilho da `## Stack` no `CLAUDE.md`, linha Dia zero das duas tabelas, seção 0 do `feature-lifecycle.md`, checklist do `README.md` da raiz |
 | Seção 11 (classificar a tarefa) | `k0d3r-task.md` ("Classifique a tarefa", item 1 e 3 da parada, testes, brief do verificador, defeito na Etapa 3), `acceptance-verifier.md` (briefs de correção e ajuste), `agents.md` (brief), `audit-docs.md`, regra de feature parcial no `CLAUDE.md` e no `feature-lifecycle.md`, parágrafo da `/k0d3r-task` nos dois, "spec × delta" do `feature-lifecycle.md`, [`docs/planned/backlog.md`](../../planned/backlog.md) (novo) e o `README.md` de `planned/` |
+| Seção 12 (ferramentas do ECC na spec) | `k0d3r-task.md` (seção do dia zero, item 4 da parada, "Adote as ferramentas aprovadas", item 5 da entrega), `sync-ecc-tools.md` (chamada pela tarefa), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, `README.md` da raiz, `.claude/README.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md) |
 | Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 
 ## Critérios de aceite
@@ -487,13 +511,13 @@ A `/k0d3r-task` passa a pôr a tarefa numa via logo depois de entender o estado 
     que antes de qualquer commit rodam todos. A frase "Commit só com todos os portões verdes" continua lá.
 20. `verification.md` e a `/k0d3r-task` dizem o mesmo que o critério 19 sobre quando rodar cada portão, e a
     seção 0 do `feature-lifecycle.md` pede a coluna "Quando" ao preencher a tabela.
-21. A `/k0d3r-task` diz que não propõe nem roda adoção do ECC, e que, quando a tarefa preenche ou muda a
+21. (Substituído pela seção 12 em 2026-11-12; ver os critérios 36 a 39.) A `/k0d3r-task` diz que não propõe nem roda adoção do ECC, e que, quando a tarefa preenche ou muda a
     `## Stack`, a parada e a entrega trazem uma linha com a adoção pendente e o comando `/sync-ecc-tools
     --adopt`.
-22. O gatilho da `## Stack` no `CLAUDE.md`, as seções 0 e 2 do `feature-lifecycle.md` e as linhas Dia zero e
+22. (Substituído pela seção 12 em 2026-11-12; ver os critérios 36 a 39.) O gatilho da `## Stack` no `CLAUDE.md`, as seções 0 e 2 do `feature-lifecycle.md` e as linhas Dia zero e
     Iniciar (iguais nas duas tabelas) dizem que a adoção é um passo da pessoa, fora da tarefa. Nenhum desses
     lugares manda a tarefa rodar o `--adopt`.
-23. A seção "Quando rodar" do `ecc-sync.md` e o checklist e a tabela de gatilhos do `README.md` da raiz dizem o
+23. (Substituído pela seção 12 em 2026-11-12; ver os critérios 36 a 39.) A seção "Quando rodar" do `ecc-sync.md` e o checklist e a tabela de gatilhos do `README.md` da raiz dizem o
     mesmo que o critério 22.
 24. (Substituído pela seção 9 em 2026-11-12; ver o critério 28.) A `/k0d3r-task` limita a conferência de cada fatia a duas rodadas: com um **falhou** na segunda, a sessão
     corrige, commita, anota no plano os critérios corrigidos sem nova conferência e segue, sem terceira rodada; a
@@ -525,6 +549,16 @@ A `/k0d3r-task` passa a pôr a tarefa numa via logo depois de entender o estado 
     `/audit-docs` mandam defeito e divergência para o backlog, e o arquivo existe.
 35. A busca por "vira spec em `planned/`" e por "passa por ela sem spec" em `.claude/` e no `CLAUDE.md` não
     acha nada.
+36. A `/k0d3r-task` manda, nas vias com spec, escrever a seção "Ferramentas do ECC para esta tarefa" a partir do
+    `catalog.json`, como **Proposta (agente)**, com as regras de linguagem separadas e desmarcadas; e o
+    `feature-spec-template.md` tem essa seção.
+37. A parada diz que aprovar a spec aprova a adoção do que ficou na lista; a Etapa 2 tem "Adote as ferramentas
+    aprovadas", antes do primeiro `test-author`, num commit à parte, com nível no roteamento, `description` sem
+    ordem fixa de delegar e a chamada por `general-purpose` na mesma sessão; o `sync-ecc-tools.md` aceita a
+    lista da parada como confirmação.
+38. A entrega diz o que foi adotado, o que foi cortado e qual linguagem do diff ficou sem revisor.
+39. A busca por "fora da tarefa" no `CLAUDE.md`, em `.claude/commands`, `.claude/rules`, nos dois READMEs e em
+    `docs/implemented` não acha nada; as linhas Dia zero e Iniciar são iguais nas duas tabelas.
 
 ## Estratégia de testes e verificação
 
@@ -580,6 +614,10 @@ A `/k0d3r-task` passa a pôr a tarefa numa via logo depois de entender o estado 
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **A tarefa volta a propor e adotar as ferramentas do ECC, na spec e aprovadas na parada** (decisão da pessoa,
+  2026-11-12: "quero que o task identifique as necessidades para ajudar ele na spec igual antes"; "aprovo").
+  Reverte em parte "a adoção do ECC sai da tarefa" (seção 7): a adoção volta, mas sem pergunta à parte. Rejeitado:
+  só um aviso de adoção pendente, que no CRM-k0d3r não levou a nenhuma adoção.
 - **Classificar a tarefa em cinco vias** (proposta do agente, aprovada pela pessoa em 2026-11-12: "sim e
   atualize o novo 4"), com o backlog do projeto para sobras e defeitos. Rejeitado: só alargar o "sem spec" sem
   tornar a escolha da via explícita; manter sobra e defeito como spec em `planned/`.
@@ -656,7 +694,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 35 conferidos, menos os substituídos (12, 14, 15 e 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 39 conferidos, menos os substituídos (12, 14, 15, 21 a 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -706,6 +744,9 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
+- [ ] Fatia 12 (seção 12, critérios 36 a 39): command, `sync-ecc-tools.md`, gatilho, linhas Dia zero e Iniciar,
+      seções 0 e 2 do `feature-lifecycle.md`, os dois READMEs, `ecc-sync.md`, template de spec; conferência por
+      contexto limpo.
 - [x] Fatia 11 (seção 11, critérios 32 a 35): command, os dois agents, `agents.md`, `audit-docs.md`, regras de
       feature parcial e da `/k0d3r-task`, "spec × delta", backlog do projeto; conferência por contexto limpo.
 

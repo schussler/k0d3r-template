@@ -110,9 +110,9 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 
 ## Pacotes de stack (adicione quando precisar)
 
-O caminho oficial para adotar um pacote é preencher a seção `## Stack` do `CLAUDE.md` (a `/k0d3r-task` faz isso)
-e você mesmo rodar **`/sync-ecc-tools --adopt`**, fora da tarefa: o Claude lê o `catalog.json`, propõe uma lista curta com o motivo de cada item e
-só copia o que você confirmar. Depois disso, o `/sync-ecc-tools` normal mantém o pacote atualizado.
+O caminho de costume é a própria `/k0d3r-task`: ela lê o `catalog.json`, propõe na spec os itens que ajudam na
+tarefa, com o motivo de cada um, e só copia o que você aprovar na parada. Fora de uma tarefa, rode
+**`/sync-ecc-tools --adopt`**, que faz a mesma lista e espera a sua confirmação. Depois disso, o `/sync-ecc-tools` normal mantém o pacote atualizado.
 
 A lista abaixo é uma seleção por família, gerada do `catalog.json` (ECC no ref `76aaa77d`), com a primeira frase
 da descrição de cada item. A lista completa, com as descrições inteiras, está no catálogo.
