@@ -20,6 +20,10 @@
 `Explore`, `Plan` e `general-purpose` não têm arquivo no repositório. Antes de chamar um deles, leia a chave
 `nativos` do arquivo e passe na chamada o `model` e o `effort` do nível indicado.
 
+O hook `routing-guard` (`PreToolUse` na chamada de subagent) confere isso na hora: bloqueia o nativo chamado sem o
+`model` e o `effort` do nível dele, e o agent com arquivo chamado com outro `model` ou `effort` que não o do
+nível dele nem o da escalada abaixo. A mensagem diz o nível certo. Agent que o arquivo não conhece passa.
+
 ## Onde o Fable entra
 
 O Fable é para o trabalho aberto e ambicioso, não para tarefa bem especificada. Ele entra em quatro papéis:

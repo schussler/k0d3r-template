@@ -259,6 +259,11 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
 17. O `model-routing.json` tem `"conselheiro": "fronteira"`, o `.claude/settings.json` tem `advisorModel` igual
     ao `model` desse nível, e a rule `model-routing.md` e o `README.md` dizem como desligá-lo (`null` e
     `apply`).
+18. O `.claude/settings.json` registra o `routing-guard` em `PreToolUse` com matcher `Agent|Task`, e os testes
+    dele (`scripts/hooks/routing-guard.test.mjs`) saem com 0, cobrindo cada linha da tabela de "Conferência na
+    chamada de subagent", inclusive a chamada da `gramma` (`general-purpose` em `opus`, sem esforço) bloqueada.
+19. A rule `model-routing.md` e o inventário do `.claude/README.md` descrevem o hook, e o item "Nada detecta se a
+    sessão seguiu o roteamento nos subagents nativos" saiu do backlog do toolset.
 
 ## Estratégia de testes e verificação
 
@@ -315,6 +320,10 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
   estes dois pontos da postura "equilibrado" e dos quatro lugares do Fable; o resto fica. O mecanismo do
   conselheiro continua no script, desligado com `"conselheiro": null`. Rejeitado: tirar o conselheiro do script e
   dos testes; manter o verificador em Opus.
+- **Hook na chamada de subagent** (proposta do agente, aprovada pela pessoa em 2026-11-12: "faz o 1 e o 3",
+  depois do desvio da `gramma`). Substitui "nativos por rule, sem hook", de 2026-11-11: o custo aceito é depender
+  do nome e do formato da ferramenta de subagent, que pode mudar entre versões do Claude Code; o hook aceita
+  `Agent` e `Task` e libera o que não entende. Rejeitado: só reforçar a rule, que já existia e não bastou.
 - **Conselheiro religado no meio-termo** (decisão da pessoa, 2026-11-12, na branch `harness-meio-termo`: "sim").
   Os transcripts da `novo2` mostram que ele foi usado: a sessão e quase todo subagente o consultaram, uma ou
   duas vezes cada. Sem o verificador por fatia, a consulta "antes de declarar pronto" é a conferência que sobra
@@ -322,12 +331,28 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
   está medido: o uso do Fable vem dentro das chamadas e a medição não o separa. Substitui a parte do conselheiro
   da decisão anterior; o verificador continua em `padrao`.
 
+## Conferência na chamada de subagent
+
+Acrescentado em 2026-11-12. Na corrida `gramma` do CRM-k0d3r, a sessão chamou um `general-purpose` com
+`"model": "opus"` e sem esforço; o arquivo dá a esse nativo o nível `padrao`. O `check` confere o repositório,
+não a chamada, e a rule dependia da sessão lembrar. O hook `routing-guard` (`PreToolUse` com matcher
+`Agent|Task`) lê a chamada e o `.claude/model-routing.json`:
+
+| Chamada | O que o hook faz |
+| --- | --- |
+| Nativo (`nativos`) com o `model` e o `effort` do nível | Libera |
+| Nativo sem um dos dois, ou com outro valor | Bloqueia (código 2), dizendo o nível, o `model` e o `effort` certos |
+| Agent com arquivo, sem `model` nem `effort` | Libera: o frontmatter decide |
+| Agent com arquivo, com o `model`/`effort` do próprio nível ou do nível `fronteira` (escalada) | Libera |
+| Agent com arquivo, com outro valor | Bloqueia, dizendo que o frontmatter decide e qual é a escalada |
+| Agent que o arquivo não conhece, ou ferramenta que não é de subagent | Libera |
+| Payload ilegível, arquivo de roteamento ausente ou inválido, Node ausente | Libera com aviso em stderr: é guarda de custo, não de segurança |
+
 ## Fora de escopo / questões em aberto
 
 - Fixar o modelo e o esforço da sessão principal: ficam como recomendação com aviso.
 - Detectar se o conselheiro está de fato ativo na máquina de cada pessoa (acesso ao Fable, plano, provedor).
 - Detectar as variáveis de ambiente e a lista da organização que vencem o frontmatter.
-- Detectar se a sessão seguiu a rule nas chamadas de nativos (sem detector; ver a proposta do hook).
 - Agents de plugin e de `~/.claude/agents`: o arquivo cobre só `.claude/agents/` do repositório.
 
 ## Plano de build
@@ -343,7 +368,7 @@ Os dois agents novos entram em `agents` na fatia 1 da spec 2.
 
 ### Definição de pronto
 
-Critérios 1 a 17 conferidos, menos o 15 (substituído); todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
+Critérios 1 a 19 conferidos, menos o 15 (substituído); todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
 saída 0.
 
 ### Feito vs pendente
@@ -369,6 +394,8 @@ saída 0.
       o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
       modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
       como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
+- [ ] Critérios 18 e 19 (hook na chamada de subagent): 18 testes; cada uma de 5 mutações no hook (nativo sempre
+      libera, effort não conferido, sem escalada, bloqueio com código 1, sem `Task`) derruba algum teste.
 - [x] Critério 17 (conselheiro religado no meio-termo): conferido pela sessão, não por um agent de contexto limpo:
       `conselheiro` = `fronteira`, `model` do nível = `fable`, `advisorModel` = `fable`, `check` com 0; a rule e o
       `README.md` dizem como desligar (`null` e `apply`).

@@ -92,6 +92,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | Hook | Origem | O que faz |
 |---|---|---|
 | `guard-shell.mjs` | local | `PreToolUse` em `Bash`: bloqueia portão com pipe (inclusive o `model-routing`), operação destrutiva, `--no-verify` e push em `main`. Sem Node, bloqueia com mensagem. Ajuste `VERIFY_GATES` e `PROTECTED_BRANCHES` no topo. |
+| `routing-guard.mjs` | local | `PreToolUse` em `Agent`: confere o `model` e o `effort` da chamada de subagent contra o `model-routing.json` e bloqueia o nativo fora do nível e o agent com arquivo fora do nível ou da escalada. Sem Node, arquivo de roteamento ilegível ou payload ilegível, libera com aviso. |
 | `toolset-staleness.mjs` | local | `SessionStart`: uma linha quando o último sync com o ECC passou de `syncStaleDays` dias (campo do manifest), e outra quando há docs desatualizados ou nunca conferidos (`docs-check`). Em dia, sem manifest ou sem Node, não imprime nada; nunca bloqueia. |
 | `suggest-compact.js` | ECC (adapt) | `PreToolUse` em `Edit`/`Write`: sugere `/compact` pelo tamanho do contexto. Só avisa; sem Node, não faz nada. |
 

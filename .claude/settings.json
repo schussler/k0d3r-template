@@ -44,6 +44,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 || { echo '[routing-guard] Node não encontrado no PATH; conferência do roteamento na chamada de subagent desativada' >&2; exit 0; }; node \"$CLAUDE_PROJECT_DIR/scripts/hooks/routing-guard.mjs\"",
+            "timeout": 10
+          }
+        ]
       }
     ]
   },

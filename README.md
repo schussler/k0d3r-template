@@ -64,7 +64,7 @@ limite estourar, as consultas falham até a janela renovar.
       `PROTECTED_BRANCHES`) no topo de `scripts/hooks/guard-shell.mjs`.
 - [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md` (a primeira `/k0d3r-task` pergunta).
 - [ ] Registrar as primeiras **Regras de arquitetura**, cada uma com o porquê e o doc que a detalha.
-- [ ] Rodar os testes do toolset: `node --test` em `scripts/hooks/guard-shell.test.mjs`,
+- [ ] Rodar os testes do toolset: `node --test` em `scripts/hooks/guard-shell.test.mjs`, `scripts/hooks/routing-guard.test.mjs`,
       `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs`,
       `scripts/docs-check/docs-check.test.mjs` e `scripts/model-routing/model-routing.test.mjs`.
 - [ ] Conferir o [`.claude/model-routing.json`](.claude/model-routing.json) contra os modelos que a sua conta
