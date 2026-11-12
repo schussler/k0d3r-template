@@ -283,6 +283,31 @@ Comportamento desejado:
 Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a sessão implementa a atual
 (opção apresentada em 2026-11-12, não escolhida).
 
+### 7. A adoção do ECC sai da tarefa
+
+Acrescentado em 2026-11-12, depois das duas corridas da Estação Kepler na versão nova.
+
+O que as corridas mostraram: nas duas, a sessão leu o gatilho da `## Stack` do `CLAUDE.md` ("detecte a stack,
+proponha o texto desta seção e rode `/sync-ecc-tools --adopt`"), pôs a adoção como proposta na parada, a pessoa
+aprovou, e **nenhum item foi adotado**: nenhum commit mexeu em `.claude/`, o `../ECC` não existia e a sessão
+não perguntou se podia clonar. A entrega não diria nada; só apareceu porque o agente desta sessão foi olhar. A
+`/k0d3r-task` não diz em que momento, depois da aprovação, a adoção roda.
+
+Comportamento desejado (decisão da pessoa, 2026-11-12: "prefiro tirar"):
+
+- **A `/k0d3r-task` não propõe nem roda adoção do ECC.** Quando a tarefa preenche a `## Stack` (dia zero) ou a
+  muda, ela continua preenchendo a `## Stack` e as linhas da tabela de portões, porque os portões são dela.
+- **Ela avisa em uma linha,** na parada e na entrega: a stack mudou, a adoção do ECC está pendente e é um passo
+  da pessoa, fora da tarefa, com `/sync-ecc-tools --adopt`.
+- **A adoção vira um passo explícito da pessoa:** no dia zero, antes ou depois da primeira tarefa; e quando uma
+  tarefa muda a stack. O `/sync-ecc-tools --adopt` continua como está, com a confirmação dele e a pergunta antes
+  de clonar.
+
+Rejeitado (proposta do agente, recusada pela pessoa em 2026-11-12): manter a adoção na tarefa, como primeiro
+passo depois da aprovação, com a lista e o clone aprovados na parada da spec e um critério de aceite automático
+que conferisse os itens em `.claude/`. Motivo da recusa: tira peso da `/k0d3r-task`, e a adoção acontece poucas
+vezes na vida de um projeto.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -298,6 +323,7 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md) | conferidos pelo `docs-check diff`; atualizados onde citam o fluxo da tarefa |
 | Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), linha do agent no inventário do `.claude/README.md`, nota `adaptation` do `agents.md` no manifest |
 | Seção 6 (portões rápidos e lentos) | `CLAUDE.md` (coluna "Quando" e a linha sobre quando rodar), `verification.md` (rodar só os rápidos na iteração, todos antes do commit), `k0d3r-task.md` ("Implemente até o fim"), seções 0 e 3 do `feature-lifecycle.md` e a linha Construir das duas tabelas, item do checklist do `README.md` da raiz |
+| Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 | Seção 6 (testes por fatia) | `k0d3r-task.md` ("Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, inventário do `.claude/README.md`, notas `adaptation` do manifest |
 
 ## Critérios de aceite
@@ -354,6 +380,14 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
     que antes de qualquer commit rodam todos. A frase "Commit só com todos os portões verdes" continua lá.
 20. `verification.md` e a `/k0d3r-task` dizem o mesmo que o critério 19 sobre quando rodar cada portão, e a
     seção 0 do `feature-lifecycle.md` pede a coluna "Quando" ao preencher a tabela.
+21. A `/k0d3r-task` diz que não propõe nem roda adoção do ECC, e que, quando a tarefa preenche ou muda a
+    `## Stack`, a parada e a entrega trazem uma linha com a adoção pendente e o comando `/sync-ecc-tools
+    --adopt`.
+22. O gatilho da `## Stack` no `CLAUDE.md`, as seções 0 e 2 do `feature-lifecycle.md` e as linhas Dia zero e
+    Iniciar (iguais nas duas tabelas) dizem que a adoção é um passo da pessoa, fora da tarefa. Nenhum desses
+    lugares manda a tarefa rodar o `--adopt`.
+23. A seção "Quando rodar" do `ecc-sync.md` e o checklist e a tabela de gatilhos do `README.md` da raiz dizem o
+    mesmo que o critério 22.
 
 ## Estratégia de testes e verificação
 
@@ -369,6 +403,8 @@ Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a 
   `test-author` nesta parte, porque não há comportamento
   executável para um teste falhar antes. O verificador por fatia rodando numa tarefa real fica **não
   conferido** até a primeira `/k0d3r-task` com mais de uma fatia.
+- Seção 7: os critérios 21 a 23 são texto de prompt e de doc, conferidos por leitura e busca (inclusive a busca
+  por `--adopt` nos lugares do critério 22) e por um `acceptance-verifier` novo, sem `test-author`.
 - Seção 6: os critérios 16 a 20 também são texto de prompt, conferidos por leitura e busca e por um
   `acceptance-verifier` novo, sem `test-author`, pelo mesmo motivo da seção 5. O efeito numa tarefa real (o
   `test-author` em primeiro plano, os testes falhando antes do código da fatia) só aparece rodando de novo o prompt da Estação
@@ -467,7 +503,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 20 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 23 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -496,6 +532,9 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 `test-author.md` na seção 6. Também alinhados: a nota do manifest do `agents.md` e três frases que ainda diziam
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
+
+- [ ] Fatia 7 (seção 7, critérios 21 a 23): command, gatilho da `## Stack`, linhas Dia zero e Iniciar, seções 0
+      e 2 do `feature-lifecycle.md`, `ecc-sync.md`, `README.md`; conferência por contexto limpo.
 
 Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
 **falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de
