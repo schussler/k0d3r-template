@@ -1,0 +1,82 @@
+:root {
+  --cyan: #7fe3ff;
+  --cyan-dim: rgba(127, 227, 255, 0.35);
+  --orange: #ffb347;
+  --red: #ff4a3a;
+  --green: #4dffa0;
+  --ink: #e8f6ff;
+  --panel: rgba(6, 14, 24, 0.55);
+  --font: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #02040a; overflow: hidden; color: var(--ink); font-family: var(--font); }
+#app { position: fixed; inset: 0; }
+canvas { display: block; width: 100%; height: 100%; }
+.hidden { display: none !important; }
+
+.hud { position: absolute; inset: 0; pointer-events: none; user-select: none; }
+.hud .vignette { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(255, 30, 20, 0.6) 100%); }
+.crosshair { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px; overflow: visible; }
+.crosshair line, .crosshair circle { stroke: #fff; stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)); }
+.crosshair circle { fill: #fff; stroke-width: 0; }
+.hitmark { opacity: 0; }
+.hitmark line { stroke: #fff; stroke-width: 2.4; }
+.hitmark.head line { stroke: var(--red); stroke-width: 3.4; }
+.damage-arc { fill: none; stroke: var(--red); stroke-width: 6; opacity: 0; filter: drop-shadow(0 0 6px var(--red)); }
+
+.panel { position: absolute; background: var(--panel); border: 1px solid var(--cyan-dim); padding: 10px 14px; backdrop-filter: blur(3px);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px)); }
+.vitals { left: 24px; bottom: 24px; width: 280px; }
+.vitals .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.ico { width: 20px; height: 20px; fill: var(--cyan); flex: none; }
+.ico.health { fill: var(--green); }
+.bar { flex: 1; height: 10px; background: rgba(255, 255, 255, 0.08); position: relative; }
+.fill { position: absolute; inset: 0 auto 0 0; transition: width 0.15s; }
+.shield-fill { background: linear-gradient(90deg, #3aa8ff, var(--cyan)); box-shadow: 0 0 10px var(--cyan); }
+.health-fill { background: linear-gradient(90deg, #1fc46a, var(--green)); box-shadow: 0 0 10px var(--green); }
+.hud.low .health-fill { background: var(--red); box-shadow: 0 0 12px var(--red); }
+.num { width: 38px; text-align: right; font-size: 18px; font-weight: 700; }
+
+.ammo { right: 24px; bottom: 24px; min-width: 230px; text-align: right; }
+.ammo .weapon { display: flex; justify-content: flex-end; align-items: center; gap: 10px; color: var(--cyan); font-size: 13px; letter-spacing: 0.2em; }
+.weapon-icon svg { width: 72px; height: 27px; fill: var(--cyan); }
+.counts { font-size: 46px; font-weight: 800; line-height: 1.05; }
+.counts .sep { opacity: 0.35; margin: 0 6px; font-size: 30px; }
+.counts .reserve { font-size: 24px; opacity: 0.8; }
+.counts .mag.empty { color: var(--red); }
+.counts svg.inf { width: 34px; height: 24px; fill: none; stroke: var(--ink); stroke-width: 2.2; vertical-align: -3px; }
+.slots { display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px; }
+.slot { width: 22px; height: 22px; border: 1px solid var(--cyan-dim); font-size: 12px; display: grid; place-items: center; }
+.slot.on { background: var(--cyan); color: #02121c; }
+.slot.locked { opacity: 0.25; }
+
+.sector { left: 24px; top: 24px; display: flex; gap: 10px; align-items: center; font-size: 14px; letter-spacing: 0.25em; }
+.sector .ico { fill: none; stroke: var(--cyan); stroke-width: 2; }
+.message { position: absolute; left: 50%; top: 62%; transform: translateX(-50%); font-size: 14px; letter-spacing: 0.3em; color: var(--cyan); text-shadow: 0 0 8px rgba(0, 0, 0, 0.9); }
+.message.warn { color: var(--orange); animation: blink 0.8s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0.35; } }
+
+.boss { position: absolute; left: 50%; top: 26px; width: min(720px, 70vw); transform: translateX(-50%); text-align: center; }
+.boss-name { letter-spacing: 0.4em; font-size: 13px; color: var(--orange); margin-bottom: 6px; }
+.boss-bar { height: 14px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 140, 60, 0.6); position: relative; }
+.boss-fill { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #ff3a1a, var(--orange)); box-shadow: 0 0 14px #ff6a1a; transition: width 0.2s; }
+.boss-bar i { position: absolute; top: -3px; bottom: -3px; width: 2px; background: rgba(0, 0, 0, 0.8); }
+
+.screen { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at center, rgba(2, 8, 18, 0.35), rgba(2, 4, 10, 0.85)); }
+.screen-title { background: linear-gradient(90deg, rgba(2, 4, 10, 0.85) 0%, rgba(2, 4, 10, 0.2) 55%, transparent 100%); place-items: center start; padding-left: 8vw; }
+.screen-death { background: radial-gradient(ellipse at center, rgba(60, 0, 0, 0.45), rgba(20, 0, 0, 0.92)); }
+.screen-transition { background: #02040a; }
+.card { max-width: 620px; padding: 32px 40px; }
+.kicker { color: var(--cyan); letter-spacing: 0.45em; font-size: 12px; margin-bottom: 14px; }
+.card h1 { margin: 0 0 16px; font-size: clamp(36px, 6vw, 76px); letter-spacing: 0.08em; line-height: 0.95; text-shadow: 0 0 30px rgba(127, 227, 255, 0.35); }
+.screen-death h1 { color: var(--red); text-shadow: 0 0 30px rgba(255, 60, 40, 0.5); }
+.body { font-size: 15px; line-height: 1.6; color: rgba(232, 246, 255, 0.8); margin: 0 0 26px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.actions button { font-family: var(--font); font-size: 14px; letter-spacing: 0.25em; color: var(--ink); background: rgba(127, 227, 255, 0.06); border: 1px solid var(--cyan-dim); padding: 14px 24px; cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+.actions button:hover { background: rgba(127, 227, 255, 0.18); }
+.actions button.primary { background: var(--cyan); color: #02121c; font-weight: 800; border-color: var(--cyan); }
+.hint { margin-top: 22px; font-size: 12px; color: rgba(232, 246, 255, 0.5); letter-spacing: 0.1em; line-height: 1.7; }
+
+.devpanel { position: absolute; right: 12px; top: 12px; font-size: 11px; line-height: 1.5; background: rgba(0, 0, 0, 0.7); padding: 8px 10px; color: #9f9; white-space: pre; pointer-events: none; }
