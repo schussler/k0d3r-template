@@ -10,7 +10,7 @@ codigo:
   - .claude/settings.json
   - .claude/commands/toolset-retro.md
   - .claude/skills/search-first/SKILL.md
-conferido-em: 2026-11-04
+conferido-em: 2026-11-12
 ---
 
 # Mantendo o toolset `.claude/` em sincronia com o ECC
@@ -65,8 +65,8 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 
 | Gatilho | Modo |
 | --- | --- |
-| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt` |
-| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, no mesmo commit da `## Stack` |
+| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
+| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa, depois que a tarefa atualiza a `## Stack` |
 | O hook de `SessionStart` (`toolset-staleness.mjs`) ou o `/toolset-retro` avisa que o último sync passou de `syncStaleDays` dias (campo do manifest) | `/sync-ecc-tools` |
 | A retro acha uma ferramenta faltante que o catálogo tem | `/sync-ecc-tools --adopt` |
 | A qualquer momento | `/sync-ecc-tools` |
@@ -114,6 +114,11 @@ geradas antes de confiar nelas.
 - **Fora do escopo:** adotar automaticamente, fazer merge automático de itens `adapt`.
 - Ferramentas novas do upstream são **opt-in**: o relatório lista todas, o Claude propõe uma lista curta, a
   pessoa decide.
+- **Modelo e esforço dos agents não vêm do upstream.** As linhas `model:` e `effort:` do frontmatter de cada
+  agent são derivadas do `.claude/model-routing.json`. Depois de portar ou adotar um agent, o
+  `/sync-ecc-tools` dá um nível a ele nesse arquivo e roda `node scripts/model-routing/model-routing.mjs apply`;
+  o portão `check` falha enquanto um agent não tem nível. As regras estão em
+  [`model-routing.md`](../../../.claude/rules/common/model-routing.md).
 
 ## Log de syncs
 

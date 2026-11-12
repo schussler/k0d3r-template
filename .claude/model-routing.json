@@ -1,0 +1,32 @@
+{
+  "niveis": {
+    "fronteira": { "model": "fable", "effort": "high" },
+    "raciocinio": { "model": "opus", "effort": "high" },
+    "padrao": { "model": "sonnet", "effort": "medium" },
+    "rapido": { "model": "haiku", "effort": "low" }
+  },
+  "orquestrador": "fronteira",
+  "conselheiro": "fronteira",
+  "agents": {
+    "planner": "fronteira",
+    "architect": "fronteira",
+    "code-architect": "raciocinio",
+    "security-reviewer": "raciocinio",
+    "acceptance-verifier": "raciocinio",
+    "code-reviewer": "padrao",
+    "silent-failure-hunter": "padrao",
+    "code-simplifier": "padrao",
+    "type-design-analyzer": "padrao",
+    "pr-test-analyzer": "padrao",
+    "refactor-cleaner": "padrao",
+    "doc-updater": "padrao",
+    "tdd-guide": "padrao",
+    "test-author": "padrao",
+    "docs-lookup": "rapido"
+  },
+  "nativos": {
+    "Plan": "fronteira",
+    "general-purpose": "padrao",
+    "Explore": "rapido"
+  }
+}

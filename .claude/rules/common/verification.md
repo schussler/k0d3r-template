@@ -32,6 +32,10 @@ if [ $L -eq 0 ] && [ $T -eq 0 ]; then git add <arquivos> && git commit -m "<mens
 
 Um commit vermelho que já subiu custa um `fix:` a mais no histórico; um que entrou num merge custa mais.
 
+**Na iteração, só os rápidos; antes do commit, todos.** A coluna "Quando" da tabela separa os portões que
+rodam a cada ajuste ("na iteração") dos que demoram e rodam só antes do commit ("antes do commit"). Ela não
+muda a regra acima: o comando que commita roda todos os portões, os dois grupos.
+
 **"Rodei os portões locais" e "o CI vai passar" são afirmações diferentes.** Se o CI roda portões que a tabela
 não lista, a tabela está incompleta: acrescente-os.
 
@@ -97,6 +101,12 @@ O resumo de um subagente volta no mesmo tom confiante, acerte ou erre. Antes de 
 escreveu, **leia o diff de volta** (`git diff`) e confira no código cada fato que ele afirmou. Num brief de
 edição de docs, proíba explicitamente citar texto de interface que o agente não leu no código, fundir ou apagar
 linhas de tabela e reescrever decisões datadas.
+
+**Agent imitado não tem as restrições do agent de verdade.** Um agent criado durante a sessão pode só ficar
+disponível pelo nome depois que o Claude Code o recarrega. Até lá, quem o chama por um `general-purpose` mandado
+"seguir `.claude/agents/<nome>.md`" ganha o prompt, mas não o `tools:` nem o `model:` dele: um verificador que
+"não edita" pode editar. Depois de cada chamada imitada, confira `git status` antes de confiar no relatório, e
+diga na entrega que o agent foi imitado.
 
 ## 10. Ferramenta que escreve em ambiente real: teste a escotilha primeiro
 

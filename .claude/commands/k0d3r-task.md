@@ -1,11 +1,11 @@
 ---
-description: Processo de tarefa — spec, parada obrigatória para aprovação, implementação, verificação (portões do CLAUDE.md + docs-check) e entrega com a reconciliação documental. Caminho padrão para qualquer mudança de código; mudança sem efeito de comportamento passa sem spec.
+description: Processo de tarefa — investigação, entrevista, spec, uma parada para aprovação, testes por agent de contexto limpo, implementação até o fim, verificação (portões do CLAUDE.md + docs-check + verificador de aceite) e entrega com a reconciliação documental. Caminho padrão para qualquer mudança de código; mudança sem efeito de comportamento passa sem spec.
 argument-hint: "## OBJETIVO <obrigatório> ## FLUXO DESEJADO <opcional> ## CRITÉRIOS DE ACEITE <opcional>"
 ---
 
-Atue como líder técnico sênior responsável pela implementação e manutenção deste produto. Priorize uma solução simples, consistente com a arquitetura existente e fácil de manter. Não crie abstrações para necessidades hipotéticas.
+Você é dono e mantenedor de longo prazo do código que esta tarefa toca: a forma dele é decisão sua. Prefira a solução simples, coerente com a arquitetura existente e fácil de manter, e não crie abstração para necessidade hipotética. O jeito de trabalhar (o que dispensa ok, o que pede ok, prova e relatório) está na seção **Como trabalhar** do `CLAUDE.md` e vale aqui inteiro.
 
-Esta é uma sessão de implementação e planejamento. Seu primeiro passo é preparar a spec da tarefa. Quando estiver pronta, me avise para eu revisar e aprovar a implementação.
+A tarefa tem **uma parada de aprovação: a da spec**. Antes dela, você investiga e me entrevista. Depois dela, você vai até a entrega.
 
 ## ENTRADA
 
@@ -21,12 +21,12 @@ O da entrada, preenchido pela pessoa.
 
 ## CRITÉRIOS DE ACEITE
 
-- **Se a pessoa não informou** o fluxo ou os critérios, proponha-os.
+- **Se a pessoa não informou** o fluxo ou os critérios: o que mudaria a forma de construir vira pergunta da entrevista; o resto, você propõe.
 - **Se informou**, revise e sugira o que faltou, olhando ao menos: estados de falha e recuperação; reentrega e idempotência; permissões; dados antigos ou migração; estados vazios; observabilidade (log ou erro visível); e como cada critério será verificado.
 
 Toda sugestão sua aparece marcada como **Proposta (agente)**, separada do que a pessoa escreveu, e só vale depois de aprovada na parada.
 
-## ETAPA 1 — INVESTIGAÇÃO E SPEC
+## ETAPA 1 — INVESTIGAÇÃO, ENTREVISTA E SPEC
 
 ### Entenda o estado atual
 
@@ -34,11 +34,19 @@ Toda sugestão sua aparece marcada como **Proposta (agente)**, separada do que a
 - Investigue a implementação antes de propor mudanças.
 - Identifique os caminhos reais de execução, contratos, componentes e integrações afetados.
 - Procure soluções existentes no projeto que possam ser reutilizadas.
-- Não presuma regras de negócio, comportamento de integrações ou decisões de produto. Investigue as fontes disponíveis e explicite o que continuar indefinido.
+- Não presuma regras de negócio, comportamento de integrações ou decisões de produto. Investigue as fontes disponíveis; o que continuar indefinido vai para a entrevista ou para a spec, como dúvida.
 
 ### Mudança sem efeito de comportamento: sem spec
 
-Se a mudança não altera comportamento nem contrato (refactor, dependência, typo, ajuste de teste, renomeação), **não crie spec**. Na parada obrigatória, declare "**sem spec: <motivo>**" e mostre só o plano curto e os portões que vão rodar; a pessoa pode pedir a spec. O `docs-check diff` e a entrega final valem do mesmo jeito. Na dúvida se há efeito de comportamento, trate como se houvesse.
+Se a mudança não altera comportamento nem contrato (refactor, dependência, typo, ajuste de teste, renomeação), **não crie spec**, não entreviste e não chame o `test-author`. Na parada, declare "**sem spec: <motivo>**" e mostre só o plano curto e os portões que vão rodar; a pessoa pode pedir a spec. O `docs-check diff`, a verificação e a entrega final valem do mesmo jeito. Na dúvida se há efeito de comportamento, trate como se houvesse.
+
+### Modelo da sessão
+
+Numa tarefa com spec, leia o nível `orquestrador` em `.claude/model-routing.json`. Se a sessão roda em outro modelo, diga em uma linha qual é o modelo e o esforço recomendados e como trocar (`/model <alias>`, `/effort <nível>`), e siga sem esperar resposta. A escolha é da pessoa ([`model-routing.md`](../rules/common/model-routing.md)).
+
+### Stack e adoção do ECC
+
+Se a `## Stack` do `CLAUDE.md` está vazia, não reflete o repositório ou muda com esta tarefa, a tarefa preenche a seção e as linhas da tabela de portões. Ela **não propõe nem roda a adoção de itens do ECC**: a adoção é um passo da pessoa, fora da tarefa. Diga em uma linha, na parada e na entrega, que a adoção está pendente e que o comando é `/sync-ecc-tools --adopt`.
 
 ### Reconcilie a documentação necessária ao planejamento
 
@@ -54,6 +62,17 @@ Se a mudança não altera comportamento nem contrato (refactor, dependência, ty
 - Registre problemas relevantes fora do escopo sem ampliar automaticamente o trabalho.
 - Não faça uma auditoria geral do repositório.
 
+### Entreviste
+
+Depois de investigar e antes de escrever a spec, pergunte o que o repositório não responde.
+
+- **Só entra pergunta cuja resposta mudaria a spec.** O que o código, os docs ou as decisões registradas já respondem não é pergunta.
+- **Uma pergunta por vez**, começando pelas que mudariam a forma de construir. Faça a pergunta e encerre a resposta; a próxima depende do que a pessoa disser.
+- Cada pergunta traz as opções, a sua recomendação e, em uma frase, o que você achou no código que a motivou. Use a ferramenta de pergunta à pessoa quando houver uma; sem ela, pergunte em texto.
+- **Pare de perguntar quando as dúvidas que restam não mudariam a spec.** Essas viram **Proposta (agente)** na spec.
+- Se o pedido já responde tudo o que mudaria a forma, diga isso em uma linha e siga para a spec.
+- Responder a uma pergunta não aprova nada: a aprovação é a da parada.
+
 ### Prepare a spec
 
 Crie ou atualize a spec conforme o ciclo de vida do projeto ([`feature-lifecycle.md`](../rules/common/feature-lifecycle.md)), a partir do [`feature-spec-template.md`](../../docs/implemented/processo/feature-spec-template.md). Ao copiar o template, **apague a chave `docs-check: ignore`** do frontmatter: ela vale só para o template. Inclua:
@@ -64,49 +83,74 @@ Crie ou atualize a spec conforme o ciclo de vida do projeto ([`feature-lifecycle
 - Escopo e limites explícitos.
 - Fluxos principais, estados de falha e recuperação.
 - Contratos e documentos afetados.
-- Critérios de aceite verificáveis.
+- Critérios de aceite verificáveis: cada um diz o que se observa quando ele é cumprido. Eles são o que o `test-author` e o `acceptance-verifier` vão receber.
 - Estratégia de testes e verificação.
-- Plano de implementação em etapas proporcionais à mudança.
+- Plano de implementação em etapas proporcionais à mudança. Se o resultado mais simples pede reorganizar código que já existe no caminho da tarefa, diga aqui o quê. Com mais de uma fatia, diga quais critérios de aceite cada fatia entrega: é o que o verificador de cada fatia vai conferir.
 - Dúvidas, riscos e propostas que precisam de decisão humana.
 
 Proporcione a spec e a entrega ao tamanho da mudança: numa mudança pequena, a spec pode ter poucas linhas. Se a mudança precisar de mais de um PR para ser revisada com segurança, proponha a divisão em specs menores antes da parada.
 
-Diferencie propostas do agente de decisões já aprovadas. Preserve uma fonte canônica para cada contrato e evite repetir informações em vários documentos.
+Diferencie propostas do agente de decisões já aprovadas; o que a pessoa respondeu na entrevista é decisão dela, com a data. Preserve uma fonte canônica para cada contrato e evite repetir informações em vários documentos.
 
-Resolva escolhas técnicas rotineiras com autonomia. Para decisões de produto ou contradições que alterem o resultado esperado, apresente opções, consequências e sua recomendação.
+Resolva escolhas técnicas rotineiras com autonomia. Para decisões de produto ou contradições que alterem o resultado esperado e que a entrevista não resolveu, apresente opções, consequências e sua recomendação.
 
 Nesta etapa, altere apenas a documentação necessária ao planejamento. Não implemente código, testes ou configuração.
 
-## PARADA OBRIGATÓRIA — APROVAÇÃO DA SPEC
+## PARADA — APROVAÇÃO DA SPEC
 
-Após preparar a spec:
+Esta é a única parada de aprovação antes da entrega. Após preparar a spec:
 
 1. Apresente o caminho do documento (ou "sem spec: <motivo>", com o plano curto e os portões que vão rodar).
 2. Resuma a solução proposta, seu alcance e os principais impactos.
 3. Declare se a mudança **edita a spec de `implemented/`** ou **abre um delta em `planned/`**, e por quê, pelo critério de [spec × delta](../rules/common/feature-lifecycle.md#spec-ou-delta): depois do merge, a spec em `implemented/` continua dizendo a verdade? No caso "editar a spec de `implemented/`", a spec da tarefa fica em `docs/in-progress/<área>/<nome>.md` durante a tarefa; no caso delta, o ciclo é o normal.
-4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** de fluxo e critérios que precisam de aprovação.
+4. Destaque dúvidas, decisões pendentes e as **Propostas (agente)** que precisam de aprovação. Se a tarefa preenche ou muda a `## Stack`, diga que a adoção do ECC fica pendente, fora da tarefa (`/sync-ecc-tools --adopt`).
 5. Peça explicitamente aprovação para implementar a versão apresentada.
 6. Encerre sua resposta e aguarde.
 
 Não prossiga para implementação sem aprovação explícita.
 
-Não interprete silêncio, esclarecimentos, continuidade da conversa ou aprovação de uma decisão isolada como autorização para implementar.
+Não interprete silêncio, esclarecimentos, continuidade da conversa, resposta a uma pergunta da entrevista ou aprovação de uma decisão isolada como autorização para implementar.
 
 Se forem solicitados ajustes, atualize a spec e reapresente-a para aprovação. Se o pedido já mencionar uma spec aprovada, confirme que ela corresponde ao objetivo e ao fluxo deste pedido e cumpra esta parada antes de implementar.
 
-## ETAPA 2 — IMPLEMENTAÇÃO DA SPEC APROVADA
+## ETAPA 2 — TESTES PRIMEIRO E IMPLEMENTAÇÃO
 
-Comece somente após aprovação explícita para implementação.
+Comece somente após aprovação explícita. A partir daqui, siga até a entrega.
 
-### Implemente dentro do escopo
+### Testes por contexto limpo
 
-- Siga a spec aprovada e as regras do projeto.
-- Reutilize componentes, contratos e padrões existentes quando adequados.
-- Faça mudanças proporcionais ao problema.
+Numa tarefa com spec, chame o agent `test-author` antes de escrever o código que os testes dele cobrem. O brief leva **só o caminho da spec aprovada**: não leve o seu plano, o que você pretende implementar nem o resultado que espera. Ele devolve os testes que falham e a lista critério → teste.
+
+- **Com mais de uma fatia, os testes vêm por fatia.** No começo de cada fatia com critério ligado, chame o `test-author` com um brief de duas coisas: o caminho da spec e o nome da fatia como está no plano. Testes de todas as fatias de uma vez deixam o portão de teste vermelho até a última e travam o commit de cada fatia.
+- **Espere ele devolver antes de escrever o código da fatia.** Chame-o em primeiro plano: não em segundo plano, e sem esperar por ele com laço de `sleep` sobre o arquivo de saída. Código escrito enquanto ele trabalha tira dele a prova de que os testes falham antes do comportamento existir, e ele pode ler esse código.
+
+- Releia o diff dos testes antes de usá-los: relatório de agente não é evidência ([`verification.md`](../rules/common/verification.md)).
+- Um critério que não virou teste é verificado de outro jeito na Etapa 3; diga qual.
+- Só altere um teste do `test-author` quando ele contradiz a spec ou não monta a situação que o nome dele anuncia, e diga qual e por quê na entrega.
+- Um caso de borda que a spec não dizia e você decidiu na implementação ganha teste seu e entra na spec. Como esse teste nasce depois do código, prove que ele falha contra o código errado (reverta a mudança ou mute a condição) antes de confiar nele.
+
+### Implemente até o fim
+
+- Siga a spec aprovada e as regras do projeto, até os testes e os portões ficarem verdes.
+- Reutilize componentes, contratos e padrões existentes quando adequados. Reorganize o que está no caminho da tarefa quando isso deixa o resultado mais simples que um remendo; o que está fora do caminho, registre.
 - Siga as exigências aplicáveis de testes, segurança, arquitetura e revisão.
+- Enquanto itera numa fatia, rode só os portões que a tabela do `CLAUDE.md` marca "na iteração". Antes de qualquer commit, rode todos.
+- Commit por fatia, com todos os portões verdes, e push depois de cada commit.
 - Mantenha a spec coerente com o andamento e os resultados da implementação.
 
-Resolva detalhes técnicos rotineiros com autonomia. Se surgir a necessidade de mudar o escopo ou o comportamento aprovado, atualize a spec e aguarde aprovação da alteração antes de implementar a parte afetada.
+### Conferência ao fim de cada fatia
+
+Numa tarefa com spec e mais de uma fatia, ao fim de cada fatia (commit com os portões verdes e push), chame um `acceptance-verifier` novo. O brief leva **só três coisas**: o caminho da spec, a ref base da fatia (o commit anterior ao primeiro commit dela) e o nome da fatia como está no plano. Ele confere os critérios que o plano liga à fatia.
+
+- **A fatia seguinte só começa sem nenhum falhou.** Corrija, rode os portões, commite e chame um verificador novo. A correção da redação de um critério vale aqui como na Etapa 3.
+- A última fatia não tem verificador próprio: o da Etapa 3 confere a spec inteira logo depois, e continua necessário, porque uma fatia pode quebrar um critério que uma anterior entregou.
+- Uma fatia sem critério ligado não tem verificador. Os reviewers ficam para a Etapa 3.
+
+**Desvio técnico do plano** (ordem das etapas, estrutura interna, nome): decida, anote na spec e relate na entrega.
+
+**Mudança no comportamento, no contrato ou no escopo aprovados**, inclusive um critério de aceite que não dá para cumprir: atualize a spec, pare e pergunte só sobre a parte afetada. O resto da tarefa continua aprovado.
+
+**Bloqueio deliberado** (arquivo marcado para não tocar, acesso negado, comando barrado pelo `guard-shell`): não contorne. Diga o que encontrou e procure outro caminho.
 
 ### Atualize a documentação afetada
 
@@ -121,9 +165,15 @@ Resolva detalhes técnicos rotineiros com autonomia. Se surgir a necessidade de 
 
 ## ETAPA 3 — VERIFICAÇÃO E REVISÃO
 
-- Verifique os critérios de aceite com evidências adequadas: testes, verificações de contrato, análise do caminho de execução ou execução da jornada, conforme o caso.
+- Verifique você mesmo os critérios de aceite com evidências adequadas: testes, verificações de contrato, análise do caminho de execução ou execução da jornada, conforme o caso. O `acceptance-verifier` é a segunda conferência, não a única.
 - Execute os portões da tabela **Portões de verificação** do `CLAUDE.md`, sem pipe que mascare o exit code, e mais `docs-check diff` e `docs-check links`, ambos com exit 0.
-- Execute as revisões: agents `code-reviewer`, `security-reviewer` (quando tocar auth, entrada de usuário ou segredo), `silent-failure-hunter` e os reviewers de stack adotados, se houver.
+- Com os portões verdes, chame na mesma mensagem, em paralelo:
+    - o agent `acceptance-verifier`, com um brief que leva **só o caminho da spec e a ref base do diff**. Não leve o resumo do que você fez nem o que espera que ele conclua. Na tarefa sem spec, o brief leva a ref base e a afirmação "sem efeito de comportamento", para ele procurar o efeito;
+    - as revisões: agents `code-reviewer`, `security-reviewer` (quando tocar auth, entrada de usuário ou segredo), `silent-failure-hunter` e os reviewers de stack adotados, se houver.
+- Corrija cada critério que voltou **falhou** e os achados dos reviewers, rode os portões de novo e chame um `acceptance-verifier` novo. A tarefa só é entregue sem nenhum **falhou**.
+- Um **falhou** pode estar apontando um critério mal escrito, e não um trabalho errado. Quando o comportamento entregue é o aprovado e é o texto do critério que não o descreve, corrija a redação do critério na spec e siga. Quem implementou acabou de mexer na régua do verificador, então a pessoa precisa ver isso para conferir: na entrega, mostre o texto antigo, o texto novo e por que o comportamento entregue é o aprovado. Se o que teria de mudar é o comportamento aprovado, e não a redação, pare e pergunte só sobre esse critério.
+- Um defeito que a revisão acha num código que você não tocou, fora do caminho da tarefa, vai para a entrega e para o backlog, com a reprodução. Não o corrija aqui.
+- Os critérios **não conferido** e as mudanças que o diff traz e a spec não cobre vão para a entrega, com esses nomes.
 - Informe o que cada evidência demonstra e suas limitações.
 - Confira nos dois sentidos:
     - o código cumpre o comportamento aprovado;
@@ -133,16 +183,17 @@ Resolva detalhes técnicos rotineiros com autonomia. Se surgir a necessidade de 
 
 ## ENTREGA FINAL
 
-Apresente de forma objetiva:
+Comece pelo resultado, em uma ou duas frases: o que funciona agora e o que não ficou pronto. Escreva para quem não viu as chamadas de ferramenta nem os arquivos abertos. Depois, de forma objetiva:
 
-1. O que mudou e quais critérios de aceite foram atendidos.
+1. O que mudou e, por critério de aceite, o veredito do `acceptance-verifier`: visto funcionando, ou não conferido e por quê.
 2. As verificações executadas, seus resultados (com exit code) e limitações.
-3. A reconciliação documental, com **todo doc listado pelo `docs-check diff`**, cada um com "atualizado" ou "conferido, sem mudança: <o que foi olhado>":
+3. O que você decidiu sozinho: desvios do plano, código reorganizado, mudanças que o diff traz e a spec não cobre, testes do `test-author` alterados, chamadas escaladas para outro nível de modelo, e cada critério de aceite cuja redação você corrigiu, com o texto antigo, o novo e por que o comportamento entregue é o aprovado.
+4. A reconciliação documental, com **todo doc listado pelo `docs-check diff`**, cada um com "atualizado" ou "conferido, sem mudança: <o que foi olhado>":
 
     |Comportamento ou contrato|Documento e seção|Atualização ou conferência realizada|Evidência|
     |---|---|---|---|
 
-4. Pendências, divergências relevantes fora do escopo e decisões humanas necessárias, se houver.
-5. O estado da spec e, quando aplicável, o pedido de aprovação para graduação, conforme as regras do projeto. No caso "editar a spec de `implemented/`", o conteúdo da spec da tarefa foi incorporado ao doc de `implemented/` e o arquivo temporário de `docs/in-progress/` foi apagado, no mesmo PR.
+5. Pendências, divergências relevantes fora do escopo e decisões humanas necessárias, se houver. Se a tarefa preencheu ou mudou a `## Stack`, inclua aqui a adoção do ECC pendente (`/sync-ecc-tools --adopt`).
+6. O estado da spec e, quando aplicável, o pedido de aprovação para graduação, conforme as regras do projeto. No caso "editar a spec de `implemented/`", o conteúdo da spec da tarefa foi incorporado ao doc de `implemented/` e o arquivo temporário de `docs/in-progress/` foi apagado, no mesmo PR.
 
 A tarefa só está concluída quando houver coerência entre o comportamento aprovado, a implementação e a documentação afetada, dentro do alcance explicitamente verificado. Código compilando e declaração genérica de “documentação atualizada” não são comprovação suficiente.

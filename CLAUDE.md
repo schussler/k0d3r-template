@@ -46,30 +46,35 @@ Mudar uma regra exige uma decisão registrada na seção **Decisões** do doc af
 - Testes: <runner de teste e de e2e>
 
 > **Gatilho:** se esta seção estiver vazia ou não refletir os arquivos do repo, antes da primeira tarefa de
-> código: detecte a stack, proponha o texto desta seção e rode `/sync-ecc-tools --adopt`.
+> código: detecte a stack e proponha o texto desta seção e as linhas da tabela de portões. A adoção dos itens
+> do ECC ligados à stack é um passo da pessoa, fora da tarefa: `/sync-ecc-tools --adopt`.
 
 ## Portões de verificação
 
 Fonte única dos comandos de verificação. Skills, agents e commands apontam para esta tabela em vez de repetir
 comandos. Marque `n/a` no portão que a stack não tem.
 
-| Portão | Comando | Observação |
-| --- | --- | --- |
-| Lint | `<comando de lint>` | zero warning |
-| Typecheck | `<comando de typecheck>` | |
-| Teste | `<comando de teste>` | |
-| Build | `<comando de build>` | |
-| Auditoria de dependências | `<auditoria de dependências>` | |
-| Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
-| Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | |
+| Portão | Comando | Quando | Observação |
+| --- | --- | --- | --- |
+| Lint | `<comando de lint>` | na iteração | zero warning |
+| Typecheck | `<comando de typecheck>` | na iteração | |
+| Teste | `<comando de teste>` | na iteração | |
+| Build | `<comando de build>` | antes do commit | |
+| Auditoria de dependências | `<auditoria de dependências>` | antes do commit | |
+| Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | na iteração | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
+| Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | na iteração | |
+| Modelo e esforço dos agents | `node scripts/model-routing/model-routing.mjs check` | na iteração | o frontmatter dos agents e o `advisorModel` batem com o `.claude/model-routing.json` ([`model-routing.md`](.claude/rules/common/model-routing.md)) |
 
+- **Quando rodar.** Enquanto itera numa mudança, rode só os portões "na iteração", que são rápidos. Antes de
+  qualquer commit, rode **todos**, os "antes do commit" também. Ao preencher a tabela, marque como "antes do
+  commit" o portão que demora (build, E2E, auditoria) e como "na iteração" o resto.
 - **Nunca mascare o código de saída.** Nada de `| tail`, `| head` ou `| grep` num portão: redirecione para
   arquivo, imprima o código e só então leia o log
   (`<comando> > "$TMPDIR/x.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/x.log"`).
 - **Commit só com todos os portões verdes**, condicionado ao código de saída de cada um, não à leitura do `echo`.
 - Rode os portões da **raiz** do repositório.
 - **Ao preencher esta tabela, ajuste o hook `guard-shell`** (`VERIFY_GATES` em `scripts/hooks/guard-shell.mjs`)
-  para reconhecer os nomes dos seus portões. O `docs-check` já está lá.
+  para reconhecer os nomes dos seus portões. O `docs-check` e o `model-routing` já estão lá.
 - Regras completas: [`.claude/rules/common/verification.md`](.claude/rules/common/verification.md).
 
 ## Convenções
@@ -82,16 +87,43 @@ comandos. Marque `n/a` no portão que a stack não tem.
   defeito.
 - **Segredos** nunca entram no repositório; `.env` com valor real nunca é versionado.
 
+## Como trabalhar
+
+Você é dono e mantenedor de longo prazo do código que a tarefa toca: a forma dele é decisão sua. Se o
+resultado mais simples pede reorganizar o que já existe no caminho da tarefa, reorganize em vez de remendar
+ao lado, e avise no plano da spec quando der para prever. Problema fora do caminho da tarefa é registrado
+na entrega, não corrigido.
+
+**Termine o trabalho.** Depois da spec aprovada, siga até a entrega. Erro, timeout, teste quebrado e
+ferramenta falhando são obstáculos comuns: ache a causa e resolva com o acesso que você tem. Não ofereça
+para esperar e não peça de novo o que já foi aprovado.
+
+**Não precisa de ok:** ler e buscar no repositório; rodar portões e testes; repetir um comando que falhou;
+criar e editar arquivos dentro do escopo aprovado; chamar subagentes; commit e push na branch da sessão com
+os portões verdes; escolhas técnicas rotineiras (nomes, estrutura interna, ordem das etapas).
+
+**Peça ok antes de:** implementar uma spec que ainda não foi aprovada; mudar comportamento, contrato ou
+escopo aprovados; graduar uma spec; abrir um PR; mudar uma regra de arquitetura; adotar um item do ECC;
+fazer uma operação destrutiva ou difícil de desfazer. Um bloqueio deliberado (arquivo marcado para não
+tocar, acesso negado, comando barrado pelo `guard-shell`) não é obstáculo a contornar: diga o que encontrou
+e procure outro caminho.
+
+**Prova.** Só diga que algo funciona se você viu funcionar. O que não deu para conferir, diga que não
+conferiu.
+
+**Relatório.** A entrega começa pelo resultado, em frases curtas, para quem não viu as chamadas de
+ferramenta nem os arquivos abertos.
+
 ## Workflow
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack` preenchida, pacotes do ECC propostos e adotados com confirmação | gatilho do CLAUDE.md, `/sync-ecc-tools --adopt`, `catalog.json` |
+| Dia zero | Stack detectada, `## Stack` e tabela de portões preenchidas pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
-| Especificar | Spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
-| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
-| Construir | Fatia por fatia, testes primeiro onde couber, commit e push por fatia | `tdd-workflow`, agent `tdd-guide`, skills de stack adotadas |
-| Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links` | `verification-loop`, `docs-check diff` |
+| Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
+| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
+| Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia; com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
+| Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
 | Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
 | Encerrar | Commit, PR só se pedirem; retro do toolset, com o lembrete de sync e a consulta ao catálogo antes do backlog | `conventional-commit-review`, `pr-body`, `/toolset-retro` |
@@ -100,9 +132,11 @@ comandos. Marque `n/a` no portão que a stack não tem.
 
 Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras de fase.
 
-- **A `/k0d3r-task` é o caminho padrão para qualquer mudança de código**, de Especificar a Encerrar: spec,
-  parada para aprovação, implementação, verificação e entrega. Mudança sem efeito de comportamento (refactor,
-  dependência, typo, ajuste de teste, renomeação) passa por ela **sem spec**. Se um pedido chegar fora do command
+- **A `/k0d3r-task` é o caminho padrão para qualquer mudança de código**, de Especificar a Encerrar:
+  investigação, entrevista (uma pergunta por vez, só o que o repositório não responde), spec, **uma parada
+  para aprovação**, testes escritos por um agent de contexto limpo, implementação até o fim, verificação por
+  outro agent de contexto limpo e entrega. Mudança sem efeito de comportamento (refactor, dependência, typo,
+  ajuste de teste, renomeação) passa por ela **sem spec**. Se um pedido chegar fora do command
   e mudar comportamento ou contrato, sugira a `/k0d3r-task` antes de implementar. Em qualquer caso, os portões
   valem, incluindo `docs-check diff` e `docs-check links`.
 - **Docs:** escreva conforme [`docs-writing.md`](.claude/rules/common/docs-writing.md); a manutenção dos docs

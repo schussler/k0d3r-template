@@ -10,14 +10,14 @@
 // Sem Node no PATH, o comando registrado em `.claude/settings.json` sai com 2 e uma mensagem: o hook
 // nunca libera em silêncio.
 
-import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { readFileSync, realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 // Palavras que identificam um portão de verificação no comando antes do pipe, como token inteiro
 // (`test`, `test:unit`, `check`, `lint:fix`...) ou como nome de script sem a extensão
 // (`scripts/docs-check/docs-check.mjs` → `docs-check`). AJUSTE ao preencher a tabela "Portões de
 // verificação" do CLAUDE.md: acrescente os nomes dos seus portões (ex.: `pytest`, `clippy`, `vet`).
-const VERIFY_GATES = ['test', 'lint', 'typecheck', 'build', 'check', 'docs-check'];
+const VERIFY_GATES = ['test', 'lint', 'typecheck', 'build', 'check', 'docs-check', 'model-routing'];
 
 // Comandos de leitura/busca: um `grep test x | head` procura o texto "test", não roda portão.
 const READ_ONLY_COMMANDS = new Set([
@@ -196,5 +196,24 @@ function main() {
   process.exit(2);
 }
 
-const isEntrypoint = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isEntrypoint) main();
+// Os dois lados passam pelo caminho real: chamado por um caminho com link simbólico (um worktree, `/tmp` no
+// macOS), `import.meta.url` já vem resolvido e `process.argv[1]` não, e a comparação crua saía com 0 sem rodar.
+function isEntrypoint() {
+  if (!process.argv[1]) return false;
+  let self;
+  try {
+    self = realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    // O próprio arquivo ilegível: roda, porque não rodar é o lado que deixa um portão verde ou um hook aberto.
+    return true;
+  }
+  try {
+    return realpathSync(process.argv[1]) === self;
+  } catch {
+    // A linha de comando não aponta para um arquivo (`node -e`, `node -`, um glob no `--test`): quem rodou como
+    // programa foi outro, e este módulo só foi importado.
+    return false;
+  }
+}
+
+if (isEntrypoint()) main();

@@ -9,12 +9,19 @@
   "note": "policy: track|adapt|local. See docs/implemented/processo/ecc-sync.md.",
   "items": [
     {
+      "downstream": ".claude/agents/acceptance-verifier.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
+    },
+    {
       "downstream": ".claude/agents/architect.md",
       "source": "agents/architect.md",
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Seção \"Architecture Decision Records (ADRs)\" trocada por \"Recording decisions\": decisão inline na seção Decisões do doc afetado, sem ADR nem ledger; decisão sem aprovação humana é proposta."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream. Seção \"Architecture Decision Records (ADRs)\" trocada por \"Recording decisions\": decisão inline na seção Decisões do doc afetado, sem ADR nem ledger; decisão sem aprovação humana é proposta."
     },
     {
       "downstream": ".claude/agents/code-architect.md",
@@ -22,7 +29,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/code-reviewer.md",
@@ -30,7 +37,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/code-simplifier.md",
@@ -38,7 +45,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/doc-updater.md",
@@ -46,7 +53,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Descrição sem `/update-codemaps` (ausente); comandos `npx tsx`/`madge`/`jsdoc2md` viraram \"ferramentas da stack\"; codemaps vão para `docs/implemented/arquitetura/codemaps/` em vez de `docs/CODEMAPS/`; \"docs/GUIDES\" virou os docs do ciclo de vida."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream. Descrição sem `/update-codemaps` (ausente); comandos `npx tsx`/`madge`/`jsdoc2md` viraram \"ferramentas da stack\"; codemaps vão para `docs/implemented/arquitetura/codemaps/` em vez de `docs/CODEMAPS/`; \"docs/GUIDES\" virou os docs do ciclo de vida."
     },
     {
       "downstream": ".claude/agents/docs-lookup.md",
@@ -54,7 +61,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/planner.md",
@@ -62,7 +69,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/pr-test-analyzer.md",
@@ -70,7 +77,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/refactor-cleaner.md",
@@ -78,7 +85,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. Descrição e bloco de detecção sem `npx knip/depcheck/ts-prune` fixos: tabela de exemplos por stack (JS/TS, Python, Go, Rust)."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream. Descrição e bloco de detecção sem `npx knip/depcheck/ts-prune` fixos: tabela de exemplos por stack (JS/TS, Python, Go, Rust)."
     },
     {
       "downstream": ".claude/agents/security-reviewer.md",
@@ -86,7 +93,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. `npm audit`/`npx eslint --plugin security` viraram `<auditoria de dependências>` e o linter de segurança da stack (tabela do CLAUDE.md)."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream. `npm audit`/`npx eslint --plugin security` viraram `<auditoria de dependências>` e o linter de segurança da stack (tabela do CLAUDE.md)."
     },
     {
       "downstream": ".claude/agents/silent-failure-hunter.md",
@@ -94,7 +101,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/agents/tdd-guide.md",
@@ -102,7 +109,14 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. `npm test`/`npm run test:coverage` viraram `<comando de teste>` e a variante de cobertura."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream. `npm test`/`npm run test:coverage` viraram `<comando de teste>` e a variante de cobertura."
+    },
+    {
+      "downstream": ".claude/agents/test-author.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
     },
     {
       "downstream": ".claude/agents/type-design-analyzer.md",
@@ -110,7 +124,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
+      "adaptation": "`model:` e `effort:` do frontmatter vêm do `.claude/model-routing.json`, escritos pelo `model-routing.mjs apply`, e não do upstream."
     },
     {
       "downstream": ".claude/commands/audit-docs.md",
@@ -199,7 +213,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`)."
+      "adaptation": "Sem o prefixo de plugin `ecc:` e sem `/ecc:ecc-guide`; tabela reduzida aos agents do template (+ ponteiro para os pacotes de stack e para o subagent `Explore`), mais os agents locais `test-author` e `acceptance-verifier`. \"Immediate Agent Usage\" (agents automáticos, \"No user prompt needed\") trocada por \"When to Delegate\" (quando delegar vale o custo; quem escala os agents de cada passo é a `/k0d3r-task`); \"Parallel Task Execution\" sem o \"ALWAYS\"; seção nova \"Briefing a Clean-Context Agent\", com o brief do `acceptance-verifier` ao fim de cada fatia e o do `test-author` no começo de cada fatia; ponteiro para `model-routing.md`."
     },
     {
       "downstream": ".claude/rules/common/code-review.md",
@@ -222,7 +236,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Nota sobre o ciclo de vida docs-first (link para `feature-lifecycle.md`); passo 4 ganhou branch única por sessão, commit por fatia só com portões verdes, push após cada commit e PR só quando pedido."
+      "adaptation": "Nota sobre o ciclo de vida docs-first (link para `feature-lifecycle.md`); passo 4 ganhou branch única por sessão, commit por fatia só com portões verdes, push após cada commit e PR só quando pedido. Passo 2: na `/k0d3r-task` os testes vêm do agent `test-author`, por fatia quando há mais de uma e antes do código dela, e o `tdd-guide` fica para fora dela; passo 3 cita o `acceptance-verifier`."
     },
     {
       "downstream": ".claude/rules/common/docs-writing.md",
@@ -254,6 +268,13 @@
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
+      "downstream": ".claude/rules/common/model-routing.md",
+      "source": null,
+      "type": "file",
+      "policy": "local",
+      "lastSyncedRef": null
+    },
+    {
       "downstream": ".claude/rules/common/patterns.md",
       "source": "rules/common/patterns.md",
       "type": "file",
@@ -266,7 +287,7 @@
       "type": "file",
       "policy": "adapt",
       "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
-      "adaptation": "Build Troubleshooting: `build-error-resolver` (fora) trocado por `/build-fix` ou o build-resolver da stack, se adotado."
+      "adaptation": "Build Troubleshooting: `build-error-resolver` (fora) trocado por `/build-fix` ou o build-resolver da stack, se adotado. Seção \"Model Selection Strategy\" (tabela Haiku/Sonnet/Opus) trocada por um ponteiro para `model-routing.md`: quem decide modelo e esforço é o `.claude/model-routing.json`."
     },
     {
       "downstream": ".claude/rules/common/security.md",
@@ -279,8 +300,9 @@
       "downstream": ".claude/rules/common/testing.md",
       "source": "rules/common/testing.md",
       "type": "file",
-      "policy": "track",
-      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+      "policy": "adapt",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Os absolutos \"ALL required\" e \"MANDATORY workflow\" viraram regra com escopo: teste antes do código quando há critério de aceite; mudança sem efeito de comportamento não pede teste novo. Na `/k0d3r-task` os testes vêm do agent `test-author`, por fatia quando há mais de uma, antes do código que cobrem; o `tdd-guide` fica para o ciclo conduzido pela sessão. Seção nova \"Isolation\": testes e portões não movem o cursor, não roubam o foco, não tocam som e não usam o perfil real do navegador."
     },
     {
       "downstream": ".claude/rules/common/verification.md",

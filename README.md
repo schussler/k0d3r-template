@@ -10,7 +10,9 @@ Ponto de partida para um projeto **docs-first** conduzido com o Claude Code, em 
   catálogo de tudo que o ECC oferece ([`.claude/README.md`](.claude/README.md));
 - dois hooks: `guard-shell` (bloqueia portão com pipe, operação destrutiva, `--no-verify` e push em `main`) e
   `strategic-compact` (sugere `/compact` nas fronteiras de fase);
-- o MCP Context7, para documentação atual de bibliotecas.
+- o MCP Context7, para documentação atual de bibliotecas;
+- um arquivo único de modelo e esforço dos agents ([`.claude/model-routing.json`](.claude/model-routing.json)),
+  com o Fable nos papéis em que ele é pertinente.
 
 ## Pré-requisitos
 
@@ -53,20 +55,43 @@ limite estourar, as consultas falham até a janela renovar.
 
 - [ ] Preencher **Projeto em um parágrafo** no `CLAUDE.md` e o [`docs/vision-and-scope.md`](docs/vision-and-scope.md).
 - [ ] **Dia zero:** se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repo,
-      detectar a stack, propor o texto da seção e rodar **`/sync-ecc-tools --adopt`** (nada é adotado sem
-      confirmação).
-- [ ] Preencher a tabela **Portões de verificação** do `CLAUDE.md` e ajustar `VERIFY_GATES` (e, se preciso,
+      detectar a stack e propor o texto da seção (a primeira `/k0d3r-task` faz isso). Depois, rodar você mesmo
+      **`/sync-ecc-tools --adopt`**: a tarefa não adota itens do ECC, só avisa que a adoção está pendente (nada
+      é adotado sem confirmação).
+- [ ] Preencher a tabela **Portões de verificação** do `CLAUDE.md`, com a coluna "Quando" ("na iteração" para
+      os portões rápidos, "antes do commit" para os lentos), e ajustar `VERIFY_GATES` (e, se preciso,
       `PROTECTED_BRANCHES`) no topo de `scripts/hooks/guard-shell.mjs`.
 - [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md`.
 - [ ] Registrar as primeiras **Regras de arquitetura**, cada uma com o porquê e o doc que a detalha.
 - [ ] Rodar os testes do toolset: `node --test` em `scripts/hooks/guard-shell.test.mjs`,
-      `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs` e
-      `scripts/docs-check/docs-check.test.mjs`.
+      `scripts/hooks/toolset-staleness.test.mjs`, `scripts/ecc-sync/report.test.mjs`,
+      `scripts/docs-check/docs-check.test.mjs` e `scripts/model-routing/model-routing.test.mjs`.
+- [ ] Conferir o [`.claude/model-routing.json`](.claude/model-routing.json) contra os modelos que a sua conta
+      tem (ver "Modelo e esforço dos agents" abaixo) e rodar `node scripts/model-routing/model-routing.mjs check`.
 - [ ] Rodar `node scripts/docs-check/docs-check.mjs links` e `stale` para ver o estado dos docs.
-- [ ] Fazer a primeira tarefa de código com a **`/k0d3r-task`** (o caminho padrão); a **`/audit-docs`** cuida
+- [ ] Fazer a primeira tarefa de código com a **`/k0d3r-task`** (o caminho padrão: ela entrevista você, para
+      uma vez para aprovar a spec e depois vai até a entrega); a **`/audit-docs`** cuida
       dos docs desatualizados ou nunca conferidos.
 - [ ] Escrever a primeira spec em `docs/planned/<área>/` a partir do
       [`feature-spec-template.md`](docs/implemented/processo/feature-spec-template.md).
+
+## Modelo e esforço dos agents
+
+Um arquivo só, o [`.claude/model-routing.json`](.claude/model-routing.json), decide em qual modelo e com qual
+esforço cada agent roda. Ele tem quatro níveis (`fronteira`, `raciocinio`, `padrao`, `rapido`), o nível de cada
+agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aberto e conselheiro.
+
+| Quando | O que fazer |
+| --- | --- |
+| Saiu um modelo novo, ou você quer gastar mais ou menos | Edite `niveis` e rode `node scripts/model-routing/model-routing.mjs apply`. |
+| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` para `opus` e rode o `apply`: o conselheiro aponta para esse nível e acompanha. Para desligar o conselheiro, `"conselheiro": null`. |
+| Entrou um agent novo | Dê um nível a ele em `agents` e rode o `apply`. |
+
+O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e a chave `advisorModel` no
+`.claude/settings.json`. O `check` é portão: falha quando algo diverge do arquivo. O conselheiro usa o recurso
+advisor do Claude Code, que é experimental e exige a API da Anthropic ou a Claude Platform on AWS; onde ele não
+está disponível, a sessão roda sem conselheiro e sem erro. As regras de uso estão em
+[`model-routing.md`](.claude/rules/common/model-routing.md).
 
 ## Mantendo o toolset atualizado
 
@@ -84,8 +109,8 @@ Os gatilhos:
 
 | Gatilho | O que fazer |
 | --- | --- |
-| Dia zero | `## Stack` preenchida → `/sync-ecc-tools --adopt`. |
-| Início de feature que muda a stack | Atualizar `## Stack` no mesmo commit do `git mv` para `in-progress/` → `/sync-ecc-tools --adopt`. |
+| Dia zero | `## Stack` preenchida → você roda `/sync-ecc-tools --adopt` (fora da `/k0d3r-task`, que só avisa). |
+| Início de feature que muda a stack | A tarefa atualiza a `## Stack` no mesmo commit do `git mv` para `in-progress/` e avisa → você roda `/sync-ecc-tools --adopt`, fora da tarefa. |
 | Início de sessão | O hook `toolset-staleness` avisa quando o último sync passou de `syncStaleDays` dias. |
 | Retro do toolset | O `/toolset-retro` faz a mesma checagem e consulta o `catalog.json` antes de mandar uma ferramenta faltante para o backlog. |
 | Sync manual | `/sync-ecc-tools` a qualquer momento: atualiza os itens adotados, regenera o catálogo e lista os candidatos novos, separados entre os ligados à stack e os outros. |

@@ -10,9 +10,9 @@
 // última conferência e quantos nunca foram conferidos, contados pela mesma lógica do `docs-check stale`
 // (importada, não duplicada). Sem nada a dizer, sem git, com erro ou acima de DOCS_BUDGET_MS: nada.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { staleCounts } from '../docs-check/docs-check.mjs';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -74,5 +74,24 @@ function main() {
   process.exit(0);
 }
 
-const isEntrypoint = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isEntrypoint) main();
+// Os dois lados passam pelo caminho real: chamado por um caminho com link simbólico (um worktree, `/tmp` no
+// macOS), `import.meta.url` já vem resolvido e `process.argv[1]` não, e a comparação crua saía com 0 sem rodar.
+function isEntrypoint() {
+  if (!process.argv[1]) return false;
+  let self;
+  try {
+    self = realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    // O próprio arquivo ilegível: roda, porque não rodar é o lado que deixa um portão verde ou um hook aberto.
+    return true;
+  }
+  try {
+    return realpathSync(process.argv[1]) === self;
+  } catch {
+    // A linha de comando não aponta para um arquivo (`node -e`, `node -`, um glob no `--test`): quem rodou como
+    // programa foi outro, e este módulo só foi importado.
+    return false;
+  }
+}
+
+if (isEntrypoint()) main();

@@ -272,3 +272,51 @@ test('docs-check: ignore leaves a doc out of stale and diff (and so of the hook 
   r.write('src/a.js', 'v2\n');
   assert.deepEqual(runDiff(r.root).rows.map((x) => x.doc), ['docs/implemented/real.md']);
 });
+
+// --- Guarda de entrada: chamado por um caminho com link simbólico (spec guarda-de-entrada-dos-scripts.md) ---
+import { spawnSync as linkSpawn } from 'node:child_process';
+import { mkdtempSync as linkMkdtemp, symlinkSync as linkSymlink, rmSync as linkRm } from 'node:fs';
+import { tmpdir as linkTmpdir } from 'node:os';
+import linkPath from 'node:path';
+import { fileURLToPath as linkFileURLToPath } from 'node:url';
+
+const LINK_SCRIPTS_DIR = linkPath.resolve(linkPath.dirname(linkFileURLToPath(import.meta.url)), '..');
+
+/** Chama o script pelo caminho real e por um link para scripts/, com os mesmos argumentos. */
+function linkBoth(args, { input, env } = {}) {
+  const tmp = linkMkdtemp(linkPath.join(linkTmpdir(), 'guarda-link-'));
+  const link = linkPath.join(tmp, 'scripts-link');
+  linkSymlink(LINK_SCRIPTS_DIR, link, 'dir');
+  const call = (base) =>
+    linkSpawn(process.execPath, [linkPath.join(base, 'docs-check/docs-check.mjs'), ...args], {
+      encoding: 'utf8', input, timeout: 20000, env: { ...process.env, ...env },
+    });
+  const result = { real: call(LINK_SCRIPTS_DIR), linked: call(link), tmp };
+  return result;
+}
+
+test('docs-check chamado por link simbólico recusa subcomando desconhecido com código 2 e a linha de uso', () => {
+  const { real, linked, tmp } = linkBoth(['frobnicate']);
+  linkRm(tmp, { recursive: true, force: true });
+  assert.equal(real.status, 2, 'controle (caminho real) tem de dar 2');
+  assert.match(real.stderr, /^Usage: docs-check\.mjs/m);
+  assert.equal(linked.status, 2, `pelo link: stdout=${linked.stdout} stderr=${linked.stderr}`);
+  assert.match(linked.stderr, /^Usage: docs-check\.mjs/m);
+  assert.equal(linked.stderr, real.stderr);
+});
+
+
+// --- Guarda de entrada: importado não roda, nem quando a linha de comando aponta para um caminho que não existe ---
+import { spawnSync as entrySpawn } from 'node:child_process';
+import entryPath from 'node:path';
+import { fileURLToPath as entryFileURLToPath, pathToFileURL as entryPathToFileURL } from 'node:url';
+
+test('docs-check.mjs só importado, com a linha de comando apontando para um caminho que não existe, não roda', () => {
+  // `node -e`, `node -` e um glob no `--test` deixam em process.argv[1] algo que não é arquivo.
+  const url = entryPathToFileURL(entryPath.join(entryPath.dirname(entryFileURLToPath(import.meta.url)), 'docs-check.mjs')).href;
+  const code = `import(${JSON.stringify(url)}).then(() => process.stdout.write('RETORNOU'))`;
+  const r = entrySpawn(process.execPath, ['-e', code, '/caminho/que/nao/existe.mjs'], { encoding: 'utf8', input: '', timeout: 20000 });
+  assert.equal(r.stderr, '', 'o main() do módulo importado não pode ter escrito nada');
+  assert.equal(r.stdout, 'RETORNOU', 'o import tem de voltar sem o main() encerrar o processo');
+  assert.equal(r.status, 0);
+});

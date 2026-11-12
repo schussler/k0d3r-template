@@ -389,3 +389,53 @@ test('the header shows date and age, and warns only when the target is younger t
   assert.match(young, /3 dias; alvo escolhido com --to/);
   assert.match(young, /\[!\] Alvo com menos de 14 dias: só com escolha explícita da pessoa, registrada nas notas do log/);
 });
+
+// --- Guarda de entrada: chamado por um caminho com link simbólico (spec guarda-de-entrada-dos-scripts.md) ---
+import { spawnSync as linkSpawn } from 'node:child_process';
+import { mkdtempSync as linkMkdtemp, symlinkSync as linkSymlink, rmSync as linkRm } from 'node:fs';
+import { tmpdir as linkTmpdir } from 'node:os';
+import linkPath from 'node:path';
+import { fileURLToPath as linkFileURLToPath } from 'node:url';
+
+const LINK_SCRIPTS_DIR = linkPath.resolve(linkPath.dirname(linkFileURLToPath(import.meta.url)), '..');
+
+/** Chama o script pelo caminho real e por um link para scripts/, com os mesmos argumentos. */
+function linkBoth(args, { input, env } = {}) {
+  const tmp = linkMkdtemp(linkPath.join(linkTmpdir(), 'guarda-link-'));
+  const link = linkPath.join(tmp, 'scripts-link');
+  linkSymlink(LINK_SCRIPTS_DIR, link, 'dir');
+  const call = (base) =>
+    linkSpawn(process.execPath, [linkPath.join(base, 'ecc-sync/report.mjs'), ...args], {
+      encoding: 'utf8', input, timeout: 20000, env: { ...process.env, ...env },
+    });
+  const result = { real: call(LINK_SCRIPTS_DIR), linked: call(link), tmp };
+  return result;
+}
+
+test('report chamado por link simbólico falha com código 1 e "[ecc-sync] Not a git repo" para um ECC sem .git', () => {
+  const eccDir = linkMkdtemp(linkPath.join(linkTmpdir(), 'ecc-sem-git-'));
+  const { real, linked, tmp } = linkBoth(['report', '--ecc', eccDir]);
+  linkRm(tmp, { recursive: true, force: true });
+  linkRm(eccDir, { recursive: true, force: true });
+  assert.equal(real.status, 1, 'controle (caminho real) tem de dar 1');
+  assert.match(real.stderr, /\[ecc-sync\] Not a git repo/);
+  assert.equal(linked.status, 1, `pelo link: stdout=${linked.stdout} stderr=${linked.stderr}`);
+  assert.match(linked.stderr, /\[ecc-sync\] Not a git repo/);
+  assert.equal(linked.stderr, real.stderr);
+});
+
+
+// --- Guarda de entrada: importado não roda, nem quando a linha de comando aponta para um caminho que não existe ---
+import { spawnSync as entrySpawn } from 'node:child_process';
+import entryPath from 'node:path';
+import { fileURLToPath as entryFileURLToPath, pathToFileURL as entryPathToFileURL } from 'node:url';
+
+test('report.mjs só importado, com a linha de comando apontando para um caminho que não existe, não roda', () => {
+  // `node -e`, `node -` e um glob no `--test` deixam em process.argv[1] algo que não é arquivo.
+  const url = entryPathToFileURL(entryPath.join(entryPath.dirname(entryFileURLToPath(import.meta.url)), 'report.mjs')).href;
+  const code = `import(${JSON.stringify(url)}).then(() => process.stdout.write('RETORNOU'))`;
+  const r = entrySpawn(process.execPath, ['-e', code, '/caminho/que/nao/existe.mjs'], { encoding: 'utf8', input: '', timeout: 20000 });
+  assert.equal(r.stderr, '', 'o main() do módulo importado não pode ter escrito nada');
+  assert.equal(r.stdout, 'RETORNOU', 'o import tem de voltar sem o main() encerrar o processo');
+  assert.equal(r.status, 0);
+});

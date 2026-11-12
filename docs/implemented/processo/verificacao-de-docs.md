@@ -4,7 +4,7 @@ codigo:
   - scripts/hooks/toolset-staleness.mjs
   - .claude/commands/audit-docs.md
   - .claude/rules/common/docs-writing.md
-conferido-em: 2026-11-04
+conferido-em: 2026-11-11
 ---
 
 # Verificação de docs

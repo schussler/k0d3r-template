@@ -12,6 +12,9 @@ catálogo.
 - **Processo:** [`../docs/implemented/processo/ecc-sync.md`](../docs/implemented/processo/ecc-sync.md).
 - **Comandos de verificação:** nenhum item repete comando de stack; todos apontam para a tabela **Portões de
   verificação** do [`../CLAUDE.md`](../CLAUDE.md).
+- **Modelo e esforço:** [`model-routing.json`](model-routing.json) decide em qual modelo e com qual esforço cada
+  agent roda, e onde o Fable entra. As linhas `model:` e `effort:` dos agents são escritas pelo
+  `model-routing.mjs apply`; não as edite à mão ([`rules/common/model-routing.md`](rules/common/model-routing.md)).
 
 ## Skills
 
@@ -37,7 +40,9 @@ catálogo.
 | `planner` | ECC (adapt) | Especificar e planejar a build dentro da spec. |
 | `architect` | ECC (adapt) | Mudança na forma do sistema; decisões vão para a seção Decisões do doc. |
 | `code-architect` | ECC (adapt) | Blueprint de implementação a partir dos padrões do código existente. |
-| `tdd-guide` | ECC (adapt) | Conduzir o ciclo RED/GREEN/REFACTOR. |
+| `tdd-guide` | ECC (adapt) | Conduzir o ciclo RED/GREEN/REFACTOR na própria sessão, fora da `/k0d3r-task`. |
+| `test-author` | local | Contexto limpo, antes do código (por fatia, quando há mais de uma, e a sessão espera por ele): escreve os testes que falham a partir só da spec aprovada. Não escreve implementação. |
+| `acceptance-verifier` | local | Contexto limpo, depois dos portões verdes e ao fim de cada fatia (só os critérios dela): confere cada critério de aceite rodando, e lista o que o diff muda e a spec não cobre. Não edita. |
 | `code-reviewer` | ECC (adapt) | Revisar todo diff de código. |
 | `security-reviewer` | ECC (adapt) | Diff que toca auth, entrada de usuário, segredo ou dados sensíveis. |
 | `silent-failure-hunter` | ECC (adapt) | Erros engolidos, fallbacks perigosos. |
@@ -63,7 +68,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `/security-scan` | ECC (adapt) | Auditoria do `.claude/` com AgentShield (`npx ecc-agentshield@1.6.0`). |
 | `/sync-ecc-tools` | local | Atualizar do ECC; `--adopt` para adotar itens da stack. |
 | `/toolset-retro` | local | Retro do toolset no fim da sessão. |
-| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: spec, parada para aprovação, implementação, verificação (portões + `docs-check`) e entrega. Sem spec quando não há efeito de comportamento. |
+| `/k0d3r-task` | local | O caminho padrão para qualquer mudança de código: investigação, entrevista (uma pergunta por vez), spec, uma parada para aprovação, testes pelo `test-author`, implementação até o fim, verificação (portões + `docs-check` + `acceptance-verifier`) e entrega. Sem spec quando não há efeito de comportamento. |
 | `/audit-docs` | local | Auditoria dos docs desatualizados ou nunca conferidos: um subagente por doc, amostra relida, parada para aprovação, correção e `conferido-em`. |
 
 ## Rules (`rules/common/`)
@@ -75,16 +80,18 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `docs-writing.md` | local | Como escrever e manter docs: `codigo:`, `conferido-em:`, resolver docs ligados ao código alterado. |
 | `git-workflow.md` | ECC (adapt) | Commits, branch única por sessão, verificação de branch, PR só quando pedido. |
 | `development-workflow.md` | ECC (adapt) | Pipeline de pesquisa, plano, TDD, revisão e commit. |
-| `agents.md` | ECC (adapt) | Quais agents existem e quando delegar. |
+| `agents.md` | ECC (adapt) | Quais agents existem, quando delegar vale o custo e como escrever o brief de um agent de contexto limpo. |
 | `code-review.md` | ECC (adapt) | Quando e como revisar. |
-| `performance.md` | ECC (adapt) | Escolha de modelo, janela de contexto, troubleshooting de build. |
-| `coding-style.md`, `testing.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, testes, segurança, hooks e padrões genéricos. |
+| `model-routing.md` | local | Modelo e esforço dos agents e dos subagents nativos; os quatro papéis do Fable; o que vence o arquivo. |
+| `performance.md` | ECC (adapt) | Ponteiro para o roteamento de modelo, janela de contexto, esforço da sessão, troubleshooting de build. |
+| `testing.md` | ECC (adapt) | Tipos de teste, cobertura e teste antes do código quando há critério de aceite; quem escreve os testes na `/k0d3r-task`. |
+| `coding-style.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, segurança, hooks e padrões genéricos. |
 
 ## Hooks (`scripts/hooks/`, registrados em `settings.json`)
 
 | Hook | Origem | O que faz |
 |---|---|---|
-| `guard-shell.mjs` | local | `PreToolUse` em `Bash`: bloqueia portão com pipe, operação destrutiva, `--no-verify` e push em `main`. Sem Node, bloqueia com mensagem. Ajuste `VERIFY_GATES` e `PROTECTED_BRANCHES` no topo. |
+| `guard-shell.mjs` | local | `PreToolUse` em `Bash`: bloqueia portão com pipe (inclusive o `model-routing`), operação destrutiva, `--no-verify` e push em `main`. Sem Node, bloqueia com mensagem. Ajuste `VERIFY_GATES` e `PROTECTED_BRANCHES` no topo. |
 | `toolset-staleness.mjs` | local | `SessionStart`: uma linha quando o último sync com o ECC passou de `syncStaleDays` dias (campo do manifest), e outra quando há docs desatualizados ou nunca conferidos (`docs-check`). Em dia, sem manifest ou sem Node, não imprime nada; nunca bloqueia. |
 | `suggest-compact.js` | ECC (adapt) | `PreToolUse` em `Edit`/`Write`: sugere `/compact` pelo tamanho do contexto. Só avisa; sem Node, não faz nada. |
 
@@ -94,6 +101,7 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 |---|---|---|
 | `docs-check/docs-check.mjs` | local | `links`, `diff` e `stale`: liga docs ao código e aponta os que ficaram para trás ([`verificacao-de-docs.md`](../docs/implemented/processo/verificacao-de-docs.md)). |
 | `ecc-sync/report.mjs` | local | Relatório, catálogo, inventário e bootstrap do sync com o ECC. |
+| `model-routing/model-routing.mjs` | local | `check` (portão) e `apply`: derivam do `model-routing.json` o `model:` e o `effort:` de cada agent e o `advisorModel` do `settings.json`. |
 
 ## MCP
 
@@ -102,8 +110,8 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 
 ## Pacotes de stack (adicione quando precisar)
 
-O caminho oficial para adotar um pacote é preencher a seção `## Stack` do `CLAUDE.md` e rodar
-**`/sync-ecc-tools --adopt`**: o Claude lê o `catalog.json`, propõe uma lista curta com o motivo de cada item e
+O caminho oficial para adotar um pacote é preencher a seção `## Stack` do `CLAUDE.md` (a `/k0d3r-task` faz isso)
+e você mesmo rodar **`/sync-ecc-tools --adopt`**, fora da tarefa: o Claude lê o `catalog.json`, propõe uma lista curta com o motivo de cada item e
 só copia o que você confirmar. Depois disso, o `/sync-ecc-tools` normal mantém o pacote atualizado.
 
 A lista abaixo é uma seleção por família, gerada do `catalog.json` (ECC no ref `76aaa77d`), com a primeira frase

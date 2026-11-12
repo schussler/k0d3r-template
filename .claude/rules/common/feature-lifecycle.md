@@ -29,20 +29,22 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack` preenchida, pacotes do ECC propostos e adotados com confirmação | gatilho do CLAUDE.md, `/sync-ecc-tools --adopt`, `catalog.json` |
+| Dia zero | Stack detectada, `## Stack` e tabela de portões preenchidas pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
-| Especificar | Spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
-| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
-| Construir | Fatia por fatia, testes primeiro onde couber, commit e push por fatia | `tdd-workflow`, agent `tdd-guide`, skills de stack adotadas |
-| Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links` | `verification-loop`, `docs-check diff` |
+| Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
+| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa, fora da tarefa |
+| Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia; com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
+| Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
 | Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
 | Encerrar | Commit, PR só se pedirem; retro do toolset, com o lembrete de sync e a consulta ao catálogo antes do backlog | `conventional-commit-review`, `pr-body`, `/toolset-retro` |
 | Manter o toolset | Atualizar os itens adotados, regenerar o catálogo, ver candidatos novos; podar o que pesa | `/sync-ecc-tools`, `context-budget`, `/security-scan` |
 | Manter os docs | Conferir contra o código os docs desatualizados ou nunca conferidos | `/audit-docs`, `docs-check stale` |
 
-A **`/k0d3r-task`** conduz uma tarefa inteira, de Especificar a Encerrar: spec, parada para aprovação,
-implementação, verificação e entrega. Mudança sem efeito de comportamento passa por ela sem spec.
+A **`/k0d3r-task`** conduz uma tarefa inteira, de Especificar a Encerrar: investigação, entrevista, spec, **uma
+parada para aprovação**, testes por agent de contexto limpo, implementação até o fim, verificação e entrega.
+Mudança sem efeito de comportamento passa por ela sem spec. O que dispensa aprovação e o que a pede está na
+seção **Como trabalhar** do [`CLAUDE.md`](../../../CLAUDE.md).
 
 Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras de fase. Escreva o estado
 (a spec, o checklist) em arquivo antes de compactar.
@@ -50,13 +52,17 @@ Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras
 ## 0. Dia zero
 
 Se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repositório, antes da primeira
-tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação", e
-rode `/sync-ecc-tools --adopt`. Nada é adotado sem confirmação humana.
+tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação" (com
+a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos). A adoção dos itens
+do ECC é um passo da pessoa, fora da tarefa (`/sync-ecc-tools --adopt`): a `/k0d3r-task` só avisa que ela está
+pendente. Nada é adotado sem confirmação humana.
 
 ## 1. Pesquisar e especificar
 
 Antes de escrever código ou adotar dependência, pesquise o que já existe (`search-first`) e a API atual da
-biblioteca (`documentation-lookup` / `docs-lookup`, via Context7). A spec nova nasce em
+biblioteca (`documentation-lookup` / `docs-lookup`, via Context7). Depois de investigar, pergunte à pessoa o
+que o repositório não responde: uma pergunta por vez, começando pelas que mudariam a forma de construir. A spec
+nova nasce em
 `docs/planned/<área>/` a partir do
 [`feature-spec-template.md`](../../../docs/implemented/processo/feature-spec-template.md), com o agent `planner`
 (e o `architect` quando a mudança mexe na forma do sistema: um serviço novo, uma fronteira, um protocolo).
@@ -72,14 +78,24 @@ questões abertas; um checklist "feito vs pendente". Marque essas seções como 
 na graduação). **Aprovação humana antes do código.**
 
 **Se a spec introduz linguagem, framework, banco ou serviço novo**, atualize a `## Stack` do `CLAUDE.md` no mesmo
-commit do `git mv` e rode `/sync-ecc-tools --adopt` para propor as peças do ECC da stack nova.
+commit do `git mv` e avise que a adoção das peças do ECC da stack nova está pendente: ela é um passo da pessoa,
+fora da tarefa (`/sync-ecc-tools --adopt`).
 
 ## 3. Construir — commit e push por fatia
 
-Testes primeiro onde couber (`tdd-workflow`, `tdd-guide`), usando as skills de stack adotadas. Commit por
+Testes primeiro: na `/k0d3r-task`, o agent `test-author` escreve os testes que falham a partir só da spec
+aprovada, de uma vez numa tarefa de uma fatia e no começo de cada fatia nas outras, e a sessão espera por ele
+antes de escrever o código que eles cobrem e implementa até ficarem verdes (`tdd-workflow`, skills de stack adotadas); fora dela, a
+própria sessão conduz o ciclo, com o `tdd-guide`. Depois da aprovação, a sessão segue até a entrega e só volta a
+parar se o comportamento, o contrato ou o escopo aprovados tiverem de mudar. Commit por
 fatia e **push depois de cada commit**, tudo na branch única da sessão (Conventional Commits, ver
-[`git-workflow.md`](./git-workflow.md)), e só com todos os portões verdes ([`verification.md`](./verification.md)).
+[`git-workflow.md`](./git-workflow.md)), e só com todos os portões verdes ([`verification.md`](./verification.md));
+durante a fatia, rodam só os portões "na iteração".
 Mantenha o checklist do plano honesto conforme as fatias entram.
+
+Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega. Ao fim de cada
+fatia com critério ligado, menos a última, um `acceptance-verifier` novo confere os critérios dela, recebendo só a spec, a ref base
+da fatia e o nome da fatia; a fatia seguinte só começa sem nenhum "falhou".
 
 ## 4. Verificar e revisar
 
@@ -87,7 +103,9 @@ Rode os portões da tabela do `CLAUDE.md` com `verification-loop`, sem mascarar 
 lista os docs ligados ao código que a branch mudou: resolva cada um, atualizando-o ou conferindo-o e mudando o
 `conferido-em` ([`docs-writing.md`](./docs-writing.md)); ele e o `docs-check links` saem com 0. Revise o diff com
 `/code-review` e o agent `code-reviewer`; use `security-reviewer` quando o diff tocar auth, entrada de usuário ou
-segredo, `silent-failure-hunter` nos caminhos de erro, e os reviewers da stack que o projeto adotou.
+segredo, `silent-failure-hunter` nos caminhos de erro, e os reviewers da stack que o projeto adotou. Com os
+portões verdes, o agent `acceptance-verifier` confere cada critério de aceite com contexto limpo: recebe só a
+spec e a ref base do diff, e devolve, por critério, "visto funcionando", "falhou" ou "não conferido".
 
 ## 5. Graduar — mover in-progress → implemented {#graduar}
 

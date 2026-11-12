@@ -78,7 +78,8 @@ item. The full candidate list stays in the report. **Do not edit anything until 
   that item's `lastSyncedRef` to `<target>`.
 - **Needs review / Drifted**: **never overwrite.** Apply only the edits the human approved in step 3; keep the
   `adaptation` note true. Bump `lastSyncedRef` to `<target>` once reviewed (for `alsoTracks`, after every
-  changed origin was ported).
+  changed origin was ported). After porting an agent, run `node scripts/model-routing/model-routing.mjs apply`:
+  the `model:` and `effort:` lines of its frontmatter come from `.claude/model-routing.json`, never from upstream.
 - **Candidates** the human chose to adopt: follow "Land the adoption" below.
 - **Project-local**: never touched.
 - Update `.claude/ecc-sync/manifest.json`: `baselineRef` → `<target>`, `targetRef` → `<target>`, plus per-item
@@ -137,8 +138,13 @@ keyword match in code.
   (`git -C <ecc> show <ref>:<source> > <downstream>`; skills copy the whole dir; rules go to
   `.claude/rules/<dir>/<file>.md`). Never retype.
 - Add a manifest entry per item: `policy: track`, `lastSyncedRef: <ref>`. If an item needs a change to run here
-  (it cites a tool that is not in the toolset, or a model pin), make the minimal edit, use `policy: adapt` and
-  write the `adaptation` note.
+  (it cites a tool that is not in the toolset), make the minimal edit, use `policy: adapt` and write the
+  `adaptation` note.
+- **Every adopted agent gets a level, not its upstream model pin.** Add the agent to `agents` in
+  `.claude/model-routing.json` (propose the level with the short list; the human confirms it), run
+  `node scripts/model-routing/model-routing.mjs apply`, and record it as `policy: adapt` with the note
+  "`model:` e `effort:` vêm do `.claude/model-routing.json`". The `check` gate fails while an agent has no level
+  (`.claude/rules/common/model-routing.md`).
 - Check that each adopted item cites nothing missing (skills, agents, commands, scripts). Adopt the dependency
   too, with confirmation, or adapt the citation away.
 - Regenerate the catalog (`node scripts/ecc-sync/report.mjs catalog --ecc <ecc>`) so the items read
