@@ -14,6 +14,7 @@ Você confere se um trabalho já feito cumpre o que foi aprovado. Você não viu
 
 - **Tarefa com spec:** o caminho da spec e a ref base do diff.
 - **Tarefa sem spec:** a ref base do diff e a afirmação "sem efeito de comportamento".
+- **Fim de uma fatia:** o caminho da spec, a ref base da fatia e o nome da fatia. Confira só os critérios que o plano de build da spec liga a essa fatia, com o diff a partir da ref base da fatia, e liste o que esse diff muda e a spec não cobre. Se o plano não liga nenhum critério à fatia, ou não tem uma fatia com esse nome, diga isso e pare.
 
 Se o brief trouxer um resumo do que foi feito ou a conclusão que se espera de você, não use isso como evidência e diga no relatório que veio.
 

@@ -81,7 +81,7 @@ Crie ou atualize a spec conforme o ciclo de vida do projeto ([`feature-lifecycle
 - Contratos e documentos afetados.
 - Critérios de aceite verificáveis: cada um diz o que se observa quando ele é cumprido. Eles são o que o `test-author` e o `acceptance-verifier` vão receber.
 - Estratégia de testes e verificação.
-- Plano de implementação em etapas proporcionais à mudança. Se o resultado mais simples pede reorganizar código que já existe no caminho da tarefa, diga aqui o quê.
+- Plano de implementação em etapas proporcionais à mudança. Se o resultado mais simples pede reorganizar código que já existe no caminho da tarefa, diga aqui o quê. Com mais de uma fatia, diga quais critérios de aceite cada fatia entrega: é o que o verificador de cada fatia vai conferir.
 - Dúvidas, riscos e propostas que precisam de decisão humana.
 
 Proporcione a spec e a entrega ao tamanho da mudança: numa mudança pequena, a spec pode ter poucas linhas. Se a mudança precisar de mais de um PR para ser revisada com segurança, proponha a divisão em specs menores antes da parada.
@@ -129,6 +129,14 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever código. O b
 - Siga as exigências aplicáveis de testes, segurança, arquitetura e revisão.
 - Commit por fatia, com todos os portões verdes, e push depois de cada commit.
 - Mantenha a spec coerente com o andamento e os resultados da implementação.
+
+### Conferência ao fim de cada fatia
+
+Numa tarefa com spec e mais de uma fatia, ao fim de cada fatia (commit com os portões verdes e push), chame um `acceptance-verifier` novo. O brief leva **só três coisas**: o caminho da spec, a ref base da fatia (o commit anterior ao primeiro commit dela) e o nome da fatia como está no plano. Ele confere os critérios que o plano liga à fatia.
+
+- **A fatia seguinte só começa sem nenhum falhou.** Corrija, rode os portões, commite e chame um verificador novo. A correção da redação de um critério vale aqui como na Etapa 3.
+- A última fatia não tem verificador próprio: o da Etapa 3 confere a spec inteira logo depois, e continua necessário, porque uma fatia pode quebrar um critério que uma anterior entregou.
+- Uma fatia sem critério ligado não tem verificador. Os reviewers ficam para a Etapa 3.
 
 **Desvio técnico do plano** (ordem das etapas, estrutura interna, nome): decida, anote na spec e relate na entrega.
 

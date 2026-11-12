@@ -33,7 +33,7 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
-| Construir | Testes primeiro, escritos por um agent de contexto limpo a partir só da spec; depois, fatia por fatia até o fim, com commit e push por fatia | agent `test-author`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
+| Construir | Testes primeiro, escritos por um agent de contexto limpo a partir só da spec; depois, fatia por fatia até o fim, com commit e push por fatia e, com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
 | Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
@@ -87,6 +87,10 @@ parar se o comportamento, o contrato ou o escopo aprovados tiverem de mudar. Com
 fatia e **push depois de cada commit**, tudo na branch única da sessão (Conventional Commits, ver
 [`git-workflow.md`](./git-workflow.md)), e só com todos os portões verdes ([`verification.md`](./verification.md)).
 Mantenha o checklist do plano honesto conforme as fatias entram.
+
+Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega. Ao fim de cada
+fatia, menos a última, um `acceptance-verifier` novo confere os critérios dela, recebendo só a spec, a ref base
+da fatia e o nome da fatia; a fatia seguinte só começa sem nenhum "falhou".
 
 ## 4. Verificar e revisar
 
