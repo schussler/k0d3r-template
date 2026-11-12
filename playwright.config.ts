@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 5199;
+// Porta fora da faixa padrão do Vite: outros projetos na mesma máquina costumam ocupar 5173–5199.
+const PORT = 5287;
 
 export default defineConfig({
   testDir: 'tests/e2e',

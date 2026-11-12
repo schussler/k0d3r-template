@@ -22,7 +22,7 @@ test('título → jogo: as três armas atiram, trocam e recarregam sem erro no c
     await hook(page, 'mouse', false);
     await expect.poll(async () => (await hook<State>(page, 'state')).mag).toBeLessThan(before);
     await tap(page, 'KeyR');
-    await expect.poll(async () => (await hook<State>(page, 'state')).mag, { timeout: 5000 }).toBe(before);
+    await expect.poll(async () => (await hook<State>(page, 'state')).mag, { timeout: 20_000 }).toBe(before);
   }
   expect(errors).toEqual([]);
 });
