@@ -199,6 +199,32 @@ proporcionais ao problema" deu lugar à regra de reorganizar o que está no cami
 dentro do escopo"). A linha em que a própria sessão verifica os critérios de aceite continua, agora dizendo que
 o `acceptance-verifier` é a segunda conferência e não a única.
 
+### 5. Conferência ao fim de cada fatia
+
+Acrescentado em 2026-11-11, depois de comparar a `/k0d3r-task` com o prompt "jeito certo" do gist, que manda
+conferir o trabalho por subagente em pontos de controle, e não só no fim.
+
+Numa tarefa com spec e **mais de uma fatia**:
+
+- O plano de build diz, em "Escopo e fatias", quais critérios de aceite cada fatia entrega (decisão da pessoa,
+  2026-11-11). Um critério pode aparecer em mais de uma fatia, e uma fatia pode não ter critério.
+- Ao fim de cada fatia, depois do commit com os portões verdes e do push, a sessão chama um
+  `acceptance-verifier` novo. O brief leva três coisas: o caminho da spec, a ref base da fatia (o commit
+  anterior ao primeiro commit dela) e o nome da fatia como está no plano.
+- Ele confere só os critérios ligados à fatia, e lista o que o diff da fatia muda e a spec não cobre.
+- **A próxima fatia só começa sem nenhum falhou na anterior** (decisão da pessoa, 2026-11-11): a sessão
+  corrige, roda os portões, commita e chama um verificador novo. A regra da correção da redação de um critério
+  (seção 4) vale aqui também.
+- **Proposta (agente):** a última fatia não tem verificador próprio. O verificador da Etapa 3 confere a spec
+  inteira logo em seguida, e essa conferência final continua, porque uma fatia pode quebrar um critério que uma
+  anterior entregou.
+- **Proposta (agente):** uma fatia sem critério ligado não tem verificador.
+- **Proposta (agente):** os reviewers (`code-reviewer` e os outros) continuam só no fim, na Etapa 3.
+- Tarefa de uma fatia só, ou sem spec: nada muda.
+
+Custo: um `acceptance-verifier`, no nível `raciocinio`, por fatia intermediária com critério, mais as rodadas
+depois de um **falhou**.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -212,6 +238,7 @@ o `acceptance-verifier` é a segunda conferência e não a única.
 | `.claude/ecc-sync/manifest.json` | entradas novas; `testing.md` vira `adapt`; notas `adaptation` |
 | `.claude/README.md` | inventário |
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md) | conferidos pelo `docs-check diff`; atualizados onde citam o fluxo da tarefa |
+| Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md) |
 
 ## Critérios de aceite
 
@@ -243,6 +270,15 @@ o `acceptance-verifier` é a segunda conferência e não a única.
     aprovado, manda parar quando o que teria de mudar é o comportamento, e manda a entrega mostrar, para cada
     critério corrigido, o texto antigo, o novo e o porquê. (Critério acrescentado em 2026-11-11 e reescrito no
     mesmo dia com a troca de decisão.)
+12. A `/k0d3r-task` manda, numa tarefa com spec e mais de uma fatia, chamar um `acceptance-verifier` novo ao
+    fim de cada fatia com critério ligado, menos a última, com um brief de três itens: o caminho da spec, a ref
+    base da fatia e o nome da fatia. E manda não começar a fatia seguinte enquanto houver um **falhou**.
+13. A `/k0d3r-task` e o comentário de "Escopo e fatias" do `feature-spec-template.md` pedem que o plano diga
+    quais critérios cada fatia entrega, quando há mais de uma fatia.
+14. `acceptance-verifier.md` descreve o brief de fatia: confere só os critérios ligados à fatia, com o diff a
+    partir da ref base da fatia, e lista o que esse diff muda e a spec não cobre.
+15. `agents.md` descreve o brief do verificador de fatia, e a linha Construir, igual no `CLAUDE.md` e no
+    `feature-lifecycle.md`, cita a conferência por fatia.
 
 ## Estratégia de testes e verificação
 
@@ -253,6 +289,10 @@ o `acceptance-verifier` é a segunda conferência e não a única.
   que falta; a entrega diz isso.
 - Os critérios 4 a 8 são conferidos por comando, com o código de saída na entrega.
 - Portões: todos os testes do toolset, `model-routing check`, `docs-check diff` e `docs-check links`.
+- Seção 5: os critérios 12 a 15 são texto de prompt, conferidos por leitura e busca, e por um
+  `acceptance-verifier` novo. **Proposta (agente):** sem `test-author` nesta parte, porque não há comportamento
+  executável para um teste falhar antes. O verificador por fatia rodando numa tarefa real fica **não
+  conferido** até a primeira `/k0d3r-task` com mais de uma fatia.
 
 ## Riscos
 
@@ -280,6 +320,10 @@ o `acceptance-verifier` é a segunda conferência e não a única.
   têm outro papel (conduzir o ciclo; avaliar a cobertura de um PR), e adaptá-los mais encarece o sync.
 - **Aprovada pela pessoa em 2026-11-11, por proposta do agente: o verificador não edita.** Quem corrige é a sessão; um verificador que conserta o que
   acha deixa de ser uma segunda opinião.
+- **Verificador ao fim de cada fatia** (decisão da pessoa, 2026-11-11), só em tarefa com mais de uma fatia.
+  Confere os critérios que o plano liga à fatia, e a fatia seguinte espera. Rejeitado: conferir todos os
+  critérios a cada fatia, marcando os não entregues como pendentes; conferir só o que saiu da spec; rodar o
+  verificador em segundo plano enquanto a fatia seguinte começa.
 - **As descrições "Use PROACTIVELY" ficam como estão e foram para o backlog** (proposta do agente, aprovada
   pela pessoa em 2026-11-11). São ordens fixas de delegar, mas ficam fora do alcance aprovado. A proposta dizia
   "dos 13 agents"; a contagem no código deu 7 (`planner`, `architect`, `code-reviewer`, `security-reviewer`,
@@ -338,7 +382,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 11 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 15 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -346,6 +390,8 @@ Critérios 1 a 11 conferidos; nenhum **falhou** do `acceptance-verifier`; todos 
 - [x] Fatia 2: seção "Como trabalhar" e reescrita da `/k0d3r-task`.
 - [x] Fatia 3: rules, tabelas de etapas, manifest.
 - [x] Fatia 4: READMEs, docs de `implemented/` conferidos, backlog, conferência por contexto limpo e ensaio.
+- [ ] Fatia 5 (seção 5, critérios 12 a 15): command, `acceptance-verifier.md`, `agents.md`, tabelas Construir,
+      seção 3 do `feature-lifecycle.md`, template de spec; conferência por contexto limpo.
 
 Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
 **falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de
