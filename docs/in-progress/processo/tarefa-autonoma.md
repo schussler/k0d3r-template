@@ -636,9 +636,14 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
-- [ ] Fatia 9 (seção 9, critérios 27 a 29): command, `acceptance-verifier.md`, `agents.md`,
+- [x] Fatia 9 (seção 9, critérios 27 a 29): command, `acceptance-verifier.md`, `agents.md`,
       `feature-lifecycle.md`, linhas Construir, inventário, template de spec, manifest; conferência por
       contexto limpo.
+
+Resultado da conferência da fatia 9, por um `acceptance-verifier` novo (base `4538bc0`): critérios 27 a 29
+vistos funcionando, por leitura e busca, nada no diff fora da spec. Uma observação dele, que não se confirmou: a
+tabela do `agents.md` ainda diria "at the end of each slice"; no disco, a linha diz "once over the whole spec".
+Não conferido: o meio-termo numa tarefa real.
 - [x] Fatia 8 (seção 8, critérios 24 a 26): command, `feature-lifecycle.md`, linhas Construir, os dois agents;
       conferência por contexto limpo.
 
