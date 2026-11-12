@@ -268,8 +268,10 @@ function coreDecor(level: LevelData, H: number, group: THREE.Group, d: Disposabl
   group.add(reactor);
   // Feixe de energia do reator ao chão.
   const beamMat = d.add(new THREE.MeshBasicMaterial({ color: 0x6f4cff, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false }));
-  const beam = new THREE.Mesh(d.add(new THREE.CylinderGeometry(0.6, 1.4, H - 3, 16, 1, true)), beamMat);
-  beam.position.set(W / 2, (H - 3) / 2, D / 2);
+  // O feixe termina acima da cabeça do chefe (que fica no centro), para não o lavar de luz.
+  const beamBottom = 8;
+  const beam = new THREE.Mesh(d.add(new THREE.CylinderGeometry(0.5, 1, H - 3 - beamBottom, 16, 1, true)), beamMat);
+  beam.position.set(W / 2, beamBottom + (H - 3 - beamBottom) / 2, D / 2);
   group.add(beam);
   // Faixas cianas nos pilares (caixas altas).
   const stripeMat = d.add(new THREE.MeshBasicMaterial({ color: 0x44e0ff }));

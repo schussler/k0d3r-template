@@ -90,7 +90,7 @@ export const THEMES: Readonly<Record<SectorId, Theme>> = {
     fogColor: 0x0a0716,
     fogDensity: 0.012,
     envIntensity: 0.35,
-    bloom: { strength: 0.8, threshold: 0.75 },
+    bloom: { strength: 0.6, threshold: 0.84 },
     background: 0x030208,
   },
 };

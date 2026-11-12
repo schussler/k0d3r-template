@@ -59,6 +59,7 @@ export class Boss extends Enemy {
     this.sightRange = 80;
     this.fovCos = -1;
     const shell = this.own(ROBOT.shell);
+    shell.color.setHex(0x7d8794);
     const dark = this.own(ROBOT.dark);
     const red = this.own(ROBOT.red);
     const eye = this.own(ROBOT.eyeRed);

@@ -66,14 +66,17 @@ test('partida completa: hangar → laboratórios → estufa → núcleo → vit�
 
   i = await waitFor(page, (s) => s.sector === 'core' && s.state === 'playing');
   expect(i.boss).toBe(1);
+  const coreElapsed = i.elapsed;
   // Três fases: derruba um terço por vez e deixa cada fase atacar um pouco.
   for (let phase = 0; phase < 3; phase++) {
     await page.waitForTimeout(5000);
     await page.evaluate(() => window.__kepler!.damageBoss(0.34));
   }
   i = await waitFor(page, (s) => s.state === 'victory', 10_000);
-  // O tempo total inclui todos os setores (não zera na troca).
-  expect(i.elapsed).toBeGreaterThan(20);
+  // O tempo total segue somando na troca de setor (não zera). Valor absoluto não serve: com GPU por
+  // software o passo por quadro é limitado e o cronômetro anda mais devagar que o relógio.
+  expect(coreElapsed).toBeGreaterThan(5);
+  expect(i.elapsed).toBeGreaterThan(coreElapsed + 3);
   await expect(page.locator('.screen-victory')).toBeVisible();
   await expect(page.locator('.screen-victory [data-field="time"]')).toHaveText(/^\d{2}:\d{2}\.\d$/);
 

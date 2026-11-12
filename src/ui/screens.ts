@@ -1,4 +1,4 @@
-import { LOGO } from './icons';
+import { logo } from './icons';
 
 export type ScreenId = 'title' | 'pause' | 'dead' | 'victory' | 'resume' | 'error' | 'none';
 
@@ -40,7 +40,7 @@ export class Screens {
 
     this.panel('title', `
       <div class="title-block">
-        <div class="logo">${LOGO}</div>
+        <div class="logo">${logo('logo-title')}</div>
         <h1>ESTAÇÃO <span>KEPLER</span></h1>
         <p class="tagline">A IA da estação virou os robôs contra a tripulação. Você é a última técnica acordada. Chegue ao núcleo e desligue-a.</p>
         <button class="btn primary" data-action="play">Jogar</button>
@@ -65,7 +65,7 @@ export class Screens {
       </div>`);
     this.panel('victory', `
       <div class="menu victory">
-        <div class="logo small">${LOGO}</div>
+        <div class="logo small">${logo('logo-victory')}</div>
         <h2>NÚCLEO DESLIGADO</h2>
         <p>A estação está quieta de novo. Os robôs param no meio do passo.</p>
         <div class="final-time"><span>Tempo total</span><strong data-field="time">00:00.0</strong></div>

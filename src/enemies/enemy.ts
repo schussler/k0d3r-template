@@ -325,7 +325,8 @@ export abstract class Enemy {
     this.flash = Math.max(0, this.flash - dt);
     // Acende enquanto pisca e devolve a cor-base só no quadro em que o piscar acaba (o drone muda o olho).
     for (const m of this.materials) {
-      if (this.flash > 0) m.mat.emissive.setRGB(1, 0.85, 0.6);
+      // Brilho moderado: acima do limiar do bloom o robô inteiro viraria um borrão branco.
+      if (this.flash > 0) m.mat.emissive.setRGB(0.45, 0.28, 0.12);
       else m.mat.emissive.copy(m.emissive);
     }
   }

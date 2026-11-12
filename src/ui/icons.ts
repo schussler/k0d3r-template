@@ -44,17 +44,20 @@ export const WEAPON_ICONS: Readonly<Record<WeaponId, string>> = {
 </svg>`,
 };
 
-/** Logotipo da tela de título: anel da estação com a órbita do planeta. */
-export const LOGO = `
+/**
+ * Logotipo: anel da estação com a órbita do planeta. O id do gradiente é por instância: com dois logos na
+ * página, um url(#id) repetido apontaria para o primeiro, que pode estar oculto (e então nada é pintado).
+ */
+export const logo = (id: string): string => `
 <svg viewBox="0 0 120 120" aria-hidden="true">
   <defs>
-    <radialGradient id="lg-planet" cx="40%" cy="35%" r="70%">
+    <radialGradient id="${id}" cx="40%" cy="35%" r="70%">
       <stop offset="0" stop-color="#eaf6ff"/>
       <stop offset="0.6" stop-color="#7fb2d6"/>
       <stop offset="1" stop-color="#1d3550"/>
     </radialGradient>
   </defs>
-  <circle cx="60" cy="60" r="26" fill="url(#lg-planet)"/>
+  <circle cx="60" cy="60" r="26" fill="url(#${id})"/>
   <ellipse cx="60" cy="60" rx="52" ry="16" fill="none" stroke="#5ff2ff" stroke-width="3" transform="rotate(-18 60 60)"/>
   <path d="M14 70a52 16 -18 0 0 92 -28" fill="none" stroke="#5ff2ff" stroke-width="3" opacity="0.35" transform="rotate(0 60 60)"/>
   <g transform="rotate(-18 60 60)">
