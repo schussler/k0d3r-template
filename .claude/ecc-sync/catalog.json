@@ -494,7 +494,7 @@
       "type": "agent",
       "description": "Expert TypeScript/JavaScript code reviewer specializing in type safety, async correctness, Node/web security, and idiomatic patterns. Use for all TypeScript and JavaScript code changes. MUST BE USED for TypeScript/JavaScript projects.",
       "source": "agents/typescript-reviewer.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "vue-reviewer",
@@ -1973,35 +1973,35 @@
       "type": "rule",
       "description": "TypeScript/JavaScript Coding Style",
       "source": "rules/typescript/coding-style.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/hooks",
       "type": "rule",
       "description": "TypeScript/JavaScript Hooks",
       "source": "rules/typescript/hooks.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/patterns",
       "type": "rule",
       "description": "TypeScript/JavaScript Patterns",
       "source": "rules/typescript/patterns.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/security",
       "type": "rule",
       "description": "TypeScript/JavaScript Security",
       "source": "rules/typescript/security.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "typescript/testing",
       "type": "rule",
       "description": "TypeScript/JavaScript Testing",
       "source": "rules/typescript/testing.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "vue/coding-style",
@@ -2043,49 +2043,49 @@
       "type": "rule",
       "description": "Web Coding Style",
       "source": "rules/web/coding-style.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/design-quality",
       "type": "rule",
       "description": "Web Design Quality Standards",
       "source": "rules/web/design-quality.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/hooks",
       "type": "rule",
       "description": "Web Hooks",
       "source": "rules/web/hooks.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/patterns",
       "type": "rule",
       "description": "Web Patterns",
       "source": "rules/web/patterns.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/performance",
       "type": "rule",
       "description": "Web Performance Rules",
       "source": "rules/web/performance.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/security",
       "type": "rule",
       "description": "Web Security Rules",
       "source": "rules/web/security.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "web/testing",
       "type": "rule",
       "description": "Web Testing Rules",
       "source": "rules/web/testing.md",
-      "adopted": false
+      "adopted": true
     },
     {
       "name": "accessibility",

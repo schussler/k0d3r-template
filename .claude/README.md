@@ -47,6 +47,7 @@ catálogo.
 | `refactor-cleaner` | ECC (adapt) | Código morto e duplicação. |
 | `doc-updater` | ECC (adapt) | Atualizar docs e codemaps; graduação de spec. |
 | `docs-lookup` | ECC (adapt) | Pergunta sobre biblioteca/API respondida pelo Context7. |
+| `typescript-reviewer` | ECC (adapt) | Revisar diff de TypeScript/JavaScript (tipos, async, segurança web). |
 
 Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 
@@ -79,6 +80,14 @@ Para explorar o código, use o subagent nativo `Explore` do Claude Code.
 | `code-review.md` | ECC (adapt) | Quando e como revisar. |
 | `performance.md` | ECC (adapt) | Escolha de modelo, janela de contexto, troubleshooting de build. |
 | `coding-style.md`, `testing.md`, `security.md`, `hooks.md`, `patterns.md` | ECC | Estilo, testes, segurança, hooks e padrões genéricos. |
+
+## Rules de stack (`rules/typescript/`, `rules/web/`)
+
+| Rule | Origem | O que cobre |
+|---|---|---|
+| `typescript/coding-style.md`, `hooks.md`, `patterns.md`, `security.md` | ECC | Estilo, hooks, padrões e segurança de TypeScript/JavaScript. |
+| `typescript/testing.md` | ECC (adapt) | Testes em TypeScript; E2E com Playwright pelo portão do `CLAUDE.md`. |
+| `web/coding-style.md`, `design-quality.md`, `hooks.md`, `patterns.md`, `performance.md`, `security.md`, `testing.md` | ECC | Frontend web: estilo, qualidade visual, desempenho, segurança e testes. |
 
 ## Hooks (`scripts/hooks/`, registrados em `settings.json`)
 

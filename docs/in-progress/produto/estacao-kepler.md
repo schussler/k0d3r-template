@@ -310,7 +310,7 @@ aberto.
 ### Feito vs pendente
 
 - [x] Dia zero: `## Stack`, portões, `VERIFY_GATES`, `.gitignore` (commit do `git mv`)
-- [ ] Adoção do ECC (`typescript-reviewer`, `typescript/*`, `web/*`): pendente, o clone do ECC em `../ECC` não existe e clonar pede confirmação
+- [x] Adoção do ECC: `typescript-reviewer` e as rules `typescript/*` e `web/*`
 - [x] Fatia 1 — sensação de tiro (sala de treino no hangar, com alvos; F2 em desenvolvimento dá as três armas)
 - [ ] Playtest da fatia 1
 - [ ] Fatia 2 — inimigos

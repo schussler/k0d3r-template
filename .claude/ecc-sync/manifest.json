@@ -113,6 +113,14 @@
       "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão."
     },
     {
+      "downstream": ".claude/agents/typescript-reviewer.md",
+      "source": "agents/typescript-reviewer.md",
+      "type": "file",
+      "policy": "adapt",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "Removido o `model:` fixo do frontmatter; o modelo é herdado da sessão. A menção ao `react-reviewer` fica: vale só para arquivos `.tsx`/`.jsx`, que o projeto não tem."
+    },
+    {
       "downstream": ".claude/commands/audit-docs.md",
       "source": null,
       "type": "file",
@@ -288,6 +296,91 @@
       "type": "file",
       "policy": "local",
       "lastSyncedRef": null
+    },
+    {
+      "downstream": ".claude/rules/typescript/coding-style.md",
+      "source": "rules/typescript/coding-style.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/hooks.md",
+      "source": "rules/typescript/hooks.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/patterns.md",
+      "source": "rules/typescript/patterns.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/security.md",
+      "source": "rules/typescript/security.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/typescript/testing.md",
+      "source": "rules/typescript/testing.md",
+      "type": "file",
+      "policy": "adapt",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34",
+      "adaptation": "A linha do agent `e2e-runner` (não adotado) virou um ponteiro para o portão E2E da tabela do `CLAUDE.md`."
+    },
+    {
+      "downstream": ".claude/rules/web/coding-style.md",
+      "source": "rules/web/coding-style.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/design-quality.md",
+      "source": "rules/web/design-quality.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/hooks.md",
+      "source": "rules/web/hooks.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/patterns.md",
+      "source": "rules/web/patterns.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/performance.md",
+      "source": "rules/web/performance.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/security.md",
+      "source": "rules/web/security.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
+    },
+    {
+      "downstream": ".claude/rules/web/testing.md",
+      "source": "rules/web/testing.md",
+      "type": "file",
+      "policy": "track",
+      "lastSyncedRef": "76aaa77df6adc5b889e689007bf99b9a4f74af34"
     },
     {
       "downstream": ".claude/skills/api-design",
