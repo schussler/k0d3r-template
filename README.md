@@ -79,14 +79,14 @@ limite estourar, as consultas falham até a janela renovar.
 
 Um arquivo só, o [`.claude/model-routing.json`](.claude/model-routing.json), decide em qual modelo e com qual
 esforço cada agent roda. Ele tem quatro níveis (`fronteira`, `raciocinio`, `padrao`, `rapido`), o nível de cada
-agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aberto e, se você ligar,
+agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aberto e
 conselheiro.
 
 | Quando | O que fazer |
 | --- | --- |
 | Saiu um modelo novo, ou você quer gastar mais ou menos | Edite `niveis` e rode `node scripts/model-routing/model-routing.mjs apply`. |
-| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` para `opus` e rode o `apply`. Se você ligou o conselheiro, ele aponta para um nível e acompanha. |
-| Você quer o conselheiro | Ele vem desligado (`"conselheiro": null`). Aponte `conselheiro` para um nível com `fable`, `opus` ou `sonnet` e rode o `apply`. |
+| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` para `opus` e rode o `apply`. O conselheiro aponta para esse nível e acompanha. |
+| Você não quer o conselheiro | Ponha `"conselheiro": null` e rode o `apply`: ele remove o `advisorModel` do `.claude/settings.json`. Para religar, aponte `conselheiro` para um nível com `fable`, `opus` ou `sonnet` e rode o `apply`. |
 | Entrou um agent novo | Dê um nível a ele em `agents` e rode o `apply`. |
 
 O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e cuida da chave `advisorModel` no
