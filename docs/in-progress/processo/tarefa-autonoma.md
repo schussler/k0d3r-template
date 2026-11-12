@@ -229,6 +229,45 @@ Numa tarefa com spec e **mais de uma fatia**:
 Custo: um `acceptance-verifier`, no nível `raciocinio`, por fatia intermediária com critério, mais as rodadas
 depois de um **falhou**.
 
+### 6. Testes por fatia, antes do código da fatia, e o menor número de fatias
+
+Acrescentado em 2026-11-12, depois de rodar a versão nova com o prompt da Estação Kepler (sessão `novo`, em
+Sonnet 5.5, 8 fatias planejadas).
+
+O que o teste mostrou:
+
+- **Testes de uma vez só travam o commit.** Com o `test-author` escrevendo no início os testes de todos os
+  critérios, o portão de teste fica vermelho até a última fatia e nenhum commit de fatia passa. A sessão desviou
+  sozinha para testes por fatia, e pediu isso na parada.
+- **O `test-author` rodou ao lado do código.** A sessão o chamou em segundo plano, escreveu código da fatia
+  enquanto ele rodava e depois esperou o fim dele com laços de `sleep` sobre o arquivo de saída. O da F2
+  relatou: "não pude mostrar que eles falham antes do código: a implementação já estava sendo escrita na mesma
+  árvore", e leu um arquivo de implementação em escrita.
+- **O brief levou mais que a spec:** a lista de critérios, a divisão entre unidade e E2E e instruções sobre
+  arquivos.
+- **Cada fatia custa uma rodada de `test-author` e uma de verificador.** Na `novo`, de 5 a 18 minutos e de 6 a 7
+  minutos. Rodar o E2E custou de 0,1 a 1,8 minuto por vez.
+
+Comportamento desejado:
+
+- **Testes por fatia.** Numa tarefa com mais de uma fatia, o `test-author` é chamado no começo de cada fatia
+  com um brief de dois itens: o caminho da spec e o nome da fatia como está no plano. Ele escreve os testes só
+  dos critérios que o plano liga à fatia. Numa tarefa de uma fatia, nada muda: o brief é só o caminho da spec.
+  Uma fatia sem critério ligado não tem `test-author`.
+- **Antes do código da fatia, sem paralelo.** A sessão chama o `test-author` em primeiro plano e só escreve
+  código da fatia depois que ele devolve. Não o chama em segundo plano nem espera por ele com laço de espera.
+- **O menor número de fatias.** O plano usa o menor número de fatias em que cada uma ainda entrega algo que se
+  confere rodando. Uma fatia que só existe para organizar o trabalho se junta à vizinha.
+
+**Proposta (agente): sem a separação entre portões rápidos e lentos.** A pessoa aprovou em 2026-11-12 três
+correções, e uma era rodar o E2E só no fim da fatia. O agente justificou essa correção com "26 minutos de E2E",
+número que estava errado: eram esperas pelos subagents, contadas como E2E porque o comando citava o caminho
+`e2e/`. Medido de novo, o E2E não pesa, e a `/k0d3r-task` já faz um commit por fatia, então os portões já
+rodam uma vez por fatia. Fica fora até haver medição que a justifique.
+
+Fora de escopo: o `test-author` escrever os testes da fatia seguinte enquanto a sessão implementa a atual
+(opção apresentada em 2026-11-12, não escolhida).
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -243,6 +282,7 @@ depois de um **falhou**.
 | `.claude/README.md` | inventário |
 | [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`verificacao-de-docs.md`](../../implemented/processo/verificacao-de-docs.md) | conferidos pelo `docs-check diff`; atualizados onde citam o fluxo da tarefa |
 | Seção 5 (conferência por fatia) | `k0d3r-task.md` (plano e Etapa 2), `acceptance-verifier.md` (brief de fatia), `agents.md` (brief e quando usar), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" no [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md), linha do agent no inventário do `.claude/README.md`, nota `adaptation` do `agents.md` no manifest |
+| Seção 6 (testes por fatia, menos fatias) | `k0d3r-task.md` (plano e "Testes por contexto limpo"), `test-author.md` (brief de fatia), `agents.md` (brief), `testing.md` e `development-workflow.md` ("antes do código"), linha Construir do `CLAUDE.md` e do `feature-lifecycle.md` e a seção 3 deste, comentário de "Escopo e fatias" do template, inventário do `.claude/README.md`, notas `adaptation` do manifest |
 
 ## Critérios de aceite
 
@@ -283,6 +323,18 @@ depois de um **falhou**.
     partir da ref base da fatia, e lista o que esse diff muda e a spec não cobre.
 15. `agents.md` descreve o brief do verificador de fatia, e a linha Construir, igual no `CLAUDE.md` e no
     `feature-lifecycle.md`, cita a conferência por fatia.
+16. A `/k0d3r-task` manda, numa tarefa com mais de uma fatia, chamar o `test-author` no começo de cada fatia
+    com critério ligado, com um brief de dois itens (o caminho da spec e o nome da fatia), em primeiro plano, e
+    não escrever código da fatia antes de ele devolver. Ela proíbe chamá-lo em segundo plano e esperar por ele
+    com laço de espera. Numa tarefa de uma fatia, o brief continua sendo só o caminho da spec.
+17. `test-author.md` descreve o brief de fatia: testes só dos critérios que o plano liga à fatia; se o plano
+    não tem a fatia ou não liga critério a ela, ele diz isso e para.
+18. A `/k0d3r-task` e o comentário de "Escopo e fatias" do template pedem o menor número de fatias em que cada
+    uma entrega algo que se confere rodando.
+19. `agents.md` traz o brief de fatia do `test-author`. A linha Construir, igual no `CLAUDE.md` e no
+    `feature-lifecycle.md`, diz que os testes vêm por fatia, antes do código dela. `testing.md`,
+    `development-workflow.md` e a seção 3 do `feature-lifecycle.md` não dizem mais que todos os testes vêm
+    antes de qualquer código.
 
 ## Estratégia de testes e verificação
 
@@ -298,6 +350,10 @@ depois de um **falhou**.
   `test-author` nesta parte, porque não há comportamento
   executável para um teste falhar antes. O verificador por fatia rodando numa tarefa real fica **não
   conferido** até a primeira `/k0d3r-task` com mais de uma fatia.
+- Seção 6: os critérios 16 a 19 também são texto de prompt, conferidos por leitura e busca e por um
+  `acceptance-verifier` novo, sem `test-author`, pelo mesmo motivo da seção 5. O efeito numa tarefa real (o
+  `test-author` em primeiro plano, menos fatias, o tempo total) só aparece rodando de novo o prompt da Estação
+  Kepler, e fica **não conferido** até lá.
 
 ## Riscos
 
@@ -329,6 +385,9 @@ depois de um **falhou**.
   Confere os critérios que o plano liga à fatia, e a fatia seguinte espera. Rejeitado: conferir todos os
   critérios a cada fatia, marcando os não entregues como pendentes; conferir só o que saiu da spec; rodar o
   verificador em segundo plano enquanto a fatia seguinte começa.
+- **Testes por fatia, antes do código dela, e o menor número de fatias** (decisão da pessoa, 2026-11-12,
+  depois do teste da Estação Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a
+  seguinte; manter os testes de uma vez no início, que travam o commit por fatia.
 - **As descrições "Use PROACTIVELY" ficam como estão e foram para o backlog** (proposta do agente, aprovada
   pela pessoa em 2026-11-11). São ordens fixas de delegar, mas ficam fora do alcance aprovado. A proposta dizia
   "dos 13 agents"; a contagem no código deu 7 (`planner`, `architect`, `code-reviewer`, `security-reviewer`,
@@ -387,7 +446,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 15 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 19 conferidos; nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -404,6 +463,10 @@ antiga difere). Nenhum **falhou**. Ele listou o que o diff trazia e esta spec n�
 manifest, o caso de borda "diga isso e pare" do agent e a falta da exceção "fatia sem critério" na seção 3 do
 `feature-lifecycle.md`. Os dois primeiros entraram na tabela de contratos, o terceiro na seção 5, e a exceção
 entrou no `feature-lifecycle.md`.
+
+- [ ] Fatia 6 (seção 6, critérios 16 a 19): command, `test-author.md`, `agents.md`, `testing.md`,
+      `development-workflow.md`, tabelas Construir, seção 3 do `feature-lifecycle.md`, template, inventário,
+      manifest; conferência por contexto limpo.
 
 Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
 **falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de
