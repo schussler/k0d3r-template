@@ -10,8 +10,8 @@
 // Sem Node no PATH, o comando registrado em `.claude/settings.json` sai com 2 e uma mensagem: o hook
 // nunca libera em silêncio.
 
-import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { readFileSync, realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 // Palavras que identificam um portão de verificação no comando antes do pipe, como token inteiro
 // (`test`, `test:unit`, `check`, `lint:fix`...) ou como nome de script sem a extensão
@@ -196,5 +196,16 @@ function main() {
   process.exit(2);
 }
 
-const isEntrypoint = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isEntrypoint) main();
+// Os dois lados passam pelo caminho real: chamado por um caminho com link simbólico (um worktree, `/tmp` no
+// macOS), `import.meta.url` já vem resolvido e `process.argv[1]` não, e a comparação crua saía com 0 sem rodar.
+// Se o caminho real não puder ser lido, roda: não rodar é o lado que deixa um portão verde ou um hook aberto.
+function isEntrypoint() {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return true;
+  }
+}
+
+if (isEntrypoint()) main();

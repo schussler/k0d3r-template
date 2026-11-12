@@ -927,6 +927,18 @@ function main() {
   fail('Usage: report.mjs <report|catalog|inventory|bootstrap> --ecc <path> [--to <ref>] [--manifest <p>] [--claude-md <p>] [--json <p>] [--out <p>]');
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+// Os dois lados passam pelo caminho real: chamado por um caminho com link simbólico (um worktree, `/tmp` no
+// macOS), `import.meta.url` já vem resolvido e `process.argv[1]` não, e a comparação crua saía com 0 sem rodar.
+// Se o caminho real não puder ser lido, roda: não rodar é o lado que deixa um portão verde ou um hook aberto.
+function isEntrypoint() {
+  if (!process.argv[1]) return false;
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return true;
+  }
+}
+
+if (isEntrypoint()) {
   main();
 }

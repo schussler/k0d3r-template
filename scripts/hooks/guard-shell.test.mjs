@@ -164,3 +164,38 @@ test('the model-routing script is a gate in both subcommands: piped is blocked, 
   const safe = 'node scripts/model-routing/model-routing.mjs check > "$TMPDIR/m.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/m.log"';
   assert.equal(evaluate(safe), null);
 });
+
+// --- Guarda de entrada: chamado por um caminho com link simbólico (spec guarda-de-entrada-dos-scripts.md) ---
+import { spawnSync as linkSpawn } from 'node:child_process';
+import { mkdtempSync as linkMkdtemp, mkdirSync as linkMkdir, writeFileSync as linkWrite, symlinkSync as linkSymlink, rmSync as linkRm } from 'node:fs';
+import { tmpdir as linkTmpdir } from 'node:os';
+import linkPath from 'node:path';
+import { fileURLToPath as linkFileURLToPath } from 'node:url';
+
+const LINK_SCRIPTS_DIR = linkPath.resolve(linkPath.dirname(linkFileURLToPath(import.meta.url)), '..');
+
+/** Chama o script pelo caminho real e por um link para scripts/, com os mesmos argumentos. */
+function linkBoth(args, { input, env } = {}) {
+  const tmp = linkMkdtemp(linkPath.join(linkTmpdir(), 'guarda-link-'));
+  const link = linkPath.join(tmp, 'scripts-link');
+  linkSymlink(LINK_SCRIPTS_DIR, link, 'dir');
+  const call = (base) =>
+    linkSpawn(process.execPath, [linkPath.join(base, 'hooks/guard-shell.mjs'), ...args], {
+      encoding: 'utf8', input, timeout: 20000, env: { ...process.env, ...env },
+    });
+  const result = { real: call(LINK_SCRIPTS_DIR), linked: call(link), tmp };
+  return result;
+}
+
+test('guard-shell chamado por link simbólico bloqueia um comando destrutivo (código 2, [guard-shell:destructive])', () => {
+  // O payload vai por stdin: o guard-shell da sessão bloquearia um comando cujo texto tivesse o padrão.
+  const payload = JSON.stringify({ tool_name: 'Bash', tool_input: { command: ['rm', '-rf', '/tmp/x'].join(' ') } });
+  const { real, linked, tmp } = linkBoth([], { input: payload });
+  linkRm(tmp, { recursive: true, force: true });
+  assert.equal(real.status, 2, 'controle (caminho real) tem de dar 2');
+  assert.match(real.stderr, /\[guard-shell:destructive\]/);
+  assert.equal(linked.status, 2, `pelo link: stdout=${linked.stdout} stderr=${linked.stderr}`);
+  assert.match(linked.stderr, /\[guard-shell:destructive\]/);
+  assert.equal(linked.stderr, real.stderr);
+});
+

@@ -109,3 +109,40 @@ test('the docs line never breaks the session: no git, an error or a slow count p
   assert.equal(docsLine('/x', 10, slow), null, 'over the time budget');
   assert.match(docsLine('/x', 1000, () => ({ stale: 1, never: 0 })), /^docs: 1 com código/);
 });
+
+// --- Guarda de entrada: chamado por um caminho com link simbólico (spec guarda-de-entrada-dos-scripts.md) ---
+import { spawnSync as linkSpawn } from 'node:child_process';
+import { mkdtempSync as linkMkdtemp, mkdirSync as linkMkdir, writeFileSync as linkWrite, symlinkSync as linkSymlink, rmSync as linkRm } from 'node:fs';
+import { tmpdir as linkTmpdir } from 'node:os';
+import linkPath from 'node:path';
+import { fileURLToPath as linkFileURLToPath } from 'node:url';
+
+const LINK_SCRIPTS_DIR = linkPath.resolve(linkPath.dirname(linkFileURLToPath(import.meta.url)), '..');
+
+/** Chama o script pelo caminho real e por um link para scripts/, com os mesmos argumentos. */
+function linkBoth(args, { input, env } = {}) {
+  const tmp = linkMkdtemp(linkPath.join(linkTmpdir(), 'guarda-link-'));
+  const link = linkPath.join(tmp, 'scripts-link');
+  linkSymlink(LINK_SCRIPTS_DIR, link, 'dir');
+  const call = (base) =>
+    linkSpawn(process.execPath, [linkPath.join(base, 'hooks/toolset-staleness.mjs'), ...args], {
+      encoding: 'utf8', input, timeout: 20000, env: { ...process.env, ...env },
+    });
+  const result = { real: call(LINK_SCRIPTS_DIR), linked: call(link), tmp };
+  return result;
+}
+
+test('toolset-staleness chamado por link simbólico imprime o aviso de sync velho e sai com 0', () => {
+  const project = linkMkdtemp(linkPath.join(linkTmpdir(), 'staleness-link-'));
+  linkMkdir(linkPath.join(project, '.claude', 'ecc-sync'), { recursive: true });
+  linkWrite(linkPath.join(project, '.claude', 'ecc-sync', 'manifest.json'), JSON.stringify({ syncedAt: '2020-01-01', syncStaleDays: 30 }));
+  const { real, linked, tmp } = linkBoth([], { env: { CLAUDE_PROJECT_DIR: project } });
+  linkRm(tmp, { recursive: true, force: true });
+  linkRm(project, { recursive: true, force: true });
+  assert.equal(real.status, 0, 'controle (caminho real) tem de dar 0');
+  assert.match(real.stdout, /^\[toolset\] último sync com o ECC há/m);
+  assert.equal(linked.status, 0);
+  assert.match(linked.stdout, /^\[toolset\] último sync com o ECC há/m);
+  assert.equal(linked.stdout, real.stdout);
+});
+

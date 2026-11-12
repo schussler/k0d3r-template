@@ -447,8 +447,18 @@ function main() {
   process.exit(0);
 }
 
-// Os dois lados passam pelo realpath: chamado por um caminho com link simbólico (um worktree, `/tmp` no macOS),
-// `import.meta.url` já vem resolvido e `process.argv[1]` não. Comparados crus, o script saía com 0 sem rodar.
-if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
+// Os dois lados passam pelo caminho real: chamado por um caminho com link simbólico (um worktree, `/tmp` no
+// macOS), `import.meta.url` já vem resolvido e `process.argv[1]` não, e a comparação crua saía com 0 sem rodar.
+// Se o caminho real não puder ser lido, roda: não rodar é o lado que deixa um portão verde ou um hook aberto.
+function isEntrypoint() {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return true;
+  }
+}
+
+if (isEntrypoint()) {
   main();
 }
