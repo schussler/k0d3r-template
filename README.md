@@ -57,7 +57,8 @@ limite estourar, as consultas falham até a janela renovar.
 - [ ] **Dia zero:** se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repo,
       detectar a stack, propor o texto da seção e rodar **`/sync-ecc-tools --adopt`** (nada é adotado sem
       confirmação).
-- [ ] Preencher a tabela **Portões de verificação** do `CLAUDE.md` e ajustar `VERIFY_GATES` (e, se preciso,
+- [ ] Preencher a tabela **Portões de verificação** do `CLAUDE.md`, com a coluna "Quando" ("na iteração" para
+      os portões rápidos, "antes do commit" para os lentos), e ajustar `VERIFY_GATES` (e, se preciso,
       `PROTECTED_BRANCHES`) no topo de `scripts/hooks/guard-shell.mjs`.
 - [ ] Definir o idioma do código e dos docs em **Convenções** no `CLAUDE.md`.
 - [ ] Registrar as primeiras **Regras de arquitetura**, cada uma com o porquê e o doc que a detalha.

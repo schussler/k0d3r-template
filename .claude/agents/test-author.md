@@ -12,7 +12,10 @@ Você escreve os testes de um comportamento que ainda não foi implementado. Que
 
 ## O que você recebe
 
-O caminho da spec aprovada. Se o brief trouxer mais do que isso (um plano de implementação, um resumo do que vai ser feito, o resultado que se espera de você), não use o excedente e diga no relatório que ele veio.
+- **Tarefa de uma fatia:** o caminho da spec aprovada. Escreva testes para todos os critérios de aceite.
+- **Tarefa de várias fatias:** o caminho da spec e o nome de uma fatia do plano de build. Escreva testes só para os critérios que o plano liga a essa fatia; os testes das fatias anteriores já existem e devem continuar passando. Se o plano não tem uma fatia com esse nome, ou não liga nenhum critério a ela, diga isso e pare.
+
+Se o brief trouxer mais do que isso (um plano de implementação, um resumo do que vai ser feito, o resultado que se espera de você), não use o excedente e diga no relatório que ele veio.
 
 ## Como trabalhar
 
@@ -25,7 +28,7 @@ O caminho da spec aprovada. Se o brief trouxer mais do que isso (um plano de imp
 
 ## Antes de entregar
 
-Rode o comando de teste sem pipe, com a saída redirecionada para um arquivo, e leia o código de saída e o log. O comportamento ainda não existe, então os testes novos devem falhar. Confira três coisas:
+Rode o comando de teste sem pipe, com a saída redirecionada para um arquivo, e leia o código de saída e o log. O comportamento ainda não existe, então os testes novos devem falhar. Se o código de que um teste depende já existe e o teste passa de primeira, diga isso no relatório: ele não foi visto falhando. Confira três coisas:
 
 - **Cada teste falha pelo motivo certo**: o comportamento não existe, e não um erro de sintaxe, de import ou de montagem do próprio teste.
 - **Uma quebra não passa por recusa.** Um teste que só espera "saiu com erro" passa também quando o programa quebra por outro motivo (arquivo ausente, exceção não tratada). Faça o teste distinguir a recusa que a spec descreve de uma quebra qualquer.

@@ -33,7 +33,7 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
-| Construir | Testes primeiro, escritos por um agent de contexto limpo a partir só da spec; depois, fatia por fatia até o fim, com commit e push por fatia e, com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
+| Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia; com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
 | Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |
@@ -52,7 +52,8 @@ Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras
 ## 0. Dia zero
 
 Se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repositório, antes da primeira
-tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação", e
+tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação" (com
+a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos), e
 rode `/sync-ecc-tools --adopt`. Nada é adotado sem confirmação humana.
 
 ## 1. Pesquisar e especificar
@@ -81,11 +82,13 @@ commit do `git mv` e rode `/sync-ecc-tools --adopt` para propor as peças do ECC
 ## 3. Construir — commit e push por fatia
 
 Testes primeiro: na `/k0d3r-task`, o agent `test-author` escreve os testes que falham a partir só da spec
-aprovada, e a sessão implementa até ficarem verdes (`tdd-workflow`, skills de stack adotadas); fora dela, a
+aprovada, de uma vez numa tarefa de uma fatia e no começo de cada fatia nas outras, e a sessão espera por ele
+antes de escrever o código que eles cobrem e implementa até ficarem verdes (`tdd-workflow`, skills de stack adotadas); fora dela, a
 própria sessão conduz o ciclo, com o `tdd-guide`. Depois da aprovação, a sessão segue até a entrega e só volta a
 parar se o comportamento, o contrato ou o escopo aprovados tiverem de mudar. Commit por
 fatia e **push depois de cada commit**, tudo na branch única da sessão (Conventional Commits, ver
-[`git-workflow.md`](./git-workflow.md)), e só com todos os portões verdes ([`verification.md`](./verification.md)).
+[`git-workflow.md`](./git-workflow.md)), e só com todos os portões verdes ([`verification.md`](./verification.md));
+durante a fatia, rodam só os portões "na iteração".
 Mantenha o checklist do plano honesto conforme as fatias entram.
 
 Numa tarefa com mais de uma fatia, o plano diz quais critérios de aceite cada fatia entrega. Ao fim de cada

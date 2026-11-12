@@ -53,17 +53,20 @@ Mudar uma regra exige uma decisão registrada na seção **Decisões** do doc af
 Fonte única dos comandos de verificação. Skills, agents e commands apontam para esta tabela em vez de repetir
 comandos. Marque `n/a` no portão que a stack não tem.
 
-| Portão | Comando | Observação |
-| --- | --- | --- |
-| Lint | `<comando de lint>` | zero warning |
-| Typecheck | `<comando de typecheck>` | |
-| Teste | `<comando de teste>` | |
-| Build | `<comando de build>` | |
-| Auditoria de dependências | `<auditoria de dependências>` | |
-| Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
-| Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | |
-| Modelo e esforço dos agents | `node scripts/model-routing/model-routing.mjs check` | o frontmatter dos agents e o `advisorModel` batem com o `.claude/model-routing.json` ([`model-routing.md`](.claude/rules/common/model-routing.md)) |
+| Portão | Comando | Quando | Observação |
+| --- | --- | --- | --- |
+| Lint | `<comando de lint>` | na iteração | zero warning |
+| Typecheck | `<comando de typecheck>` | na iteração | |
+| Teste | `<comando de teste>` | na iteração | |
+| Build | `<comando de build>` | antes do commit | |
+| Auditoria de dependências | `<auditoria de dependências>` | antes do commit | |
+| Docs ligados ao código alterado | `node scripts/docs-check/docs-check.mjs diff` | na iteração | todo doc listado resolvido ([`docs-writing.md`](.claude/rules/common/docs-writing.md)) |
+| Links e âncoras dos docs | `node scripts/docs-check/docs-check.mjs links` | na iteração | |
+| Modelo e esforço dos agents | `node scripts/model-routing/model-routing.mjs check` | na iteração | o frontmatter dos agents e o `advisorModel` batem com o `.claude/model-routing.json` ([`model-routing.md`](.claude/rules/common/model-routing.md)) |
 
+- **Quando rodar.** Enquanto itera numa mudança, rode os portões "na iteração", que são rápidos. Antes de
+  qualquer commit, rode **todos**, os "antes do commit" também. Ao preencher a tabela, marque como "antes do
+  commit" o portão que demora (build, E2E, auditoria) e como "na iteração" o resto.
 - **Nunca mascare o código de saída.** Nada de `| tail`, `| head` ou `| grep` num portão: redirecione para
   arquivo, imprima o código e só então leia o log
   (`<comando> > "$TMPDIR/x.log" 2>&1; echo "EXIT: $?"; tail -20 "$TMPDIR/x.log"`).
@@ -118,7 +121,7 @@ ferramenta nem os arquivos abertos.
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
 | Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
-| Construir | Testes primeiro, escritos por um agent de contexto limpo a partir só da spec; depois, fatia por fatia até o fim, com commit e push por fatia e, com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
+| Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia; com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
 | Graduar | Só com aprovação humana explícita na sessão: `git mv` para `docs/implemented/<área>/`, frontmatter com `conferido-em`, aparar as seções de plano, atualizar docs | agent `doc-updater`, `/update-docs` |

@@ -21,7 +21,8 @@ A change with no behaviour effect (refactor, dependency, typo, rename) needs no 
 staying green is the evidence.
 
 In a `/k0d3r-task` with a spec, the failing tests are written by the **test-author** agent from the approved
-spec alone, before the session writes any code. Outside the command, the session drives the cycle itself.
+spec alone, before the session writes the code they cover: all at once in a one-slice task, slice by slice
+otherwise. Outside the command, the session drives the cycle itself.
 
 ## Troubleshooting Test Failures
 

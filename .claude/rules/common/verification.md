@@ -32,6 +32,10 @@ if [ $L -eq 0 ] && [ $T -eq 0 ]; then git add <arquivos> && git commit -m "<mens
 
 Um commit vermelho que já subiu custa um `fix:` a mais no histórico; um que entrou num merge custa mais.
 
+**Na iteração, só os rápidos; antes do commit, todos.** A coluna "Quando" da tabela separa os portões que
+rodam a cada ajuste ("na iteração") dos que demoram e rodam só antes do commit ("antes do commit"). Ela não
+muda a regra acima: o comando que commita roda todos os portões, os dois grupos.
+
 **"Rodei os portões locais" e "o CI vai passar" são afirmações diferentes.** Se o CI roda portões que a tabela
 não lista, a tabela está incompleta: acrescente-os.
 

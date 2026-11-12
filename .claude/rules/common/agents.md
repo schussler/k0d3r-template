@@ -57,7 +57,9 @@ concurrently. This is about how to launch agents, not a reason to launch more of
 `test-author` and `acceptance-verifier` are worth what they cost only if they do not inherit your reasoning.
 Their brief carries:
 
-- `test-author`: the path of the approved spec.
+- `test-author`: the path of the approved spec. In a task with more than one slice, it is called at the start
+  of each slice with the path of the spec and the slice's name, in the foreground, and the slice's code waits
+  for it.
 - `acceptance-verifier`: the path of the spec and the base ref of the diff. In a task without a spec, the base
   ref and the claim "no behaviour change". At the end of a slice, in a task with more than one: the path of
   the spec, the base ref of the slice and the slice's name as the build plan writes it; it checks only the

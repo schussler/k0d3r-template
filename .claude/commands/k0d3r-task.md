@@ -117,6 +117,9 @@ Comece somente após aprovação explícita. A partir daqui, siga até a entrega
 
 Numa tarefa com spec, chame o agent `test-author` antes de escrever código. O brief leva **só o caminho da spec aprovada**: não leve o seu plano, o que você pretende implementar nem o resultado que espera. Ele devolve os testes que falham e a lista critério → teste.
 
+- **Com mais de uma fatia, os testes vêm por fatia.** No começo de cada fatia com critério ligado, chame o `test-author` com um brief de duas coisas: o caminho da spec e o nome da fatia como está no plano. Testes de todas as fatias de uma vez deixam o portão de teste vermelho até a última e travam o commit de cada fatia.
+- **Espere ele devolver antes de escrever o código da fatia.** Chame-o em primeiro plano: não em segundo plano, e sem esperar por ele com laço de `sleep` sobre o arquivo de saída. Código escrito enquanto ele trabalha tira dele a prova de que os testes falham antes do comportamento existir, e ele pode ler esse código.
+
 - Releia o diff dos testes antes de usá-los: relatório de agente não é evidência ([`verification.md`](../rules/common/verification.md)).
 - Um critério que não virou teste é verificado de outro jeito na Etapa 3; diga qual.
 - Só altere um teste do `test-author` quando ele contradiz a spec ou não monta a situação que o nome dele anuncia, e diga qual e por quê na entrega.
@@ -127,6 +130,7 @@ Numa tarefa com spec, chame o agent `test-author` antes de escrever código. O b
 - Siga a spec aprovada e as regras do projeto, até os testes e os portões ficarem verdes.
 - Reutilize componentes, contratos e padrões existentes quando adequados. Reorganize o que está no caminho da tarefa quando isso deixa o resultado mais simples que um remendo; o que está fora do caminho, registre.
 - Siga as exigências aplicáveis de testes, segurança, arquitetura e revisão.
+- Enquanto itera numa fatia, rode os portões que a tabela do `CLAUDE.md` marca "na iteração". Antes de qualquer commit, rode todos.
 - Commit por fatia, com todos os portões verdes, e push depois de cada commit.
 - Mantenha a spec coerente com o andamento e os resultados da implementação.
 
