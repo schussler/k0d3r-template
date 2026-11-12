@@ -74,15 +74,22 @@ export class Projectiles {
       const step = speed * dt;
       const dir = p.vel.clone().divideScalar(speed || 1);
       const hit = raycastGrid(grid, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, step, ctx.ceiling, 'bullet');
-      // Jogadora como segmento vertical: distância do projétil ao eixo do corpo.
-      const next = pos.clone().addScaledVector(dir, hit ? hit.t : step);
+      // Jogadora como segmento vertical; testa o trecho percorrido no quadro inteiro (num quadro lento o
+      // projétil anda mais que a largura do corpo e atravessaria se só o ponto final fosse testado).
+      const travel = hit ? hit.t : step;
+      const next = pos.clone().addScaledVector(dir, travel);
       const bottom = player.position.y + 0.2;
       const top = player.position.y + player.height - 0.1;
-      const cy = Math.min(top, Math.max(bottom, next.y));
-      const d = Math.hypot(next.x - player.position.x, next.y - cy, next.z - player.position.z);
+      const toPlayer = new THREE.Vector3(player.position.x - pos.x, 0, player.position.z - pos.z);
+      const horizontal2 = dir.x * dir.x + dir.z * dir.z;
+      const alongRaw = horizontal2 > 1e-6 ? (toPlayer.x * dir.x + toPlayer.z * dir.z) / horizontal2 : 0;
+      const along = Math.max(0, Math.min(travel, alongRaw));
+      const closest = pos.clone().addScaledVector(dir, along);
+      const cy = Math.min(top, Math.max(bottom, closest.y));
+      const d = Math.hypot(closest.x - player.position.x, closest.y - cy, closest.z - player.position.z);
       if (d < p.radius + 0.4) {
         ctx.damagePlayer(p.damage, pos.clone().addScaledVector(dir, -3));
-        ctx.fx.sparkBurst(next, dir.clone().negate(), 8, p.color, 4);
+        ctx.fx.sparkBurst(closest, dir.clone().negate(), 8, p.color, 4);
         this.kill(p);
         continue;
       }

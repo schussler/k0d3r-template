@@ -58,11 +58,19 @@ describe('máquina de estados das armas', () => {
     expect(sprinting.events).toEqual([]);
   });
 
-  test('pente vazio recarrega sozinho e a recarga parcial guarda a bala da câmara', () => {
+  test('pente vazio recarrega sozinho no mesmo passo do último tiro', () => {
     let a = giveWeapon(createArsenal(), 'shotgun', 12);
-    a = { ...a, current: 'shotgun' };
-    const empty = run(a, pull, 6, 1 / 60);
-    expect(empty.types).toContain('reloadStart');
+    a = { ...a, current: 'shotgun', slots: { ...a.slots, shotgun: { owned: true, mag: 1, reserve: 12 } } };
+    // Um clique só: o ramo "clique com pente vazio" não entra, então quem recarrega é a recarga automática.
+    const last = stepArsenal(a, pull, 1 / 60);
+    expect(last.events.map((e) => e.type)).toEqual(['fire', 'reloadStart']);
+    // A recarga começa depois do intervalo do tiro (a bomba da escopeta), por isso soma os dois.
+    const held = run(last.arsenal, hold, WEAPONS.shotgun.fireInterval + WEAPONS.shotgun.reloadTime + 0.2);
+    expect(held.types).toContain('reloadEnd');
+    expect(held.a.slots.shotgun.mag).toBe(6);
+  });
+
+  test('a recarga parcial guarda a bala da câmara', () => {
     const partial = finishReload({ owned: true, mag: 3, reserve: 30 }, WEAPONS.shotgun);
     expect(partial.mag).toBe(7);
     expect(partial.reserve).toBe(26);
@@ -93,6 +101,10 @@ describe('máquina de estados das armas', () => {
     const reloading = stepArsenal(a, { ...idle, reload: true }, 1 / 60).arsenal;
     const sw = stepArsenal(reloading, { ...idle, switchTo: 'rifle' }, 1 / 60);
     expect(sw.events.map((e) => e.type)).toEqual(['switchStart']);
+    const after = run(sw.arsenal, idle, WEAPONS.pistol.reloadTime + 0.2);
+    expect(after.types).not.toContain('reloadEnd');
+    expect(after.a.current).toBe('rifle');
+    expect(after.a.slots.pistol.mag).toBe(1);
     expect(stepArsenal(createArsenal(), { ...idle, switchTo: 'shotgun' }, 1 / 60).events).toEqual([]);
   });
 

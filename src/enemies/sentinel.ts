@@ -79,6 +79,16 @@ export class Sentinel extends Enemy {
     this.zones.push({ zone: 'body', object: anchor(this.body, 0, 0.6, 0), radius: 0.32 });
   }
 
+  override explode(ctx: GameContext, dir: THREE.Vector3, force = 1): void {
+    (this.laser.material as THREE.Material).dispose();
+    super.explode(ctx, dir, force);
+  }
+
+  override dispose(): void {
+    (this.laser.material as THREE.Material).dispose();
+    super.dispose();
+  }
+
   override takeHit(hit: HitInfo, ctx: GameContext): boolean {
     this.damageSinceCover += hit.result.damage;
     return super.takeHit(hit, ctx);

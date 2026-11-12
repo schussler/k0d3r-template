@@ -53,8 +53,8 @@ export abstract class Enemy {
   /** Vaga de cerco calculada pelo diretor (sector). */
   flankTarget: { x: number; z: number } | null = null;
   seesPlayer = false;
-  /** Tempo preso (para o E2E medir robô parado contra parede). */
-  stuckTotal = 0;
+  /** Maior tempo contínuo (s) querendo andar sem sair do lugar: o E2E mede robô preso em parede. */
+  longestStuck = 0;
   protected radius = 0.45;
   protected sightRange = 34;
   protected fovCos = Math.cos((65 * Math.PI) / 180);
@@ -266,20 +266,22 @@ export abstract class Enemy {
       this.stuckFails = 0;
       return;
     }
-    this.stuckTotal += STUCK_TIME;
     this.stuckFails += 1;
+    this.longestStuck = Math.max(this.longestStuck, this.stuckFails * STUCK_TIME);
     this.repathTimer = 0;
-    if (this.stuckFails >= 2) {
-      // Persistiu: desloca para o centro da célula livre mais próxima.
-      const free = nearestWalkable(ctx.grid, ctx.grid.worldToCell(this.position.x, this.position.z), this.fly, 4);
-      if (free) {
-        const c = ctx.grid.cellCenter(free);
-        this.position.x = c.x;
-        this.position.z = c.z;
-      }
-      this.stuckFails = 0;
-      console.info(`[kepler] ${this.kind} #${this.id} destravado`);
+    if (this.stuckFails < 2) return;
+    // Persistiu: desloca para o centro da célula livre mais próxima. Sem célula livre, segue contando.
+    const free = nearestWalkable(ctx.grid, ctx.grid.worldToCell(this.position.x, this.position.z), this.fly, 4);
+    if (!free) {
+      console.info(`[kepler] ${this.kind} #${this.id} preso sem célula livre por perto`);
+      return;
     }
+    const c = ctx.grid.cellCenter(free);
+    this.position.x = c.x;
+    this.position.z = c.z;
+    this.progressFrom.copy(this.position);
+    this.stuckFails = 0;
+    console.info(`[kepler] ${this.kind} #${this.id} destravado`);
   }
 
   faceTowards(dt: number, x: number, z: number, rate: number): number {

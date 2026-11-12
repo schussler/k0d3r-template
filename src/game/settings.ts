@@ -26,10 +26,15 @@ export function loadSettings(): Settings {
   }
 }
 
+let saveFailureLogged = false;
+
 export function saveSettings(s: Settings): void {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(s));
   } catch (err: unknown) {
+    // O slider chama isto a cada movimento: registra a falha uma vez só.
+    if (saveFailureLogged) return;
+    saveFailureLogged = true;
     console.info('[kepler] não foi possível salvar as preferências', err instanceof Error ? err.message : err);
   }
 }

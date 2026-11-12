@@ -17,10 +17,13 @@ function boot(): void {
   if (!(canvas instanceof HTMLCanvasElement) || !overlay) throw new Error('página sem #game ou #overlay');
   try {
     const game = new Game(canvas, overlay);
+    // Rede final: nada escapa sem registro e sem aviso na tela.
+    window.addEventListener('error', (e) => game.reportError(e.error ?? e.message, 'evento'));
+    window.addEventListener('unhandledrejection', (e) => game.reportError(e.reason, 'promessa'));
     if (new URLSearchParams(window.location.search).has('debug')) installDebug(game);
   } catch (err: unknown) {
     if (err instanceof WebGLUnavailableError) {
-      console.warn('[kepler] WebGL 2 indisponível neste navegador');
+      console.info('[kepler] WebGL 2 indisponível neste navegador');
       fail('WebGL indisponível', 'A Estação Kepler precisa de WebGL 2. Ative a aceleração de hardware ou use um navegador atualizado.');
       return;
     }

@@ -30,10 +30,14 @@ export interface DebugInfo {
   readonly enemyKinds: Record<string, number>;
   readonly boss: number | null;
   readonly maxStuck: number;
+  readonly bossPhase: number | null;
+  readonly doorsOpen: boolean;
   readonly elapsed: number;
   readonly weapon: string;
   readonly mag: number;
   readonly fps: number;
+  readonly drawCalls: number;
+  readonly triangles: number;
 }
 
 declare global {
@@ -63,11 +67,15 @@ export function installDebug(game: Game): void {
         enemies: enemies.length,
         enemyKinds: kinds,
         boss: boss ? Math.max(0, boss.health / boss.maxHealth) : null,
-        maxStuck: Math.max(0, ...enemies.map((e) => e.stuckTotal)),
+        maxStuck: game.sector?.maxStuck ?? 0,
+        bossPhase: boss ? boss.phase : null,
+        doorsOpen: game.sector ? game.sector.allDoorsOpen : false,
         elapsed: game.elapsed,
         weapon: game.arsenal.current,
         mag: slot.mag,
         fps: game.renderer.fps,
+        drawCalls: game.renderer.gl.info.render.calls,
+        triangles: game.renderer.gl.info.render.triangles,
       };
     },
     start: () => game.startGame(true),

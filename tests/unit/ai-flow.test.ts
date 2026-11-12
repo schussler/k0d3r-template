@@ -57,6 +57,7 @@ describe('patrulha e audição', () => {
     const a = patrolRoute(arena, { i: 5, j: 4 }, createRng(42), false);
     const b = patrolRoute(arena, { i: 5, j: 4 }, createRng(42), false);
     expect(a).toEqual(b);
+    expect(a.length).toBeGreaterThan(1);
     a.forEach((c) => expect(arena.isWalkable(c.i, c.j)).toBe(true));
   });
   test('tiro perto sempre é ouvido; longe atrás de parede, não', () => {
@@ -75,11 +76,15 @@ describe('fluxo', () => {
     expect(nextSector('greenhouse')).toBe('core');
     expect(nextSector('core')).toBeNull();
   });
-  test('retrato zera ação em andamento e é independente do estado original', () => {
+  test('retrato zera ação em andamento e guarda cópias (não as referências) do estado', () => {
+    const vitals = createVitals();
     const arsenal = { ...createArsenal(), action: { kind: 'reload' as const, t: 0.5 }, cooldown: 0.2 };
-    const snap = takeSnapshot('labs', createVitals(), arsenal);
+    const snap = takeSnapshot('labs', vitals, arsenal);
     expect(snap.arsenal.action).toEqual({ kind: 'none' });
     expect(snap.arsenal.cooldown).toBe(0);
+    expect(snap.vitals).not.toBe(vitals);
+    expect(snap.vitals).toEqual(vitals);
+    expect(snap.arsenal).not.toBe(arsenal);
     expect(initialSnapshot().sector).toBe('hangar');
   });
   test('formata o tempo', () => {

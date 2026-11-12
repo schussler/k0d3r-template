@@ -33,13 +33,16 @@ import { Sector, type Pickup } from './sector';
 import { traceShot } from './shooting';
 import { loadSettings, saveSettings, type Settings } from './settings';
 
-export type GameState = 'title' | 'playing' | 'paused' | 'dead' | 'transition' | 'victory';
+/** 'error' é terminal: só o botão "Recarregar" sai dele. */
+export type GameState = 'title' | 'playing' | 'paused' | 'dead' | 'transition' | 'victory' | 'error';
 
 const MAX_DT = 0.05;
 const TRANSITION_TIME = 1.2;
 const VICTORY_DELAY = 3;
 const HEALTH_PICKUP = 35;
 const BASE_SENSITIVITY = 0.0022;
+/** Quadros seguidos com erro antes de parar o jogo e mostrar a tela de erro. */
+const FATAL_ERROR_FRAMES = 30;
 
 /** Orquestra estados (título, jogo, pausa, morte, transição, vitória), o loop e os sistemas. */
 export class Game {
@@ -73,7 +76,8 @@ export class Game {
   private readonly rng = createRng(20261112);
   private readonly muzzleLight = new THREE.PointLight(0xffb060, 0, 9, 2);
   private settings: Settings;
-  private readonly reportedErrors = new Set<string>();
+  private readonly reportedErrors = new Map<string, number>();
+  private errorFrames = 0;
   private readonly errorStrip: HTMLElement;
   debug = false;
   /** Invulnerável (só pelo gancho do `?debug`, para o E2E atravessar a partida). */
@@ -103,6 +107,7 @@ export class Game {
           this.audio.setVolume(v);
           saveSettings(this.settings);
         },
+        onError: (err, where) => this.reportError(err, where),
       },
       this.settings,
     );
@@ -111,7 +116,9 @@ export class Game {
     overlay.append(this.errorStrip);
 
     const pmrem = new THREE.PMREMGenerator(this.renderer.gl);
-    this.worldScene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    const room = new RoomEnvironment();
+    this.worldScene.environment = pmrem.fromScene(room, 0.04).texture;
+    room.dispose();
     pmrem.dispose();
     this.viewmodel.setEnvironment(this.worldScene.environment);
     this.worldScene.add(this.camera, this.fx.group);
@@ -120,15 +127,16 @@ export class Game {
 
     this.input.onLockChange((locked) => this.onLockChange(locked));
     this.input.onLockError(() => {
-      if (this.state === 'playing' || this.state === 'paused') this.screens.show('resume');
+      // Mouse recusado: o jogo fica parado atrás do aviso, sem robô atacando nem cronômetro correndo.
+      if (this.state === 'playing') this.state = 'paused';
+      if (this.state === 'paused') this.screens.show('resume');
     });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && this.state === 'playing') this.pause();
     });
     canvas.addEventListener('webglcontextlost', (e) => {
       e.preventDefault();
-      this.screens.showError('A placa de vídeo reiniciou', 'O navegador perdeu o contexto WebGL. Recarregue a página para continuar.');
-      this.renderer.gl.setAnimationLoop(null);
+      this.fatal('A placa de vídeo reiniciou', 'O navegador perdeu o contexto WebGL. Recarregue a página para continuar.');
     });
     canvas.addEventListener('click', () => {
       if (this.state === 'playing' && !this.input.isLocked && !this.lockFree) this.input.requestLock();
@@ -154,6 +162,7 @@ export class Game {
     this.state = 'playing';
     this.screens.show('none');
     this.hud.show(true);
+    if (this.audio.unavailable) this.hud.toast('Sem som: o navegador recusou o áudio');
     if (!skipLock) this.input.requestLock();
   }
 
@@ -228,15 +237,17 @@ export class Game {
   // ---------- Setor ----------
 
   loadSector(id: SectorId, snapshot: SectorSnapshot): void {
-    this.sector?.dispose();
-    this.fx.clear();
+    // Monta o setor novo antes de descartar o atual: se a montagem falhar, nada fica pela metade.
     const def = SECTORS[id];
     const sector = new Sector(def);
+    const ctx = this.makeContext(sector);
+    sector.populate(ctx);
+    this.sector?.dispose();
+    this.fx.clear();
     this.sector = sector;
     this.sectorId = id;
+    this.ctx = ctx;
     this.worldScene.add(sector.group);
-    this.ctx = this.makeContext(sector);
-    sector.populate(this.ctx);
 
     const theme = THEMES[id];
     this.worldScene.background = new THREE.Color(theme.background);
@@ -317,27 +328,51 @@ export class Game {
     const dtMs = now - this.last;
     this.last = now;
     const dt = Math.min(MAX_DT, dtMs / 1000);
+    // Atualização e desenho em blocos separados: um erro de lógica não congela a imagem.
+    let failed = false;
     try {
       this.time += dt;
       if (this.state === 'title') this.title.update(this.time);
       else this.updateWorld(dt);
       this.hud.setFps(this.debug ? this.renderer.fps : null, this.renderer.qualityLevel);
-      this.renderer.render(dtMs);
     } catch (err: unknown) {
       this.reportError(err);
+      failed = true;
     } finally {
       this.input.endFrame();
     }
+    try {
+      if (this.state !== 'error') this.renderer.render(dtMs);
+    } catch (err: unknown) {
+      this.reportError(err, 'desenho');
+      failed = true;
+    }
+    this.errorFrames = failed ? this.errorFrames + 1 : 0;
+    if (this.errorFrames >= FATAL_ERROR_FRAMES) this.fatal('Erro interno', 'O jogo encontrou um erro que se repete a cada quadro. Recarregue a página.');
   }
 
-  /** Erro inesperado no quadro: registrado com contexto e mostrado numa faixa, uma vez por mensagem. */
-  private reportError(err: unknown): void {
+  /**
+   * Erro inesperado (no quadro ou num botão): registrado com contexto e mostrado numa faixa. A mesma origem
+   * é registrada uma vez e contada; erro em todo quadro por muito tempo vira tela de erro.
+   */
+  reportError(err: unknown, where = 'quadro'): void {
     const message = err instanceof Error ? err.message : String(err);
-    if (this.reportedErrors.has(message)) return;
-    this.reportedErrors.add(message);
-    console.error(`[kepler] erro no quadro (estado ${this.state}, setor ${this.sectorId})`, err);
-    this.errorStrip.textContent = `Erro interno: ${message}`;
+    const origin = err instanceof Error ? (err.stack?.split('\n')[1]?.trim() ?? '') : '';
+    const key = `${message} @ ${origin}`;
+    const count = (this.reportedErrors.get(key) ?? 0) + 1;
+    this.reportedErrors.set(key, count);
+    if (count === 1) console.error(`[kepler] erro no ${where} (estado ${this.state}, setor ${this.sectorId})`, err);
+    this.errorStrip.textContent = `Erro interno: ${message}${count > 1 ? ` (×${count})` : ''}`;
     this.errorStrip.classList.remove('hidden');
+  }
+
+  /** Para o jogo e mostra a tela de erro (só "Recarregar" sai dela). */
+  private fatal(title: string, message: string): void {
+    this.state = 'error';
+    this.input.releaseLock();
+    this.hud.show(false);
+    this.renderer.gl.setAnimationLoop(null);
+    this.screens.showError(title, message);
   }
 
   private updateWorld(dt: number): void {
@@ -360,8 +395,11 @@ export class Game {
       this.handleInteraction();
       this.vitals = tickVitals(this.vitals, dt);
       const touched = sector.update(dt, this.time, ctx);
-      touched.forEach((p) => this.collect(p));
-      this.updateBossAndExit(dt);
+      // Morreu neste quadro: nada de pegar item nem atravessar a saída depois da morte.
+      if (this.state === 'playing') {
+        touched.forEach((p) => this.collect(p));
+        this.updateBossAndExit(dt);
+      }
     } else if (this.state === 'transition') {
       this.updateTransition(dt);
     }
@@ -407,6 +445,8 @@ export class Game {
     if (this.transitionTime >= TRANSITION_TIME) {
       this.screens.setFade(0);
       this.state = 'playing';
+      // O mouse pode ter sido solto durante o escurecimento (Esc ou troca de aba).
+      if (!this.input.isLocked && !this.lockFree) this.pause();
     }
   }
 

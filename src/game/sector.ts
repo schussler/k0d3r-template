@@ -100,6 +100,8 @@ export class Sector {
   private readonly switchOn = new Set<SwitchVisual>();
   private directorTimer = 0;
   boss: Boss | null = null;
+  /** Maior tempo preso de qualquer robô do setor, inclusive dos que já morreram. */
+  maxStuck = 0;
 
   constructor(readonly def: SectorDef) {
     this.level = parseLevel(def.rows);
@@ -236,11 +238,19 @@ export class Sector {
       this.directorTimer = DIRECTOR_INTERVAL;
       this.direct(ctx);
     }
-    for (const e of this.enemies) e.update(dt, ctx);
+    for (const e of this.enemies) {
+      e.update(dt, ctx);
+      this.maxStuck = Math.max(this.maxStuck, e.longestStuck);
+    }
     this.separate();
     for (let n = this.enemies.length - 1; n >= 0; n--) if (!this.enemies[n]!.alive) this.enemies.splice(n, 1);
     this.projectiles.update(dt, this.grid, ctx);
     return this.updatePickups(time, ctx);
+  }
+
+  /** Todas as portas do setor abertas (passáveis). */
+  get allDoorsOpen(): boolean {
+    return [...this.level.doors.keys()].every((id) => this.grid.doorAmount(id) >= 0.7);
   }
 
   /** Alguma porta abrindo neste quadro (as sombras estáticas precisam ser refeitas). */

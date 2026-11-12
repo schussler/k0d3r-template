@@ -10,6 +10,7 @@ export interface ScreenHandlers {
   backToTitle(): void;
   setSensitivity(value: number): void;
   setVolume(value: number): void;
+  onError(err: unknown, where: string): void;
 }
 
 const CONTROLS = `
@@ -84,12 +85,17 @@ export class Screens {
       const target = (e.target as HTMLElement).closest<HTMLElement>('[data-action]');
       if (!target) return;
       const action = target.dataset.action;
-      if (action === 'play') handlers.play();
-      else if (action === 'resume') handlers.resume();
-      else if (action === 'restart') handlers.restartSector();
-      else if (action === 'retry') handlers.retry();
-      else if (action === 'title') handlers.backToTitle();
-      else if (action === 'reload') window.location.reload();
+      // Erro num botão não pode virar "o botão não faz nada": vai para o relatório de erros do jogo.
+      try {
+        if (action === 'play') handlers.play();
+        else if (action === 'resume') handlers.resume();
+        else if (action === 'restart') handlers.restartSector();
+        else if (action === 'retry') handlers.retry();
+        else if (action === 'title') handlers.backToTitle();
+        else if (action === 'reload') window.location.reload();
+      } catch (err: unknown) {
+        handlers.onError(err, `botão ${action ?? '?'}`);
+      }
     });
     this.root.addEventListener('input', (e) => {
       const input = e.target as HTMLInputElement;

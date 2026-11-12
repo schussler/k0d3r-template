@@ -85,6 +85,16 @@ export class Brute extends Enemy {
     return super.takeHit(hit, ctx);
   }
 
+  override explode(ctx: GameContext, dir: THREE.Vector3, force = 1): void {
+    (this.shield.material as THREE.Material).dispose();
+    super.explode(ctx, dir, force);
+  }
+
+  override dispose(): void {
+    (this.shield.material as THREE.Material).dispose();
+    super.dispose();
+  }
+
   protected override knockback(damage: number): number {
     return damage * 0.03;
   }

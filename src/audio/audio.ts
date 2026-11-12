@@ -23,6 +23,8 @@ export class AudioEngine {
   private ambienceNodes: AudioNode[] = [];
   private alarmGain: GainNode | null = null;
   private volume = 0.8;
+  /** O navegador recusou criar o áudio: o jogo segue mudo, sem tentar de novo a cada clique. */
+  unavailable = false;
   music: Music | null = null;
 
   get ready(): boolean {
@@ -35,18 +37,26 @@ export class AudioEngine {
 
   /** Cria ou retoma o contexto; deve ser chamado dentro de um gesto da jogadora. */
   unlock(): void {
+    if (this.unavailable) return;
     try {
       if (!this.ctx) this.create();
-      else if (this.ctx.state === 'suspended') void this.ctx.resume().catch((err: unknown) => console.warn('[kepler] áudio não retomou', err));
+      const ctx = this.ctx;
+      // 'interrupted' (Safari) também precisa de resume; 'running' não.
+      if (ctx && ctx.state !== 'running') {
+        ctx.resume().catch((err: unknown) => console.info('[kepler] áudio não retomou; tenta de novo no próximo clique', err));
+      }
     } catch (err: unknown) {
-      console.warn('[kepler] áudio indisponível; o jogo segue sem som', err);
+      console.info('[kepler] áudio indisponível; o jogo segue sem som', err);
+      this.ctx?.close().catch((closeErr: unknown) => console.info('[kepler] contexto de áudio não fechou', closeErr));
       this.ctx = null;
+      this.unavailable = true;
     }
   }
 
   private create(): void {
     const ctx = new AudioContext();
     this.ctx = ctx;
+    ctx.addEventListener('statechange', () => console.info(`[kepler] áudio: ${ctx.state}`));
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14;
     comp.ratio.value = 4;
@@ -77,6 +87,12 @@ export class AudioEngine {
     const ctx = this.ctx;
     if (!ctx) return;
     const l = ctx.listener;
+    // Firefox não tem positionX/forwardX no AudioListener (os tipos do DOM dizem que tem): usa a API antiga.
+    if (!('positionX' in l) || !l.positionX) {
+      l.setPosition(x, y, z);
+      l.setOrientation(fx, fy, fz, 0, 1, 0);
+      return;
+    }
     const t = ctx.currentTime;
     l.positionX.setTargetAtTime(x, t, 0.02);
     l.positionY.setTargetAtTime(y, t, 0.02);

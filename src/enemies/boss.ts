@@ -169,7 +169,9 @@ export class Boss extends Enemy {
         }
         break;
       case 'laser':
-        this.updateLaser(dt * speedUp, ctx);
+        // Fase 3: a varredura anda mais rápido (o tempo do ataque corre com o fator).
+        this.attackTime += dt * (speedUp - 1);
+        this.updateLaser(dt, ctx);
         break;
       case 'stomp':
         this.legs[0]!.rotation.x = -Math.min(1, this.attackTime / 0.8) * 0.9;
@@ -329,15 +331,20 @@ export class Boss extends Enemy {
   }
 
   override explode(ctx: GameContext, dir: THREE.Vector3, force = 1): void {
-    this.laser.removeFromParent();
-    this.shock.removeFromParent();
+    this.releaseEffects();
     super.explode(ctx, dir, force);
   }
 
   override dispose(): void {
-    this.laser.removeFromParent();
-    this.shock.removeFromParent();
+    this.releaseEffects();
     super.dispose();
+  }
+
+  private releaseEffects(): void {
+    for (const m of [this.laser, this.shock]) {
+      m.removeFromParent();
+      (m.material as THREE.Material).dispose();
+    }
   }
 }
 

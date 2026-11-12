@@ -92,9 +92,9 @@ export class Input {
     try {
       const result: unknown = this.target.requestPointerLock();
       if (result instanceof Promise) {
+        // A recusa também dispara 'pointerlockerror', que avisa os ouvintes; aqui só registra.
         result.catch((err: unknown) => {
           console.info('[kepler] travamento do mouse recusado:', err instanceof Error ? err.message : err);
-          this.lockErrorListeners.forEach((fn) => fn());
         });
       }
     } catch (err: unknown) {
