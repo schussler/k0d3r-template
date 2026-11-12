@@ -86,6 +86,18 @@ test('ferramenta que não é de subagent passa', () => {
   assert.equal(decide({ tool_name: 'Bash', tool_input: { command: 'ls' } }, ROUTING), null);
 });
 
+test('chamada sem subagent_type é conferida como general-purpose, que é o padrão da ferramenta', () => {
+  const msg = decide(call({ model: 'opus', prompt: 'x' }), ROUTING);
+  assert.ok(msg, 'deveria bloquear');
+  assert.match(msg, /general-purpose/);
+  assert.equal(decide(call({ model: 'sonnet', effort: 'medium', prompt: 'x' }), ROUTING), null);
+});
+
+test('a mensagem do nativo não manda chamar em outro nível, que a própria guarda bloquearia', () => {
+  const msg = decide(call({ subagent_type: 'Explore', model: 'opus' }), ROUTING);
+  assert.doesNotMatch(msg, /chame no nível/);
+});
+
 test('o nome antigo da ferramenta, Task, também é conferido', () => {
   assert.ok(decide(call({ subagent_type: 'general-purpose', model: 'opus' }, 'Task'), ROUTING));
 });

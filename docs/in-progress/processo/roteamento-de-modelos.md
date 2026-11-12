@@ -1,5 +1,5 @@
 ---
-conferido-em: 2026-11-11
+conferido-em: 2026-11-12
 ---
 
 # Roteamento de modelo e esforço dos agents
@@ -342,11 +342,16 @@ não a chamada, e a rule dependia da sessão lembrar. O hook `routing-guard` (`P
 | --- | --- |
 | Nativo (`nativos`) com o `model` e o `effort` do nível | Libera |
 | Nativo sem um dos dois, ou com outro valor | Bloqueia (código 2), dizendo o nível, o `model` e o `effort` certos |
+| Chamada sem `subagent_type` | Conferida como `general-purpose`, que é o que a ferramenta roda nesse caso |
 | Agent com arquivo, sem `model` nem `effort` | Libera: o frontmatter decide |
 | Agent com arquivo, com o `model`/`effort` do próprio nível ou do nível `fronteira` (escalada) | Libera |
 | Agent com arquivo, com outro valor | Bloqueia, dizendo que o frontmatter decide e qual é a escalada |
 | Agent que o arquivo não conhece, ou ferramenta que não é de subagent | Libera |
 | Payload ilegível, arquivo de roteamento ausente ou inválido, Node ausente | Libera com aviso em stderr: é guarda de custo, não de segurança |
+
+Correção de 2026-11-12, achada pelo `code-reviewer` no porte para o MN-Clinic (commit `f88b3f75b` de lá): a
+chamada sem `subagent_type` passava sem conferência, e a mensagem do bloqueio mandava chamar em outro nível, que
+a própria guarda bloquearia.
 
 ## Fora de escopo / questões em aberto
 

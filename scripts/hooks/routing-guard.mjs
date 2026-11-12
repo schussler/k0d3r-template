@@ -19,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 const ROUTING_FILE = '.claude/model-routing.json';
 const AGENT_TOOLS = new Set(['Agent', 'Task']);
 const ESCALATION_LEVEL = 'fronteira';
+// A ferramenta roda `general-purpose` quando a chamada não traz `subagent_type`: a chamada é conferida como ele.
+const DEFAULT_SUBAGENT = 'general-purpose';
 
 const sameModel = (got, expected) => typeof got === 'string' && got.toLowerCase().includes(String(expected).toLowerCase());
 const show = (v) => (v === undefined ? 'ausente' : `"${v}"`);
@@ -27,7 +29,7 @@ const show = (v) => (v === undefined ? 'ausente' : `"${v}"`);
 export function decide(payload, routing) {
   if (!AGENT_TOOLS.has(payload?.tool_name)) return null;
   const input = payload.tool_input ?? {};
-  const type = input.subagent_type;
+  const type = input.subagent_type ?? DEFAULT_SUBAGENT;
   const niveis = routing?.niveis ?? {};
   const nativeLevel = Object.hasOwn(routing?.nativos ?? {}, type) ? routing.nativos[type] : undefined;
   const fileLevel = Object.hasOwn(routing?.agents ?? {}, type) ? routing.agents[type] : undefined;
@@ -38,7 +40,7 @@ export function decide(payload, routing) {
     if (sameModel(input.model, lvl.model) && input.effort === lvl.effort) return null;
     return `[routing-guard] O subagent nativo \`${type}\` roda no nível \`${nativeLevel}\` do ${ROUTING_FILE}: `
       + `passe model "${lvl.model}" e effort "${lvl.effort}" na chamada (recebido: model ${show(input.model)}, `
-      + `effort ${show(input.effort)}). Se esta parte pede mais, chame no nível pedido pela spec e diga isso na entrega.`;
+      + `effort ${show(input.effort)}). Se esta parte pede mais, diga isso na entrega em vez de trocar o nível (.claude/rules/common/model-routing.md).`;
   }
 
   if (fileLevel !== undefined) {
