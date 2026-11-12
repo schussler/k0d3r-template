@@ -201,8 +201,10 @@ function referenceProblems(routing) {
   if (!has(niveis, routing.orquestrador)) {
     problems.push(`${ROUTING_FILE}: orquestrador \`${show(routing.orquestrador)}\` não é um nível de niveis`);
   }
-  if (routing.conselheiro !== null && !ADVISOR_ALIASES.includes(routing.conselheiro)) {
-    problems.push(`${ROUTING_FILE}: conselheiro \`${show(routing.conselheiro)}\` não é aceito (${ADVISOR_ALIASES.join(', ')} ou null)`);
+  if (routing.conselheiro !== null && !has(niveis, routing.conselheiro)) {
+    problems.push(`${ROUTING_FILE}: conselheiro \`${show(routing.conselheiro)}\` não é um nível de niveis (ou null): ele aponta para um nível e usa o model dele`);
+  } else if (routing.conselheiro !== null && !ADVISOR_ALIASES.includes(niveis[routing.conselheiro]?.model)) {
+    problems.push(`${ROUTING_FILE}: conselheiro aponta para o nível \`${routing.conselheiro}\`, cujo model \`${show(niveis[routing.conselheiro]?.model)}\` não pode ser conselheiro (${ADVISOR_ALIASES.join(', ')})`);
   }
   return problems;
 }
@@ -246,7 +248,9 @@ function agentProblems(routing, agents) {
 }
 
 const currentAdvisor = (settings) => (settings.missing ? undefined : settings.value?.advisorModel);
-const expectedAdvisor = (routing) => routing.conselheiro ?? undefined;
+// O conselheiro aponta para um nível e usa só o model dele: o Claude Code não tem esforço para o conselheiro.
+const expectedAdvisor = (routing) =>
+  has(asObject(routing.niveis), routing.conselheiro) ? routing.niveis[routing.conselheiro]?.model : undefined;
 
 /** O texto do settings com outro conteúdo, no recuo, no fim de linha e na quebra final que o arquivo já tem. */
 function renderLike(text, value) {

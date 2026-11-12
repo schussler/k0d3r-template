@@ -41,7 +41,7 @@ Fonte única: `.claude/model-routing.json`.
     "rapido":     { "model": "haiku",  "effort": "low" }
   },
   "orquestrador": "fronteira",
-  "conselheiro": "fable",
+  "conselheiro": "fronteira",
   "agents": {
     "planner": "fronteira",
     "architect": "fronteira",
@@ -70,8 +70,8 @@ Fonte única: `.claude/model-routing.json`.
 - `niveis`: nome do nível → `model` e `effort`. `model` aceita um alias (`fable`, `opus`, `sonnet`, `haiku`),
   `inherit` ou um ID completo que começa com `claude-`. `effort` aceita `low`, `medium`, `high`, `xhigh`, `max`.
 - `orquestrador`: o nível recomendado para a **sessão principal** que conduz uma tarefa com spec.
-- `conselheiro`: o modelo que os outros consultam nos pontos de decisão (o recurso advisor do Claude Code), ou
-  `null` para desligar.
+- `conselheiro`: o nível cujo `model` os outros consultam nos pontos de decisão (o recurso advisor do Claude
+  Code), ou `null` para desligar. Só o `model` do nível conta: o Claude Code não tem esforço para o conselheiro.
 - `agents`: nome do agent (o `name:` do frontmatter) → nível. Cobre **todos** os arquivos de `.claude/agents/`.
 - `nativos`: subagents que não têm arquivo no repositório → nível. O nível usado aqui precisa ter um alias em
   `model`, porque o parâmetro `model` da chamada de agent só aceita alias.
@@ -131,7 +131,8 @@ ausente ou desconhecido (com a linha de uso).
 | Nível citado que não existe em `niveis` | o agent ou nativo e o nível |
 | `model` ou `effort` fora dos valores aceitos | o nível e o valor |
 | Nível de um `nativos` cujo `model` não é alias | o nativo e o nível |
-| `orquestrador` que não é um nível, ou `conselheiro` que não é alias nem `null` | a chave e o valor |
+| `orquestrador` ou `conselheiro` que não é um nível (`conselheiro` aceita também `null`) | a chave e o valor |
+| `conselheiro` aponta para um nível cujo `model` não pode ser conselheiro (só `fable`, `opus`, `sonnet`) | o nível e o model |
 | `advisorModel` do `.claude/settings.json` diferente de `conselheiro` | o valor encontrado e o esperado |
 | JSON ausente ou inválido, ou agent sem frontmatter | o arquivo e o erro |
 
@@ -152,7 +153,8 @@ foram decididos na implementação, cada um com teste):
   `conselheiro: null` também.
 - `.claude/settings.json` ausente é problema quando `conselheiro` está definido, no `check` e no `apply`. Com
   `conselheiro: null` não é, e o `apply` não cria o arquivo.
-- `conselheiro` aceita `fable`, `opus` e `sonnet`: são os alias que o Claude Code aceita como conselheiro.
+- O nível apontado por `conselheiro` precisa ter `model` `fable`, `opus` ou `sonnet`: são os alias que o Claude
+  Code aceita como conselheiro.
 - As linhas escritas têm a forma `model: <valor>` e `effort: <valor>`. Acrescentadas, entram nessa ordem, com o
   fim de linha do frontmatter; trocadas, mantêm o fim de linha que a linha já tinha.
 - O `settings.json` é reescrito com o recuo e a quebra final que já tinha, e só quando o valor muda.
@@ -243,7 +245,7 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
 9. Nenhuma nota `adaptation` do manifest ainda diz "o modelo é herdado da sessão".
 10. A busca por `Haiku` em `.claude/rules/` não acha a tabela antiga do `performance.md`.
 11. `planner.md` e `architect.md` têm `model: fable` e `effort: high`.
-12. Depois do `apply`, o `.claude/settings.json` tem `advisorModel` igual a `conselheiro`, e as chaves
+12. Depois do `apply`, o `.claude/settings.json` tem `advisorModel` igual ao `model` do nível apontado por `conselheiro`, e as chaves
     `permissions` e `hooks` ficam iguais às de antes (comparadas depois de ler o JSON). Com `conselheiro: null`,
     a chave some.
 13. A `/k0d3r-task` manda comparar o modelo da sessão com o nível `orquestrador` e avisar em uma linha, sem
@@ -296,6 +298,10 @@ contrário. Isso não foi observado numa sessão nova; vem da documentação.
 - **Aprovada pela pessoa em 2026-11-11, por proposta do agente: nativos por rule, sem hook.** Um hook `PreToolUse` na chamada de agent poderia forçar o
   modelo dos nativos, mas depende do nome e do formato da ferramenta, que mudam entre versões do Claude Code.
   Fica registrado como alternativa, não construído.
+- **`conselheiro` aponta para um nível** (decisão da pessoa, 2026-11-11, depois da implementação). Antes ele
+  trazia um modelo (`"fable"`), e trocar o Fable pedia editar o nível `fronteira` e o `conselheiro`. Agora trocar o
+  `model` do nível troca os dois. Custo aceito: planejamento e conselheiro ficam presos ao mesmo nível, e o
+  `effort` do nível não vale para o conselheiro. Rejeitado: manter o modelo direto no `conselheiro`.
 
 ## Fora de escopo / questões em aberto
 

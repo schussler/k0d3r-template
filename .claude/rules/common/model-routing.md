@@ -28,9 +28,10 @@ O Fable é para o trabalho aberto e ambicioso, não para tarefa bem especificada
   spec. É recomendação: quem escolhe o modelo e o esforço da sessão é a pessoa (`/model`, `/effort`). A
   `/k0d3r-task` avisa em uma linha quando a sessão está em outro modelo, e segue.
 - **Planejamento aberto.** Os agents do nível `fronteira`.
-- **Conselheiro.** A chave `conselheiro` vira `advisorModel` no `.claude/settings.json`: a sessão e os agents
-  em modelos menores consultam o conselheiro antes de fechar uma abordagem, num erro que se repete e antes de
-  declarar pronto.
+- **Conselheiro.** A chave `conselheiro` aponta para um nível, e o `model` desse nível vira `advisorModel` no
+  `.claude/settings.json`. Trocar o `model` do nível troca o conselheiro junto. O `effort` do nível não vale para
+  o conselheiro: o Claude Code não tem esforço para ele. A sessão e os agents em modelos menores consultam o
+  conselheiro antes de fechar uma abordagem, num erro que se repete e antes de declarar pronto.
 - **Escalada.** Se um agent do nível `raciocinio` não achou a causa, ou falhou duas vezes na mesma coisa, refaça
   a chamada passando o `model` e o `effort` do nível `fronteira`, e diga isso na entrega.
 

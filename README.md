@@ -82,7 +82,7 @@ agent e o papel do Fable: orquestrador recomendado da sessão, planejamento aber
 | Quando | O que fazer |
 | --- | --- |
 | Saiu um modelo novo, ou você quer gastar mais ou menos | Edite `niveis` e rode `node scripts/model-routing/model-routing.mjs apply`. |
-| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` e o `conselheiro` para `opus` (ou `conselheiro: null`) e rode o `apply`. |
+| Sua conta não tem acesso ao Fable | Troque o `model` do nível `fronteira` para `opus` e rode o `apply`: o conselheiro aponta para esse nível e acompanha. Para desligar o conselheiro, `"conselheiro": null`. |
 | Entrou um agent novo | Dê um nível a ele em `agents` e rode o `apply`. |
 
 O `apply` escreve `model:` e `effort:` no frontmatter de cada agent e a chave `advisorModel` no

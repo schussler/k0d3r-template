@@ -43,7 +43,7 @@ const baseConfig = () => ({
     rapido: { model: 'haiku', effort: 'low' },
   },
   orquestrador: 'fronteira',
-  conselheiro: 'fable',
+  conselheiro: 'fronteira',
   agents: { planner: 'fronteira', reviewer: 'padrao', writer: 'padrao', finder: 'rapido' },
   nativos: { Plan: 'fronteira', Explore: 'rapido' },
 });
@@ -92,7 +92,7 @@ function fixture({ config, settings, unsynced = false } = {}) {
     f.write(agentPath(name), unsynced ? agentText(name, { model: 'opus', effort: 'max' }) : agentText(name, lv));
   }
   if (settings !== null) {
-    const s = settings ?? { ...SETTINGS_BASE(), ...(cfg.conselheiro ? { advisorModel: cfg.conselheiro } : {}) };
+    const s = settings ?? { ...SETTINGS_BASE(), ...(cfg.niveis[cfg.conselheiro]?.model ? { advisorModel: cfg.niveis[cfg.conselheiro].model } : {}) };
     f.write(SETTINGS, typeof s === 'string' ? s : JSON.stringify(s, null, 2) + '\n');
   }
   return f;
@@ -533,8 +533,8 @@ test('settings.json ausente com conselheiro null não é problema, e o apply nã
   assert.equal(check(f).status, 0);
 });
 
-test('conselheiro haiku é recusado: o Claude Code não aceita esse alias como conselheiro', () => {
-  const r = check(fixture({ config: (c) => { c.conselheiro = 'haiku'; } }));
+test('conselheiro apontando para um nível em haiku é recusado: o Claude Code não aceita haiku como conselheiro', () => {
+  const r = check(fixture({ config: (c) => { c.conselheiro = 'rapido'; } }));
   assert.equal(r.status, 1);
   assert.ok(lines(r.stderr).some((l) => l.includes('conselheiro') && l.includes('haiku')), r.stderr);
 });
@@ -819,4 +819,36 @@ test('model-routing.mjs só importado, com a linha de comando apontando para um 
   assert.equal(r.stderr, '', 'o main() do módulo importado não pode ter escrito nada');
   assert.equal(r.stdout, 'RETORNOU', 'o import tem de voltar sem o main() encerrar o processo');
   assert.equal(r.status, 0);
+});
+
+// --- conselheiro aponta para um nível --------------------------------------------------
+
+test('conselheiro aponta para um nível: trocar o model do nível muda o advisorModel e os agents juntos', () => {
+  // Arrange
+  const f = fixture();
+  const cfg = f.json(ROUTING);
+  cfg.niveis.fronteira.model = 'opus';
+  f.write(ROUTING, JSON.stringify(cfg, null, 2) + '\n');
+  // Act
+  const r = apply(f);
+  // Assert
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(f.json(SETTINGS).advisorModel, 'opus');
+  assert.match(f.read(agentPath('planner')).toString('utf8'), /^model: opus$/m);
+  assert.equal(check(f).status, 0);
+});
+
+test('conselheiro com o nome de um modelo, e não de um nível, é recusado e a mensagem diz que é nível', () => {
+  // O formato antigo era "conselheiro": "fable"; quem migrar precisa de uma mensagem que diga o que mudou.
+  const r = check(fixture({ config: (c) => { c.conselheiro = 'fable'; } }));
+  assert.equal(r.status, 1);
+  assert.ok(lines(r.stderr).some((l) => l.includes('conselheiro') && l.includes('fable') && l.includes('nível')), r.stderr);
+});
+
+test('conselheiro herdado de Object.prototype não passa por nível existente', () => {
+  const f = fixture({ config: (c) => { c.conselheiro = 'toString'; }, unsynced: true });
+  const antes = snapshot(f.root);
+  assert.equal(check(f).status, 1);
+  assert.equal(apply(f).status, 1);
+  assert.deepEqual(snapshot(f.root), antes);
 });
