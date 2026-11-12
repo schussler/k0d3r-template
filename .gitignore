@@ -17,3 +17,9 @@ Thumbs.db
 *.log
 tmp/
 coverage/
+
+# Node e build
+node_modules/
+dist/
+playwright-report/
+test-results/
