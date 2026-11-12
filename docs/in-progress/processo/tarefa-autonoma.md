@@ -565,3 +565,10 @@ Ressalvas dele, resolvidas: a lista da PARADA ganhou a linha da adoção pendent
 a linha Iniciar, o `ecc-sync.md` e o `README.md` passaram a dizer "fora da tarefa" ao pé da letra. O que ele
 listou fora da spec entrou na seção 7: o `conferido-em` do `ecc-sync.md`, a primeira tarefa preenchendo a
 `## Stack` e as linhas de portões no gatilho.
+
+Resultado da conferência final, por um `acceptance-verifier` novo, sobre a spec inteira (base `82696c0`):
+critérios 1 a 9 e 11 a 23 vistos funcionando, nenhum **falhou**, nada no diff fora da spec. O critério 10 (o
+ensaio) ficou **não conferido** de novo, porque não deixa registro no repositório. Ressalvas dele: o critério 9
+só tem como prova a própria rodada; os critérios 12 a 20 foram conferidos pelo texto, e o efeito numa tarefa
+real fica para a próxima corrida. Uma observação dele foi aplicada: o parágrafo de adoção do `.claude/README.md`
+passou a dizer que quem roda o `--adopt` é a pessoa, fora da tarefa.
