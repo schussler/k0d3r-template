@@ -432,6 +432,15 @@ sem adotar, e a revisão do fim só teria os revisores genéricos. O aviso "ado�
 - **Na entrega**, ela diz o que adotou, o que a pessoa cortou e qual linguagem do diff ficou sem revisor.
 - O `/sync-ecc-tools --adopt` continua para adotar fora de uma tarefa.
 
+### 13. O implementador delegado segue o roteamento
+
+Acrescentado em 2026-11-12. Na corrida `gramma` do CRM-k0d3r, a sessão delegou o frontend da fatia 5 a um
+`general-purpose` com `"model": "opus"` e sem esforço; o `model-routing.json` dá a esse nativo o nível `padrao`
+(Sonnet, `medium`). A rule `model-routing.md` já mandava ler a chave `nativos`, mas a `/k0d3r-task` não dizia
+nada sobre delegar código, e o `check` não confere chamadas. A tarefa passa a dizer, em "Implemente até o fim",
+que o implementador delegado recebe o `model` e o `effort` do nível de `nativos`, e que pedir mais é dito na
+entrega. Um hook que confira a chamada continua no backlog, para o caso de o desvio se repetir.
+
 ## Contratos e documentos afetados
 
 | Arquivo | Mudança |
@@ -453,6 +462,7 @@ sem adotar, e a revisão do fim só teria os revisores genéricos. O aviso "ado�
 | Seção 10 (dia zero completo) | `k0d3r-task.md` ("Dia zero e adoção do ECC"), gatilho da `## Stack` no `CLAUDE.md`, linha Dia zero das duas tabelas, seção 0 do `feature-lifecycle.md`, checklist do `README.md` da raiz |
 | Seção 11 (classificar a tarefa) | `k0d3r-task.md` ("Classifique a tarefa", item 1 e 3 da parada, testes, brief do verificador, defeito na Etapa 3), `acceptance-verifier.md` (briefs de correção e ajuste), `agents.md` (brief), `audit-docs.md`, regra de feature parcial no `CLAUDE.md` e no `feature-lifecycle.md`, parágrafo da `/k0d3r-task` nos dois, "spec × delta" do `feature-lifecycle.md`, [`docs/planned/backlog.md`](../../planned/backlog.md) (novo) e o `README.md` de `planned/` |
 | Seção 12 (ferramentas do ECC na spec) | `k0d3r-task.md` (seção do dia zero, item 4 da parada, "Adote as ferramentas aprovadas", item 5 da entrega), `sync-ecc-tools.md` (chamada pela tarefa), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, `README.md` da raiz, `.claude/README.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), [`feature-spec-template.md`](../../implemented/processo/feature-spec-template.md) |
+| Seção 13 (implementador delegado) | `k0d3r-task.md` ("Implemente até o fim") |
 | Seção 7 (adoção fora da tarefa) | `k0d3r-task.md` (a linha da parada e da entrega), gatilho da `## Stack` no `CLAUDE.md`, linhas Dia zero e Iniciar das duas tabelas, seções 0 e 2 do `feature-lifecycle.md`, "Quando rodar" do [`ecc-sync.md`](../../implemented/processo/ecc-sync.md), checklist e tabela de gatilhos do `README.md` da raiz |
 
 ## Critérios de aceite
@@ -559,6 +569,9 @@ sem adotar, e a revisão do fim só teria os revisores genéricos. O aviso "ado�
 38. A entrega diz o que foi adotado, o que foi cortado e qual linguagem do diff ficou sem revisor.
 39. A busca por "fora da tarefa" no `CLAUDE.md`, em `.claude/commands`, `.claude/rules`, nos dois READMEs e em
     `docs/implemented` não acha nada; as linhas Dia zero e Iniciar são iguais nas duas tabelas.
+40. "Implemente até o fim", na `/k0d3r-task`, manda passar ao `general-purpose` que recebe parte do código o
+    `model` e o `effort` do nível que a chave `nativos` do `model-routing.json` dá a ele, e dizer na entrega
+    quando a parte pedia mais.
 
 ## Estratégia de testes e verificação
 
@@ -614,6 +627,9 @@ sem adotar, e a revisão do fim só teria os revisores genéricos. O aviso "ado�
 - **Testes por fatia, antes do código dela** (decisão da pessoa, 2026-11-12, depois do teste da Estação
   Kepler). Rejeitado: o `test-author` em paralelo com a fatia atual escrevendo a seguinte; manter os testes de
   uma vez no início, que travam o commit por fatia; pedir o menor número de fatias.
+- **O implementador delegado segue o roteamento dos nativos** (proposta do agente, aprovada pela pessoa em
+  2026-11-12: "1"). Rejeitado agora: um hook `PreToolUse` que confira a chamada, que fica no backlog até o desvio
+  se repetir.
 - **A tarefa volta a propor e adotar as ferramentas do ECC, na spec e aprovadas na parada** (decisão da pessoa,
   2026-11-12: "quero que o task identifique as necessidades para ajudar ele na spec igual antes"; "aprovo").
   Reverte em parte "a adoção do ECC sai da tarefa" (seção 7): a adoção volta, mas sem pergunta à parte. Rejeitado:
@@ -694,7 +710,7 @@ ferramenta nem os arquivos abertos.
 
 ### Definição de pronto
 
-Critérios 1 a 39 conferidos, menos os substituídos (12, 14, 15, 21 a 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
+Critérios 1 a 40 conferidos, menos os substituídos (12, 14, 15, 21 a 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
 
 ### Feito vs pendente
 
@@ -744,6 +760,8 @@ spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os
 "antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
 `CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
 
+- [x] Fatia 13 (seção 13, critério 40): conferido pela sessão, por leitura do command; sem agent de contexto
+      limpo, por ser uma linha.
 - [x] Fatia 12 (seção 12, critérios 36 a 39): command, `sync-ecc-tools.md`, gatilho, linhas Dia zero e Iniciar,
       seções 0 e 2 do `feature-lifecycle.md`, os dois READMEs, `ecc-sync.md`, template de spec; conferência por
       contexto limpo.

@@ -166,6 +166,7 @@ Nas vias editar a spec, delta e spec nova, chame o agent `test-author` antes de 
 - Siga as exigências aplicáveis de testes, segurança, arquitetura e revisão.
 - Enquanto itera numa fatia, rode só os portões que a tabela do `CLAUDE.md` marca "na iteração". Antes de qualquer commit, rode todos.
 - Commit por fatia, com todos os portões verdes, e push depois de cada commit.
+- Se delegar parte do código a um subagent `general-purpose`, passe na chamada o `model` e o `effort` do nível que a chave `nativos` do [`model-routing.json`](../model-routing.json) dá a ele. Não escolha outro modelo por conta própria; se a parte pede mais, diga isso na entrega ([`model-routing.md`](../rules/common/model-routing.md)).
 - Mantenha a spec coerente com o andamento e os resultados da implementação.
 
 **Desvio técnico do plano** (ordem das etapas, estrutura interna, nome): decida, anote na spec e relate na entrega.
