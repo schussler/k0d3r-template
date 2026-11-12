@@ -10,7 +10,7 @@ codigo:
   - .claude/settings.json
   - .claude/commands/toolset-retro.md
   - .claude/skills/search-first/SKILL.md
-conferido-em: 2026-11-11
+conferido-em: 2026-11-12
 ---
 
 # Mantendo o toolset `.claude/` em sincronia com o ECC
@@ -65,8 +65,8 @@ Claude aplica e registra. Adotar é sempre decisão humana.
 
 | Gatilho | Modo |
 | --- | --- |
-| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt` |
-| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, no mesmo commit da `## Stack` |
+| Dia zero (a `## Stack` acabou de ser preenchida) | `/sync-ecc-tools --adopt`, rodado pela pessoa |
+| Uma spec que muda a stack vai para `in-progress/` | `/sync-ecc-tools --adopt`, rodado pela pessoa depois que a tarefa atualiza a `## Stack` |
 | O hook de `SessionStart` (`toolset-staleness.mjs`) ou o `/toolset-retro` avisa que o último sync passou de `syncStaleDays` dias (campo do manifest) | `/sync-ecc-tools` |
 | A retro acha uma ferramenta faltante que o catálogo tem | `/sync-ecc-tools --adopt` |
 | A qualquer momento | `/sync-ecc-tools` |

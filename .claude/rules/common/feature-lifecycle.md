@@ -29,10 +29,10 @@ Um doc mantém o mesmo caminho relativo ao trocar de estado:
 
 | Etapa | O que acontece | Peça |
 | --- | --- | --- |
-| Dia zero | Stack detectada, `## Stack` preenchida, pacotes do ECC propostos e adotados com confirmação | gatilho do CLAUDE.md, `/sync-ecc-tools --adopt`, `catalog.json` |
+| Dia zero | Stack detectada, `## Stack` e tabela de portões preenchidas pela primeira tarefa; a adoção dos pacotes do ECC é um passo da pessoa, fora da tarefa, com confirmação | gatilho do CLAUDE.md; `/sync-ecc-tools --adopt` e `catalog.json`, rodados pela pessoa |
 | Pesquisar | Antes de escrever código ou adotar dependência: existe pronto? qual a API atual? | `search-first`, `documentation-lookup`, agent `docs-lookup` |
 | Especificar | Investigação, entrevista (uma pergunta por vez, só o que o repositório não responde) e spec nova em `docs/planned/<área>/` a partir do `feature-spec-template.md` | `/k0d3r-task`, agent `planner` (e `architect` se mexer na forma do sistema) |
-| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` + `--adopt` no mesmo commit | `planner`, `/feature-dev`, `/sync-ecc-tools --adopt` |
+| Iniciar | `git mv` para `docs/in-progress/<área>/`; plano de build dentro da spec; aprovação humana antes do código; se a stack muda, `## Stack` no mesmo commit e aviso de adoção pendente | `planner`, `/feature-dev`; `/sync-ecc-tools --adopt`, rodado pela pessoa |
 | Construir | Fatia por fatia até o fim. Em cada uma: testes primeiro, escritos por um agent de contexto limpo a partir só da spec, antes do código da fatia; só os portões "na iteração" enquanto ajusta; todos antes do commit, com commit e push por fatia; com mais de uma fatia, os critérios de cada uma conferidos por um agent de contexto limpo antes da seguinte | agents `test-author` e `acceptance-verifier`, `tdd-workflow`, skills de stack adotadas; agent `tdd-guide` fora da `/k0d3r-task` |
 | Verificar | Portões do CLAUDE.md, sem mascarar exit code, incluindo o `docs-check diff` (docs ligados ao código alterado, resolvidos) e o `docs-check links`; depois, cada critério de aceite conferido por um agent de contexto limpo | `verification-loop`, `docs-check diff`, agent `acceptance-verifier` |
 | Revisar | Revisão do diff; segurança quando tocar auth, entrada de usuário ou segredo | `/code-review`, agents `code-reviewer`, `security-reviewer`, `silent-failure-hunter`, reviewers de stack adotados |
@@ -53,8 +53,9 @@ Sessões longas: `strategic-compact` (com hook) sugere `/compact` nas fronteiras
 
 Se a seção `## Stack` do `CLAUDE.md` estiver vazia ou não refletir os arquivos do repositório, antes da primeira
 tarefa de código: detecte a stack, proponha o texto da seção e as linhas da tabela "Portões de verificação" (com
-a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos), e
-rode `/sync-ecc-tools --adopt`. Nada é adotado sem confirmação humana.
+a coluna "Quando": "na iteração" para os portões rápidos, "antes do commit" para os lentos). A adoção dos itens
+do ECC é um passo da pessoa, fora da tarefa (`/sync-ecc-tools --adopt`): a `/k0d3r-task` só avisa que ela está
+pendente. Nada é adotado sem confirmação humana.
 
 ## 1. Pesquisar e especificar
 
@@ -77,7 +78,8 @@ questões abertas; um checklist "feito vs pendente". Marque essas seções como 
 na graduação). **Aprovação humana antes do código.**
 
 **Se a spec introduz linguagem, framework, banco ou serviço novo**, atualize a `## Stack` do `CLAUDE.md` no mesmo
-commit do `git mv` e rode `/sync-ecc-tools --adopt` para propor as peças do ECC da stack nova.
+commit do `git mv` e avise que a adoção das peças do ECC da stack nova está pendente: ela é um passo da pessoa,
+fora da tarefa (`/sync-ecc-tools --adopt`).
 
 ## 3. Construir — commit e push por fatia
 

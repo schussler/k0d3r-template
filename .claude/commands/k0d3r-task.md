@@ -44,6 +44,10 @@ Se a mudança não altera comportamento nem contrato (refactor, dependência, ty
 
 Numa tarefa com spec, leia o nível `orquestrador` em `.claude/model-routing.json`. Se a sessão roda em outro modelo, diga em uma linha qual é o modelo e o esforço recomendados e como trocar (`/model <alias>`, `/effort <nível>`), e siga sem esperar resposta. A escolha é da pessoa ([`model-routing.md`](../rules/common/model-routing.md)).
 
+### Stack e adoção do ECC
+
+Se a `## Stack` do `CLAUDE.md` está vazia, não reflete o repositório ou muda com esta tarefa, a tarefa preenche a seção e as linhas da tabela de portões. Ela **não propõe nem roda a adoção de itens do ECC**: a adoção é um passo da pessoa, fora da tarefa. Diga em uma linha, na parada e na entrega, que a adoção está pendente e que o comando é `/sync-ecc-tools --adopt`.
+
 ### Reconcilie a documentação necessária ao planejamento
 
 - Identifique a spec principal e os documentos que descrevem os comportamentos e contratos afetados.
@@ -189,7 +193,7 @@ Comece pelo resultado, em uma ou duas frases: o que funciona agora e o que não 
     |Comportamento ou contrato|Documento e seção|Atualização ou conferência realizada|Evidência|
     |---|---|---|---|
 
-5. Pendências, divergências relevantes fora do escopo e decisões humanas necessárias, se houver.
+5. Pendências, divergências relevantes fora do escopo e decisões humanas necessárias, se houver. Se a tarefa preencheu ou mudou a `## Stack`, inclua aqui a adoção do ECC pendente (`/sync-ecc-tools --adopt`).
 6. O estado da spec e, quando aplicável, o pedido de aprovação para graduação, conforme as regras do projeto. No caso "editar a spec de `implemented/`", o conteúdo da spec da tarefa foi incorporado ao doc de `implemented/` e o arquivo temporário de `docs/in-progress/` foi apagado, no mesmo PR.
 
 A tarefa só está concluída quando houver coerência entre o comportamento aprovado, a implementação e a documentação afetada, dentro do alcance explicitamente verificado. Código compilando e declaração genérica de “documentação atualizada” não são comprovação suficiente.
