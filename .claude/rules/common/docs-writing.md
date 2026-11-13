@@ -16,6 +16,8 @@ paths:
   dizer "o doc está certo". É data, não SHA, para sobreviver a squash e rebase.
 - `docs-check: ignore` marca **só templates**: tira o doc do `diff`, do `stale` e da linha do hook. A spec
   copiada de um template **apaga** a chave. Os `README.md` de pasta ficam fora por regra, sem a chave.
+- **Spec em `in-progress/` ganha `codigo:` e `conferido-em` no primeiro commit de código.** Sem eles, o
+  `docs-check diff` lista a própria spec da tarefa como sem resolver a cada commit, e nada avisa o motivo.
 
 ## Resolver um doc ligado ao código alterado
 
