@@ -1,5 +1,9 @@
 ---
-conferido-em: 2026-11-11
+codigo:
+  - .claude/commands/k0d3r-task.md
+  - .claude/agents/test-author.md
+  - .claude/agents/acceptance-verifier.md
+conferido-em: 2026-11-13
 ---
 
 # Tarefa autônoma: entrevista, uma parada e conferência com contexto limpo
@@ -15,7 +19,7 @@ caminho. Em troca, o trabalho é conferido por agents que não viram como ele fo
 Fontes: o guia oficial "Prompting Claude Fable 5.2" (lido em 2026-11-11), o artigo de lançamento do Fable 5.2 e
 o gist com as dez dicas.
 
-## Comportamento atual e evidências
+## Estado anterior e evidências (antes desta mudança)
 
 - A [`/k0d3r-task`](../../../.claude/commands/k0d3r-task.md) abre com "Atue como líder técnico sênior" e não diz
   de quem é o código. O guia mediu que, sem a frase de propriedade, o modelo acrescenta ao lado do que existe em
@@ -38,8 +42,8 @@ o gist com as dez dicas.
 
 ### 1. Jeito de trabalhar, no `CLAUDE.md`
 
-Seção nova, "Como trabalhar", que vale em toda sessão. O texto proposto está no
-[plano de build](#texto-proposto-da-seção-como-trabalhar). Ela diz:
+Seção nova, "Como trabalhar", que vale em toda sessão. O texto entregue está no
+[`CLAUDE.md`](../../../CLAUDE.md#como-trabalhar). Ela diz:
 
 - **De quem é o código.** O agente é dono e mantenedor do código que a tarefa toca. Pode reorganizar o que está
   no caminho da tarefa quando o resultado fica mais simples que um remendo. Problema fora do caminho é
@@ -664,160 +668,7 @@ entrega. Um hook que confira a chamada continua no backlog, para o caso de o des
   contradiz a spec única do docs-first. Divergência anterior a esta mudança; vai para o backlog.
 - Fixar o esforço e o modelo da sessão principal: a spec 1 os trata como recomendação com aviso.
 - Hook que force os agents de contexto limpo a receber só a spec: hoje é disciplina do brief.
-
-## Plano de build
-
-### Escopo e fatias
-
-1. **Agents.** `test-author` e `acceptance-verifier`; nível no `model-routing.json`; `apply`; manifest.
-2. **Jeito de trabalhar e command.** Seção "Como trabalhar" do `CLAUDE.md`; reescrita da `/k0d3r-task`.
-3. **Rules e tabelas.** `agents.md`, `testing.md`, `development-workflow.md`, `feature-lifecycle.md`, tabela de
-   Workflow do `CLAUDE.md`; manifest.
-4. **Docs e prova.** READMEs; docs de `implemented/`; conferência por contexto limpo; ensaio; backlog.
-
-Ordem com a spec 1: as duas fatias de lá vêm antes.
-
-### Texto proposto da seção "Como trabalhar"
-
-```markdown
-## Como trabalhar
-
-Você é dono e mantenedor de longo prazo do código que a tarefa toca: a forma dele é decisão sua. Se o
-resultado mais simples pede reorganizar o que já existe no caminho da tarefa, reorganize em vez de remendar
-ao lado, e avise no plano da spec quando der para prever. Problema fora do caminho da tarefa é registrado
-na entrega, não corrigido.
-
-**Termine o trabalho.** Depois da spec aprovada, siga até a entrega. Erro, timeout, teste quebrado e
-ferramenta falhando são obstáculos comuns: ache a causa e resolva com o acesso que você tem. Não ofereça
-para esperar e não peça de novo o que já foi aprovado.
-
-**Não precisa de ok:** ler e buscar no repositório; rodar portões e testes; repetir um comando que falhou;
-criar e editar arquivos dentro do escopo aprovado; chamar subagentes; commit e push na branch da sessão com
-os portões verdes; escolhas técnicas rotineiras (nomes, estrutura interna, ordem das etapas).
-
-**Peça ok antes de:** implementar uma spec que ainda não foi aprovada; mudar comportamento, contrato ou
-escopo aprovados; graduar uma spec; abrir um PR; mudar uma regra de arquitetura; adotar um item do ECC;
-fazer uma operação destrutiva ou difícil de desfazer. Um bloqueio deliberado (arquivo marcado para não
-tocar, acesso negado, comando barrado pelo `guard-shell`) não é obstáculo a contornar: diga o que encontrou
-e procure outro caminho.
-
-**Prova.** Só diga que algo funciona se você viu funcionar. O que não deu para conferir, diga que não
-conferiu.
-
-**Relatório.** A entrega começa pelo resultado, em frases curtas, para quem não viu as chamadas de
-ferramenta nem os arquivos abertos.
-```
-
-### Definição de pronto
-
-Critérios 1 a 40 conferidos, menos os substituídos (12, 14, 15, 21 a 24); nenhum **falhou** do `acceptance-verifier`; todos os portões com código de saída 0.
-
-### Feito vs pendente
-
-- [x] Fatia 1: agents, nível no roteamento, manifest.
-- [x] Fatia 2: seção "Como trabalhar" e reescrita da `/k0d3r-task`.
-- [x] Fatia 3: rules, tabelas de etapas, manifest.
-- [x] Fatia 4: READMEs, docs de `implemented/` conferidos, backlog, conferência por contexto limpo e ensaio.
-
-Resultado da primeira conferência por contexto limpo: os critérios 1, 2 e 4 a 8 vistos funcionando; o critério 3
-**falhou**, porque a redação original dizia que todo item de "peça ok" vinha de `CLAUDE.md` ou de
-`.claude/rules/`, e dois vinham de outros lugares do projeto. O comportamento aprovado não mudou: a redação do
-critério foi corrigida para nomear as origens. O mesmo verificador listou mudanças que o diff trazia e a spec
-não citava; elas entraram na seção 4.
-
-Resultado da segunda conferência, por um `acceptance-verifier` novo, depois das correções: nenhum **falhou** nos
-critérios 1 a 8. Os critérios 1 a 4 foram conferidos por leitura, porque são texto de prompt. O critério 10 ficou
-**não conferido** por ele: o ensaio não deixa registro no repositório além deste relato.
-
-Resultado da terceira conferência, depois da troca de decisão sobre a correção de critérios: nenhum **falhou**
-nos critérios 1 a 8 e 11. Os critérios 1 a 3, 11 e metade do 4 foram conferidos por leitura. O critério 10
-continuou **não conferido** pelo verificador.
-
-Resultado do ensaio (critério 10): o agente investigou, reproduziu o defeito e terminou com **uma** pergunta,
-com duas opções, a recomendação e o que achou no código. Não escreveu spec nem código; `git status` na cópia
-isolada mostrou só uma pasta ignorada, com o script de reprodução. Limite: o ensaio mostra a primeira pergunta,
-não a entrevista inteira nem o que acontece depois da aprovação.
-
-- [x] Fatia 5 (seção 5, critérios 12 a 15): command, `acceptance-verifier.md`, `agents.md`, tabelas Construir,
-      seção 3 do `feature-lifecycle.md`, template de spec; conferência por contexto limpo.
-
-Resultado da conferência da fatia 5, por um `acceptance-verifier` novo: critérios 12 a 15 vistos funcionando,
-por leitura e busca (a igualdade das linhas Construir, por comparação de strings, com o controle de que a linha
-antiga difere). Nenhum **falhou**. Ele listou o que o diff trazia e esta spec não dizia: o inventário e a nota do
-manifest, o caso de borda "diga isso e pare" do agent e a falta da exceção "fatia sem critério" na seção 3 do
-`feature-lifecycle.md`. Os dois primeiros entraram na tabela de contratos, o terceiro na seção 5, e a exceção
-entrou no `feature-lifecycle.md`.
-
-- [x] Fatia 6 (seção 6, critérios 16 a 20): command, `test-author.md`, `agents.md`, `testing.md`,
-      `development-workflow.md`, `verification.md`, tabela de portões e linhas Construir, seções 0 e 3 do
-      `feature-lifecycle.md`, inventário, manifest; conferência por contexto limpo.
-
-Resultado da conferência da fatia 6, por um `acceptance-verifier` novo: critérios 16 a 20 vistos funcionando,
-por leitura e busca (a linha Construir por comparação de strings, com controle; a frase antiga "before the
-session writes any code" ausente em HEAD e presente em b88546b). Nenhum **falhou**. O que ele listou fora da
-spec entrou nela: o `README.md` da raiz e a seção 3 na tabela de contratos, os dois casos de borda do
-`test-author.md` na seção 6. Também alinhados: a nota do manifest do `agents.md` e três frases que ainda diziam
-"antes do código" sem a fatia (`agents.md`, duas; `k0d3r-task.md`, uma). A ressalva dele, de que o texto do
-`CLAUDE.md` e do command não tinha a palavra "só" que o critério 19 usa, foi resolvida acrescentando a palavra.
-
-- [x] Fatia 13 (seção 13, critério 40): conferido pela sessão, por leitura do command; sem agent de contexto
-      limpo, por ser uma linha.
-- [x] Fatia 12 (seção 12, critérios 36 a 39): command, `sync-ecc-tools.md`, gatilho, linhas Dia zero e Iniciar,
-      seções 0 e 2 do `feature-lifecycle.md`, os dois READMEs, `ecc-sync.md`, template de spec; conferência por
-      contexto limpo.
-
-Resultado da conferência da fatia 12, por um `acceptance-verifier` novo (base `453b376`): critérios 36 a 39
-vistos funcionando, por leitura, busca e `diff` das linhas Dia zero e Iniciar; nada no diff fora da spec. Não
-conferido: a tarefa escrevendo a lista, adotando e chamando os agents adotados numa execução real.
-
-- [x] Fatia 11 (seção 11, critérios 32 a 35): command, os dois agents, `agents.md`, `audit-docs.md`, regras de
-      feature parcial e da `/k0d3r-task`, "spec × delta", backlog do projeto; conferência por contexto limpo.
-
-Resultado da conferência da fatia 11, por um `acceptance-verifier` novo (base `4ccd685`): critérios 33 a 35
-vistos funcionando, por leitura e busca; o 32 também, com uma ressalva: o command abria uma exceção à regra "sem
-entrevista" ("salvo uma pergunta que mude a via"), que a pessoa não aprovou. A exceção saiu: se a via não está
-clara, a sessão desce uma. Ele também apontou a `description` do command e a linha do inventário, que ainda
-diziam só "sem efeito de comportamento passa sem spec"; as duas citam as vias agora. Não conferido: as vias numa
-tarefa real.
-
-- [x] Fatia 10 (seção 10, critérios 30 e 31): command, gatilho, linhas Dia zero, seção 0 do
-      `feature-lifecycle.md`, `README.md`; conferência por contexto limpo.
-
-Resultado da conferência da fatia 10, por um `acceptance-verifier` novo (base `8185305`): critérios 30 e 31
-vistos funcionando, por leitura e por `diff` das duas linhas Dia zero. Fora dos critérios, ele listou o checklist do
-`README.md`, que está na tabela de contratos da seção 10. Não conferido: o dia zero numa primeira tarefa real.
-
-- [x] Fatia 9 (seção 9, critérios 27 a 29): command, `acceptance-verifier.md`, `agents.md`,
-      `feature-lifecycle.md`, linhas Construir, inventário, template de spec, manifest; conferência por
-      contexto limpo.
-
-Resultado da conferência da fatia 9, por um `acceptance-verifier` novo (base `4538bc0`): critérios 27 a 29
-vistos funcionando, por leitura e busca, nada no diff fora da spec. Uma observação dele, que não se confirmou: a
-tabela do `agents.md` ainda diria "at the end of each slice"; no disco, a linha diz "once over the whole spec".
-Não conferido: o meio-termo numa tarefa real.
-- [x] Fatia 8 (seção 8, critérios 24 a 26): command, `feature-lifecycle.md`, linhas Construir, os dois agents;
-      conferência por contexto limpo.
-
-Resultado da conferência da fatia 8, em duas rodadas: na primeira, os critérios 25 e 26 vistos funcionando e o
-24 **falhou**, porque a seção 3 do `feature-lifecycle.md` não dizia que a entrega continua sem nenhum
-**falhou**. Corrigido, junto com a linha da seção 8 na tabela de contratos. Na segunda, por um verificador novo:
-critérios 24 a 26 vistos funcionando, por leitura e busca, nada fora da spec. Os dois verificadores rodaram em
-Opus: a sessão tinha carregado a definição antiga do agent. Não conferido: o limite de rodadas, os relatórios
-curtos e o verificador em Sonnet numa tarefa real; fica para a próxima corrida.
-- [x] Fatia 7 (seção 7, critérios 21 a 23): command, gatilho da `## Stack`, linhas Dia zero e Iniciar, seções 0
-      e 2 do `feature-lifecycle.md`, `ecc-sync.md`, `README.md`; conferência por contexto limpo.
-
-Resultado da conferência da fatia 7, por um `acceptance-verifier` novo: critérios 21 a 23 vistos funcionando,
-por leitura e busca (as linhas Dia zero e Iniciar iguais nas duas tabelas, com controle; toda ocorrência de
-`--adopt` nesses lugares vem com "passo da pessoa", "rodado pela pessoa" ou "só avisa"). Nenhum **falhou**.
-Ressalvas dele, resolvidas: a lista da PARADA ganhou a linha da adoção pendente, que antes ficava só na Etapa 1;
-a linha Iniciar, o `ecc-sync.md` e o `README.md` passaram a dizer "fora da tarefa" ao pé da letra. O que ele
-listou fora da spec entrou na seção 7: o `conferido-em` do `ecc-sync.md`, a primeira tarefa preenchendo a
-`## Stack` e as linhas de portões no gatilho.
-
-Resultado da conferência final, por um `acceptance-verifier` novo, sobre a spec inteira (base `82696c0`):
-critérios 1 a 9 e 11 a 23 vistos funcionando, nenhum **falhou**, nada no diff fora da spec. O critério 10 (o
-ensaio) ficou **não conferido** de novo, porque não deixa registro no repositório. Ressalvas dele: o critério 9
-só tem como prova a própria rodada; os critérios 12 a 20 foram conferidos pelo texto, e o efeito numa tarefa
-real fica para a próxima corrida. Uma observação dele foi aplicada: o parágrafo de adoção do `.claude/README.md`
-passou a dizer que quem roda o `--adopt` é a pessoa, fora da tarefa.
+- Não conferido numa tarefa real: as vias de correção e de ajuste pontual, a proposta e a adoção das
+  ferramentas do ECC na spec, e o critério 10 (o ensaio da entrevista não deixa registro no repositório). Visto
+  numa tarefa real: a via "spec nova", a entrevista, a parada única, o dia zero completo, o `test-author` por
+  fatia e o verificador no fim (corridas `novo4` e `gramma`, 2026-11-12).

@@ -3,7 +3,7 @@
 > Regra local do projeto. A fonte única é [`.claude/model-routing.json`](../../model-routing.json): os níveis,
 > o nível de cada agent e o papel do Fable. Esta regra **não repete os valores**; leia o arquivo. O desenho e
 > as decisões estão em
-> [`roteamento-de-modelos.md`](../../../docs/in-progress/processo/roteamento-de-modelos.md).
+> [`roteamento-de-modelos.md`](../../../docs/implemented/processo/roteamento-de-modelos.md).
 
 ## O arquivo manda
 

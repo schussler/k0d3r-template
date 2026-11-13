@@ -9,7 +9,7 @@
 // O portão só vale se falhar fechado: tudo o que o script não consegue ler ou entender vira problema, nunca
 // um agent pulado em silêncio.
 //
-// Spec: docs/in-progress/processo/roteamento-de-modelos.md.
+// Spec: docs/implemented/processo/roteamento-de-modelos.md.
 
 import { accessSync, constants, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';

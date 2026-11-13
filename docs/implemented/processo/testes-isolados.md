@@ -1,5 +1,7 @@
 ---
-conferido-em: 2026-11-12
+codigo:
+  - .claude/rules/common/testing.md
+conferido-em: 2026-11-13
 ---
 
 # Testes isolados da máquina de quem usa
@@ -9,7 +11,7 @@ conferido-em: 2026-11-12
 Testes e portões rodam sem tomar a máquina da pessoa que acompanha a sessão: o cursor, o foco, o som e o perfil
 do navegador continuam dela.
 
-## Comportamento atual e evidências
+## Estado anterior e evidências (antes desta mudança)
 
 - Na corrida `novo2` da Estação Kepler (2026-11-12), a pessoa viu o mouse se mexer sozinho. A sessão não usou
   nenhuma ferramenta de controle de tela: conferido no transcript, só `Bash`, `Read`, `Write`, `Edit`, `Agent` e
@@ -53,9 +55,3 @@ há comportamento executável. O efeito (uma sessão desenhando um harness isola
 
 - **Regra geral no template, detalhe de stack no projeto** (decisão da pessoa, 2026-11-12: "pode fazer").
   Rejeitado: uma regra sobre Pointer Lock no template, que é agnóstico de stack.
-
-## Plano de build
-
-Uma fatia: a regra na `testing.md`, a nota do manifest, a conferência.
-
-- [x] Fatia 1: regra, manifest, conferência por contexto limpo.

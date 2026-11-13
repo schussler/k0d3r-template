@@ -1,5 +1,10 @@
 ---
-conferido-em: 2026-11-11
+codigo:
+  - scripts/docs-check/docs-check.mjs
+  - scripts/ecc-sync/report.mjs
+  - scripts/hooks/guard-shell.mjs
+  - scripts/hooks/toolset-staleness.mjs
+conferido-em: 2026-11-13
 ---
 
 # Guarda de entrada dos scripts do toolset
@@ -25,7 +30,7 @@ O `scripts/model-routing/model-routing.mjs` tinha o mesmo defeito e já foi corr
 ([`roteamento-de-modelos.md`](roteamento-de-modelos.md), seção "O portão falha
 fechado").
 
-## Comportamento atual e evidências
+## Estado anterior e evidências (antes desta mudança)
 
 Reproduzido em 2026-11-11, com um link para `scripts/` dentro de um diretório temporário:
 
@@ -113,39 +118,6 @@ simbólico para o diretório `scripts/` do repositório, criado num diretório t
 - O critério 9 tem um teste em cada um dos cinco arquivos de teste.
 - O ramo "o caminho do próprio arquivo não pode ser lido" é conferido **só por leitura**: o caminho real do
   script em execução sempre pode ser lido, e não achei um estado real que provoque a falha.
-
-## Plano
-
-Uma fatia só: testes do `test-author` → guarda nos cinco scripts → backlog e conferência dos dois docs → commit.
-
-- [x] Testes do `test-author`: quatro, um por arquivo de teste, cada um com o controle pelo caminho real. Os quatro
-      falharam antes da correção, pelo link (código 0, sem saída), com o controle passando.
-- [x] Guarda nos cinco scripts, como a função `isEntrypoint` em cada arquivo. 171 testes passam.
-- [x] Backlog: saiu a linha do link simbólico; entrou a do `onFailure: "block"`.
-- [x] `verificacao-de-docs.md` e `ecc-sync.md` conferidos: nenhum descreve a guarda de entrada.
-
-- [x] Revisão: o `acceptance-verifier` devolveu **falhou** no critério 7, e os dois revisores reproduziram o mesmo
-      defeito. Com a regra "na dúvida, roda", um módulo só importado rodava o `main()` quando o caminho da linha de
-      comando não existia; no `toolset-staleness`, o `docs-check` importado encerrava o processo com código 2. A
-      pessoa decidiu dividir os dois lados (decisão abaixo). Os cinco testes do critério 9 falharam contra a
-      guarda anterior e passam com a nova: 176 testes.
-- [x] Fora da spec, feito nesta fatia: os imports sem uso (`mkdirSync`, `writeFileSync`) saíram de três testes de
-      link; e a linha do backlog "Falta um executor da tabela de portões" perdeu a frase que citava o teste por
-      link, que já existe.
-
-- [x] Segunda conferência, por um `acceptance-verifier` novo: critérios 1 a 7 e 9 vistos funcionando, nenhum
-      **falhou** de trabalho. O ramo "o próprio arquivo ilegível: roda" foi rodado por ele no `guard-shell`, com um
-      controle que distingue os dois casos; nos outros quatro, só por leitura (corpo idêntico). O critério 8 voltou
-      "falhou em parte" porque o texto antigo pedia "todos os portões do `CLAUDE.md`", e cinco deles são
-      `<placeholder>` no template. A redação foi corrigida para os portões que têm comando: o trabalho entregue é
-      o aprovado.
-
-Aprovado pela pessoa em 2026-11-11, com as duas decisões abaixo e a proposta do `onFailure` indo para o backlog.
-
-## Riscos
-
-- Um script que passe a rodar quando antes saía com 0 pode revelar outro defeito escondido atrás dele. Os quatro
-  rodam hoje pelo caminho real, com testes, então o risco é baixo.
 
 ## Decisões
 

@@ -1,5 +1,5 @@
 // Tests for model-routing. Run: node --test scripts/model-routing/model-routing.test.mjs
-// Written from the spec alone (docs/in-progress/processo/roteamento-de-modelos.md). The script is exercised
+// Written from the spec alone (docs/implemented/processo/roteamento-de-modelos.md). The script is exercised
 // only through its command line contract (`check|apply [--root <dir>]`) on throwaway roots, never on the real
 // .claude/ of the repository. Hatch cases (apply that must not write, CRLF, text inside the body, settings
 // missing or broken) come first, as the spec asks.

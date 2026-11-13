@@ -1,5 +1,10 @@
 ---
-conferido-em: 2026-11-12
+codigo:
+  - .claude/model-routing.json
+  - scripts/model-routing/model-routing.mjs
+  - scripts/hooks/routing-guard.mjs
+  - .claude/rules/common/model-routing.md
+conferido-em: 2026-11-13
 ---
 
 # Roteamento de modelo e esforço dos agents
@@ -12,7 +17,7 @@ conferido-em: 2026-11-12
 Um arquivo só decide em qual modelo e com qual esforço cada agent roda. Quando a Anthropic lança ou aposenta
 um modelo, a pessoa troca poucas linhas nesse arquivo, roda um comando, e todos os agents acompanham.
 
-## Comportamento atual e evidências
+## Estado anterior e evidências (antes desta mudança)
 
 - Nenhum arquivo de `.claude/agents/` tem `model:` ou `effort:` no frontmatter (busca em `.claude/agents`,
   `.claude/commands` e `.claude/skills`). As 13 notas `adaptation` do
@@ -359,61 +364,5 @@ a própria guarda bloquearia.
 - Detectar se o conselheiro está de fato ativo na máquina de cada pessoa (acesso ao Fable, plano, provedor).
 - Detectar as variáveis de ambiente e a lista da organização que vencem o frontmatter.
 - Agents de plugin e de `~/.claude/agents`: o arquivo cobre só `.claude/agents/` do repositório.
-
-## Plano de build
-
-### Escopo e fatias
-
-1. **Script e testes.** Testes escritos primeiro por subagente de contexto novo; `check` e `apply`; JSON com
-   os 13 agents atuais.
-2. **Aplicação.** `apply` nos 13 agents e no `settings.json`; portão no `CLAUDE.md`; `VERIFY_GATES` e teste do `guard-shell`; notas
-   do manifest; rule nova; `performance.md`; `sync-ecc-tools.md`; `ecc-sync.md`; READMEs.
-
-Os dois agents novos entram em `agents` na fatia 1 da spec 2.
-
-### Definição de pronto
-
-Critérios 1 a 19 conferidos, menos o 15 (substituído); todos os testes do toolset, `docs-check diff` e `docs-check links` com código de
-saída 0.
-
-### Feito vs pendente
-
-- [x] Fatia 1: script e testes.
-- [x] Fatia 2: `apply` nos agents e no `settings.json`, portão, `guard-shell`, manifest, rule, docs.
-- [x] Revisão: os defeitos da seção "O portão falha fechado" corrigidos, teste antes do código. 81 testes; 27
-      mutações, todas detectadas.
-- [x] Critério 13: a linha de aviso está na `/k0d3r-task`. Conferido por leitura; nenhuma execução mostrou o
-      aviso, porque o ensaio rodou no modelo recomendado.
-- [x] Duas conferências por contexto limpo, a segunda depois das correções da revisão: critérios 1 a 12 vistos
-      funcionando nas duas, nenhum **falhou**.
-- [x] Critério 14, conferido pela pessoa em 2026-11-11, com uma diferença do texto do critério: em vez da
-      mensagem de abertura, a pessoa rodou `/advisor` na sessão desta tarefa, e ele respondeu que a conversa
-      "keeps Fable 5.2 as its advisor model". Antes desse comando, as settings do usuário (o `CLAUDE_CONFIG_DIR`
-      do perfil) não tinham `advisorModel`, então o Fable 5.2 veio do `.claude/settings.json` do projeto, ou de
-      uma flag `--advisor` ou settings gerenciadas, que não foram descartadas. Registro anterior, quando ainda
-      faltava esse dado: a sessão
-      desta tarefa reiniciou depois do `apply` e passou a ter a ferramenta de conselheiro, e uma consulta a ela
-      funcionou. O único `advisorModel` achado é o do `.claude/settings.json` do projeto: não há a chave em
-      `~/.claude/settings.json` nem no settings do perfil, e não existem `~/.claude/settings.local.json` nem
-      `.claude/settings.local.json`. Não foi descartado: a flag `--advisor` na abertura, settings gerenciadas, ou
-      o ambiente que abre a sessão ligando o conselheiro por conta própria. A sessão também voltou em outro
-      modelo principal, então o antes e o depois diferem em mais de uma coisa. Não se sabe qual modelo responde
-      como conselheiro. O que decide: o que o `/advisor` mostra nessa sessão.
-- [x] Critérios 18 e 19 (hook na chamada de subagent): 18 testes; cada uma de 5 mutações no hook (nativo sempre
-      libera, effort não conferido, sem escalada, bloqueio com código 1, sem `Task`) derruba algum teste.
-      Vistos funcionando por um `acceptance-verifier` novo (base `fd35373`), por leitura do JSON e dos testes. Visto
-      também numa sessão real, em 2026-11-12: um `general-purpose` pedido em `haiku`, sem esforço, foi bloqueado com a
-      mensagem do nível `padrao`, e o `acceptance-verifier` chamado sem `model` passou. O nome da ferramenta (`Agent`)
-      e os campos `model` e `effort` do payload são os que o hook lê.
-- [x] Critério 17 (conselheiro religado no meio-termo): conferido pela sessão, não por um agent de contexto limpo:
-      `conselheiro` = `fronteira`, `model` do nível = `fable`, `advisorModel` = `fable`, `check` com 0; a rule e o
-      `README.md` dizem como desligar (`null` e `apply`).
-- [x] Critérios 15 e 16 (decisão de 2026-11-12): conselheiro desligado, verificador em `padrao`. Vistos
-      funcionando por um `acceptance-verifier` novo, com controle: o `check` sai com 1 com o frontmatter do
-      verificador em `opus` e com `advisorModel` de volta no `settings.json`. Ressalvas dele, resolvidas: a
-      tabela "Onde o Fable 5.2 entra" e os dois READMEs ainda descreviam o conselheiro como ligado. O critério 14
-      vale para quem ligar o conselheiro.
-- [x] Conferido na corrida `novo2` (2026-11-12): o Claude Code obedece ao `model:` do frontmatter. Os
-      `acceptance-verifier` rodaram em Opus e os `test-author` em Sonnet, pelo uso por modelo no transcript.
-- [ ] Não conferido: se o Claude Code obedece ao `effort:` do frontmatter; o transcript não registra o esforço. É comportamento do
-      produto; a documentação diz que sim.
+- Não conferido: se o Claude Code obedece ao `effort:` do frontmatter; o transcript não registra o esforço. O
+  `model:` foi conferido nas corridas `novo2` e `gramma`, pelo modelo de cada subagent no transcript.
